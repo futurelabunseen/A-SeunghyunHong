@@ -1,0 +1,5 @@
+Name,MaxHP,HpRegenerationRate,MovementSpeed,BaseDamage,DamageRange,DamageRadius,DamageSpeed,MaxMana,ManaRegenerationRate,BaseDefense
+Rogers,2500,4,300,25,75,100,25,200,2,50
+Katniss,1600,2,400,20,350,25,50,250,4,30
+Beast,2200,3,330,80,150,75,35,225,1,40
+Bride,1800,5,370,40,250,150,30,300,5,25

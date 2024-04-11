@@ -1,0 +1,19 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UI/GOUserWidget.h"
+#include "GOStatsBarWidget.generated.h"
+
+class UProgressBar;
+
+UCLASS()
+class GUARDIANSORDERS_API UGOStatsBarWidget : public UGOUserWidget
+{
+	GENERATED_BODY()
+	
+public:
+	UGOStatsBarWidget(const FObjectInitializer& ObjectInitializer);
+
+};
