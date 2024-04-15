@@ -24,8 +24,6 @@ protected:
 	 */
 	virtual void NativeConstruct() override;
 public:
-	void UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
-	// FORCEINLINE void SetMaxMana(float NewMaxMana) { MaxMana = NewMaxMana; }
 	void UpdateManaBar(float NewCurrentMana, float NewMaxMana);
 	FString GetManaStatText();
 

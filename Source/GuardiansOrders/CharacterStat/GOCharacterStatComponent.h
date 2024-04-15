@@ -10,11 +10,12 @@
 // Hp Delegate
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /*CurrentHp*/, float /*MaxHp*/);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatChangedDelegate, const FGOCharacterStat& /*BaseStat*/, const FGOCharacterStat& /*ModifierStat*/);
 
 // Mana Delegate
 DECLARE_MULTICAST_DELEGATE(FOnManaZeroDelegate);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnManaChangedDelegate, float /*CurrnetMana*/, float /*MaxMana*/);
+
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatChangedDelegate, const FGOCharacterStat& /*BaseStat*/, const FGOCharacterStat& /*ModifierStat*/);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOCharacterStatComponent : public UActorComponent
@@ -103,6 +104,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void ReadyForReplication() override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	void SetNewMaxHp(const FGOCharacterStat& InBaseStat, const FGOCharacterStat& InModifierStat);
 	void SetNewMaxMana(const FGOCharacterStat& InBaseStat, const FGOCharacterStat& InModifierStat);
 	void RegenerateHp();

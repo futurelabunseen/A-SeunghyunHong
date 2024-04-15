@@ -22,8 +22,6 @@ protected:
 	virtual void NativeConstruct() override;
 
 public:
-	void UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
-	// FORCEINLINE void SetMaxHp(float NewMaxHp) { MaxHp = NewMaxHp; }
 	void UpdateHpBar(float NewCurrentHp, float MaxHp);
 	FString GetHpStatText();
 

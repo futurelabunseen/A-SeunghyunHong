@@ -86,3 +86,27 @@ public:
 	}
 
 };
+
+USTRUCT()
+struct FGOCharacterStatsBarInfo
+{
+	GENERATED_BODY()
+	
+	UPROPERTY()
+	float MaxHp;
+
+	UPROPERTY()
+	float CurrentHp;
+
+	UPROPERTY()
+	float MaxMana;
+
+	UPROPERTY()
+	float CurrentMana;
+
+	void FillFrom(FGOCharacterStat& InCharacterStat)
+	{
+		MaxHp = InCharacterStat.MaxHp;
+		MaxMana = InCharacterStat.MaxMana;
+	}
+};

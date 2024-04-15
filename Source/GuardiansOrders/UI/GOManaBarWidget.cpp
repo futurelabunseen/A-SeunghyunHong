@@ -28,25 +28,11 @@ void UGOManaBarWidget::NativeConstruct()
 	}
 }
 
-void UGOManaBarWidget::UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
-{
-	MaxMana = (BaseStat + ModifierStat).MaxMana;
-	if (ManaProgressBar)
-	{
-		ManaProgressBar->SetPercent(CurrentMana / MaxMana);
-	}
-	if (ManaStat)
-	{
-		ManaStat->SetText(FText::FromString(GetManaStatText()));
-	}
-}
-
 void UGOManaBarWidget::UpdateManaBar(float NewCurrentMana, float NewMaxMana)
 {
 	CurrentMana = NewCurrentMana;
 	MaxMana = NewMaxMana;
 
-	// MaxHp = NewMaxHp;
 	ensure(MaxMana > 0.0f);
 	if (ManaProgressBar)
 	{

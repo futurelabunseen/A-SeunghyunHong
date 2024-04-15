@@ -63,17 +63,12 @@ float UGOCharacterStatComponent::UseSkill(float SkillManaCost)
 void UGOCharacterStatComponent::SetMana(float NewMana)
 {
 	CurrentMana = FMath::Clamp<float>(NewMana, 0.0f, MaxMana);
-	UE_LOG(LogTemp, Log, TEXT("SINGLE CurrentMana: %d"), CurrentMana);
-
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
 }
 
 void UGOCharacterStatComponent::SetHp(float NewHp)
 {
-	// CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
 	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
-	UE_LOG(LogTemp, Log, TEXT("SINGLE CurrentHp: %d"), CurrentHp);
-
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 }
 

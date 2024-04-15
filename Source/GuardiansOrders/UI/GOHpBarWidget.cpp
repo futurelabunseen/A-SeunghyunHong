@@ -28,29 +28,13 @@ void UGOHpBarWidget::NativeConstruct()
 	}
 }
 
-void UGOHpBarWidget::UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
-{
-	MaxHp = (BaseStat + ModifierStat).MaxHp;
-	if (HpProgressBar)
-	{
-		HpProgressBar->SetPercent(CurrentHp / MaxHp);
-	}
-	if (HpStat)
-	{
-		HpStat->SetText(FText::FromString(GetHpStatText()));
-	}
-}
-
-//void UGOHpBarWidget::UpdateHpBar(float NewCurrentHp)
+//void UGOHpBarWidget::UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
 //{
-//	CurrentHp = NewCurrentHp;
-//
-//	ensure(MaxHp > 0.0f);
+//	MaxHp = (BaseStat + ModifierStat).MaxHp;
 //	if (HpProgressBar)
 //	{
 //		HpProgressBar->SetPercent(CurrentHp / MaxHp);
 //	}
-//
 //	if (HpStat)
 //	{
 //		HpStat->SetText(FText::FromString(GetHpStatText()));
