@@ -32,3 +32,7 @@ private:
 
 
 };
+
+/*
+EGOSkillType에 따라 다르게 처리
+*/

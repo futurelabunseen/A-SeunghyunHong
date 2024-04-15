@@ -421,6 +421,7 @@ void AGOPlayerCharacter::Attack()
 
 	if (bCanAttack)
 	{
+		// 클라이언트에게 애니메이션 재생, 타이머 재생을 맡깁니다.
 		if (!HasAuthority())
 		{
 			bCanAttack = false;
@@ -437,6 +438,8 @@ void AGOPlayerCharacter::Attack()
 
 			PlayAttackAnimation();
 		}
+
+		// 서버에게 서버시간과 함께 명령을 보냅니다.
 		ServerRPCAttack(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 	}
 }
@@ -468,7 +471,10 @@ void AGOPlayerCharacter::AttackHitCheck()
 
 		bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(DamageRadius), Params);
 
+		// 공격한 시간
 		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
+
+		// 클라이언트에서 진행 (판정에 대한 검증을 받아야 하므로 패킷 전송 필요)
 		if (!HasAuthority())
 		{
 			if (HitDetected)
@@ -480,6 +486,7 @@ void AGOPlayerCharacter::AttackHitCheck()
 				ServerRPCNotifyMiss(Start, End, Forward, HitCheckTime);
 			}
 		}
+		// 서버에서 진행 (패킷 전송 필요없이 바로 처리)
 		else
 		{
 			FColor DebugColor = HitDetected ? FColor::Green : FColor::Red;
@@ -733,12 +740,13 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 	}
 }
 
-// (3) 
+// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다.
 void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 {
 	if (!IsLocallyControlled())
 	{
-		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만
+		// 현재 클라이언트는 이미 모션을 재생했으므로
+		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
 		PlayAttackAnimation();
 	}
 }

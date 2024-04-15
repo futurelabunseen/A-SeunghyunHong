@@ -199,7 +199,7 @@ protected:
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);
 	
 	/**
-	* 클라이언트가 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
+	* 클라이언트가 무언가 액터에 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
 	*/
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifyHit(const FHitResult& HitResult, float HitChecktime);
@@ -241,7 +241,7 @@ protected:
 	* 공격 판정용 변수입니다.
 	* 공격자와 피격자 사이의 거리가 3미터 이내면 공격으로, 3미터 초과 시 기각합니다.
 	*/
-	float AcceptCheckDistance = 500.0f;
+	float AcceptCheckDistance = 300.0f;
 
 	/**
 	* 판정 최소 지연 시간

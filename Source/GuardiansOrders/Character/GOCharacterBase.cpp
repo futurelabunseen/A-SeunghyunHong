@@ -45,6 +45,7 @@ AGOCharacterBase::AGOCharacterBase()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->bEnablePhysicsInteraction = false;
+	// GetCharacterMovement()->SlideAlongSurface(false);
 
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
@@ -54,44 +55,44 @@ AGOCharacterBase::AGOCharacterBase()
 	// Stat Component
 	Stat = CreateDefaultSubobject<UGOCharacterStatComponent>(TEXT("Stat"));
 
-	// Widget Component : HP
-	HpBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("HpBarWidget"));
-	HpBar->SetupAttachment(GetMesh());
-	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 230.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HpBar.WBP_HpBar_C"));
-	if (HpBarWidgetRef.Succeeded())
-	{
-		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
-		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
-		HpBar->SetDrawSize(FVector2D(130.0f, 15.0f));
-		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	// Widget Component : Mana
-	ManaBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("ManaBarWidget"));
-	ManaBar->SetupAttachment(GetMesh());
-	ManaBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> ManaBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_ManaBar.WBP_ManaBar_C"));
-	if (ManaBarWidgetRef.Succeeded())
-	{
-		ManaBar->SetWidgetClass(ManaBarWidgetRef.Class);
-		ManaBar->SetWidgetSpace(EWidgetSpace::Screen);
-		ManaBar->SetDrawSize(FVector2D(130.0f, 15.0f));
-		ManaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-
-	//// Widget Component : Stats
-	//StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
-	//StatsBar->SetupAttachment(GetMesh());
-	//StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
-	//static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_StatsBar.WBP_StatsBar_C"));
-	//if (StatsBarWidgetRef.Succeeded())
+	//// Widget Component : HP
+	//HpBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("HpBarWidget"));
+	//HpBar->SetupAttachment(GetMesh());
+	//HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 230.0f));
+	//static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HpBar.WBP_HpBar_C"));
+	//if (HpBarWidgetRef.Succeeded())
 	//{
-	//	StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
-	//	StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
-	//	StatsBar->SetDrawSize(FVector2D(130.0f, 30.0f));
-	//	StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// }
+	//	HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+	//	HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+	//	HpBar->SetDrawSize(FVector2D(130.0f, 15.0f));
+	//	HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
+
+	//// Widget Component : Mana
+	//ManaBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("ManaBarWidget"));
+	//ManaBar->SetupAttachment(GetMesh());
+	//ManaBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
+	//static ConstructorHelpers::FClassFinder<UUserWidget> ManaBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_ManaBar.WBP_ManaBar_C"));
+	//if (ManaBarWidgetRef.Succeeded())
+	//{
+	//	ManaBar->SetWidgetClass(ManaBarWidgetRef.Class);
+	//	ManaBar->SetWidgetSpace(EWidgetSpace::Screen);
+	//	ManaBar->SetDrawSize(FVector2D(130.0f, 15.0f));
+	//	ManaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
+
+	// Widget Component : Stats
+	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
+	StatsBar->SetupAttachment(GetMesh());
+	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
+	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_StatsBar.WBP_StatsBar_C"));
+	if (StatsBarWidgetRef.Succeeded())
+	{
+		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
+		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
+		StatsBar->SetDrawSize(FVector2D(130.0f, 30.0f));
+		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	 }
 }
 
 void AGOCharacterBase::PostInitializeComponents()
