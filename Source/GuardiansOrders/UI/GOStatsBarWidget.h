@@ -7,6 +7,8 @@
 #include "GOStatsBarWidget.generated.h"
 
 class UProgressBar;
+class UGOHpBarWidget;
+class UGOManaBarWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOStatsBarWidget : public UGOUserWidget
@@ -16,4 +18,13 @@ class GUARDIANSORDERS_API UGOStatsBarWidget : public UGOUserWidget
 public:
 	UGOStatsBarWidget(const FObjectInitializer& ObjectInitializer);
 
+protected:
+	virtual void NativeConstruct() override;
+
+public:
+    UPROPERTY()
+    TObjectPtr < UGOHpBarWidget> HpBar;
+
+    UPROPERTY()
+    TObjectPtr < UGOManaBarWidget> ManaBar;
 };

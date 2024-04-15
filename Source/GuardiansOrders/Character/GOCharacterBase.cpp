@@ -122,22 +122,41 @@ void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOChar
 
 void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 {
-	UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(InUserWidget);
-	if (HpBarWidget)
-	{
-		// HpBarWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
-		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
-		Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
-		// Stat->OnStatChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateStat);
-	}
+	//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(InUserWidget);
+	//if (HpBarWidget)
+	//{
+	//	// HpBarWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
+	//	HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
+	//	Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
+	//	// Stat->OnStatChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateStat);
+	//}
 
-	UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(InUserWidget);
-	if (ManaBarWidget)
+	//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(InUserWidget);
+	//if (ManaBarWidget)
+	//{
+	//	// ManaBarWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
+	//	ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
+	//	Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+	//	// Stat->OnStatChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateStat);
+	//}
+
+	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
+	if (StatsBarWidget)
 	{
-		// ManaBarWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
-		ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
-		Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
-		// Stat->OnStatChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateStat);
+		// StatsBar 위젯 안의 HP바와 마나바에 대한 참조를 가져옵니다.
+		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->HpBar);
+		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->ManaBar);
+		UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
+		UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
+		
+		if (HpBarWidget && ManaBarWidget)
+		{
+			// HP와 마나 업데이트 함수를 상태 변경 이벤트에 바인딩합니다.
+			HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
+			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
+			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
+			Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+		}
 	}
 }
 
