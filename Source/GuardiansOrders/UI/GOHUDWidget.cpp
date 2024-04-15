@@ -47,7 +47,7 @@ void UGOHUDWidget::UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharact
 {
 	FGOCharacterStat TotalStat = BaseStat + ModifierStat;
 	// HpBar->UpdateStat(BaseStat, ModifierStat);
-	ManaBar->UpdateStat(BaseStat, ModifierStat);
+	// ManaBar->UpdateStat(BaseStat, ModifierStat);
 	CharacterStat->UpdateStat(BaseStat, ModifierStat);
 }
 
