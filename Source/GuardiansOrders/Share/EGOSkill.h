@@ -8,6 +8,8 @@
 	* InstantMelee:		즉시 시전, 무기 타격
 	* EffectScope:			범위 지정, 사용자 중심 일정 반격
 	* Projectile:				발사 공격
+	* Block:			방어 기술
+	* Healing:					치유 기술
 	* Targeting:				(TODO) 타겟팅
 	* Potion:					즉시 체력 회복 20%
 	* Buff:						(TODO) 버프
@@ -20,6 +22,8 @@ enum class EGOSkillType : uint8
 	InstantMelee,
 	EffectScope UMETA(DisplayName = "EffectScope"),
 	Projectile UMETA(DisplayName = "Projectile"),
+	Block UMETA(DisplayName = "Block"),
+	Healing UMETA(DisplayName = "Healing"), 
 	Targeting UMETA(DisplayName = "Targeting"),
 	Potion UMETA(DisplayName = "Potion"),
 	Buff UMETA(DisplayName = "Buff"),
