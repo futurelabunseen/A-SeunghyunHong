@@ -28,7 +28,7 @@ public:
 	EGOSkillType Type;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill)
-	FName Name;
+	FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill)
 	FText Description;
