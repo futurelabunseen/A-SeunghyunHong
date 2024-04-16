@@ -3,6 +3,7 @@
 
 #include "Skill/GOSkillStatComponent.h"
 #include "GameData/GOGameSingleton.h"
+#include "GameData/GOGameSubsystem.h"
 
 UGOSkillStatComponent::UGOSkillStatComponent()
 {
@@ -22,8 +23,12 @@ void UGOSkillStatComponent::InitializeComponent()
 
 void UGOSkillStatComponent::SetSkillStat(int8 InNewSkillType)
 {
-	CurrentSkillType = FMath::Clamp(InNewSkillType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
-	SetBaseSkillStat(UGOGameSingleton::Get().GetSkillStat(CurrentSkillType));
+	//CurrentSkillType = FMath::Clamp(InNewSkillType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
+	//SetBaseSkillStat(UGOGameSingleton::Get().GetSkillStat(CurrentSkillType));
+
+	UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+	CurrentSkillType = FMath::Clamp(InNewSkillType, 1, GameSubsystem->SkillMaxCnt);
+	SetBaseSkillStat(GameSubsystem->GetSkillStat(CurrentSkillType));
 }
 
 void UGOSkillStatComponent::ResetSkillStat()

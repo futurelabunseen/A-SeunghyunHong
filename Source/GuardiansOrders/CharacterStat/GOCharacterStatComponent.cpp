@@ -3,6 +3,7 @@
 
 #include "GOCharacterStatComponent.h"
 #include "GameData/GOGameSingleton.h"
+#include "GameData/GOGameSubsystem.h"
 #include "Net/UnrealNetwork.h"
 #include "GuardiansOrders/GuardiansOrders.h"
 
@@ -27,8 +28,13 @@ void UGOCharacterStatComponent::InitializeComponent()
 
 void UGOCharacterStatComponent::SetCharacterStat(int8 InNewCharacterType)
 {
-	CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
-	SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
+	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
+	//SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
+
+	UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+	CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, GameSubsystem->CharacterMaxCnt);
+	SetBaseStat(GameSubsystem->GetCharacterStat(CurrentCharacterType));
+
 	check(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f);
 }
 

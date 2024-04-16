@@ -34,6 +34,7 @@ protected:
     TArray<FGOCharacterStat> CharacterStatTable;
     TArray<FGOSkillStat> SkillStatTable;
 
+public:
     int32 CharacterMaxCnt;
     int32 SkillMaxCnt;
 };
