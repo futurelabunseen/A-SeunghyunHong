@@ -11,6 +11,13 @@ UGORogersSkill01::UGORogersSkill01()
 	if (DataAsset.Succeeded())
 	{
 		SkillDataAsset = DataAsset.Object;
-		SkillStat->SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Rogers_Skill01));
-	}
+        if (SkillStat)
+        {
+            SkillStat->SetCurrentSkillType(static_cast<int8>(EGOHeroSkillType::GOSkill_Rogers_Skill01));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("SkillStat component is not initialized!"));
+        }
+    }
 }
