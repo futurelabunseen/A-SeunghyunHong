@@ -14,4 +14,7 @@ class GUARDIANSORDERS_API UGORogersSkill01 : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public: 
+	UGORogersSkill01();
+
 };

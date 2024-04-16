@@ -61,3 +61,28 @@ enum class EGOSkillCategory : uint8
 
 	Max UMETA(Hidden)
 };
+
+////////////////////////////////////////////////////////////////
+// 스킬의 타입입니다. 데이터 테이블의 순서와 일치합니다. 
+// GOSkillStatTable.csv 를 참고해주세요 
+///////////////////////////////////////////////////////////////
+
+/**
+ * 캐릭터 타입입니다.
+ * Lobby 에서 선택한 캐릭터로 Battle 에서 플레이할 수 있습니다.
+ * Rogers : 탱커/근거리/파이터
+ * Katniss : 원거리 딜러/원거리/캐리
+ * Beast : 브루저/근거리/파이터
+ * Bride : 힐러/원거리/서포터
+ */
+UENUM(BlueprintType)
+enum class EGOHeroSkillType : uint8
+{
+	None UMETA(Hidden),
+
+	GOSkill_Rogers_BaseSkill UMETA(DisplayName = "GOSkill_Rogers_BaseSkill"),
+	GOSkill_Rogers_Skill01 UMETA(DisplayName = "GOSkill_Rogers_Skill01"),
+	GOSkill_Rogers_Skill02 UMETA(DisplayName = "GOSkill_Rogers_Skill02"),
+	GOSkill_Rogers_Skill03 UMETA(DisplayName = "GOSkill_Rogers_Skill03"),
+	GOSkill_Rogers_UltimateSkill UMETA(DisplayName = "GOSkill_Rogers_UltimateSkill")
+};

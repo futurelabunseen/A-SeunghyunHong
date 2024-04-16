@@ -1,12 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Share/EGOSkill.h"
+#include "GameData/GOSkillDataAsset.h"
 #include "GOSkillBase.generated.h"
 
+class UGOSkillStatComponent;
 class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
@@ -16,15 +18,35 @@ class GUARDIANSORDERS_API UGOSkillBase : public UObject
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UGOSkillBase();
+
+	/**
+	  * Called after the C++ constructor and after the properties have been initialized, including those loaded from config.
+	  * This is called before any serialization or other setup has happened.
+	  */
+	virtual void PostInitProperties() override;
+	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
+
+	/**
+	  * 구체적인 스킬 내용
+	  */
 	virtual void Activate() {};
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	FORCEINLINE const FString& GetName() const { return Name; }
 	FORCEINLINE float GetCoolDownTime() const { return CoolDownTime; }
 	FORCEINLINE void SetCooldown() { CoolDownTimer = CoolDownTime; }
+	
+// Stat Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UGOSkillStatComponent> SkillStat;
+
+// Data Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill Data")
+	UGOSkillDataAsset* SkillDataAsset;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)

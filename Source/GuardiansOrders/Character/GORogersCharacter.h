@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/GOPlayerCharacter.h"
+#include "Skill/GORogersSkill01.h"
 #include "GORogersCharacter.generated.h"
 
 UCLASS()
@@ -24,4 +25,7 @@ public:
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
+
+protected:
+	TObjectPtr<UGORogersSkill01> GORogersSkill01;
 };
