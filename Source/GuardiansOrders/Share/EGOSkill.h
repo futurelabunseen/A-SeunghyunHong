@@ -84,5 +84,23 @@ enum class EGOHeroSkillType : uint8
 	GOSkill_Rogers_Skill01 UMETA(DisplayName = "GOSkill_Rogers_Skill01"),
 	GOSkill_Rogers_Skill02 UMETA(DisplayName = "GOSkill_Rogers_Skill02"),
 	GOSkill_Rogers_Skill03 UMETA(DisplayName = "GOSkill_Rogers_Skill03"),
-	GOSkill_Rogers_UltimateSkill UMETA(DisplayName = "GOSkill_Rogers_UltimateSkill")
+	GOSkill_Rogers_UltimateSkill UMETA(DisplayName = "GOSkill_Rogers_UltimateSkill"),
+
+	GOSkill_Katniss_BaseSkill UMETA(DisplayName = "GOSkill_Katniss_BaseSkill"),
+	GOSkill_Katniss_Skill01 UMETA(DisplayName = "GOSkill_Katniss_Skill01"),
+	GOSkill_Katniss_Skill02 UMETA(DisplayName = "GOSkill_Katniss_Skill02"),
+	GOSkill_Katniss_Skill03 UMETA(DisplayName = "GOSkill_Katniss_Skill03"),
+	GOSkill_Katniss_UltimateSkill UMETA(DisplayName = "GOSkill_Katniss_UltimateSkill"),
+
+	GOSkill_Beast_BaseSkill UMETA(DisplayName = "GOSkill_Beast_BaseSkill"),
+	GOSkill_Beast_Skill01 UMETA(DisplayName = "GOSkill_Beast_Skill01"),
+	GOSkill_Beast_Skill02 UMETA(DisplayName = "GOSkill_Beast_Skill02"),
+	GOSkill_Beast_Skill03 UMETA(DisplayName = "GOSkill_Beast_Skill03"),
+	GOSkill_Beast_UltimateSkill UMETA(DisplayName = "GOSkill_Beast_UltimateSkill"),
+
+	GOSkill_Bride_BaseSkill UMETA(DisplayName = "GOSkill_Bride_BaseSkill"),
+	GOSkill_Bride_Skill01 UMETA(DisplayName = "GOSkill_Bride_Skill01"),
+	GOSkill_Bride_Skill02 UMETA(DisplayName = "GOSkill_Bride_Skill02"),
+	GOSkill_Bride_Skill03 UMETA(DisplayName = "GOSkill_Bride_Skill03"),
+	GOSkill_Bride_UltimateSkill UMETA(DisplayName = "GOSkill_Bride_UltimateSkill")
 };
