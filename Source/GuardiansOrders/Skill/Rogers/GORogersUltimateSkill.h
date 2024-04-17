@@ -14,4 +14,7 @@ class GUARDIANSORDERS_API UGORogersUltimateSkill : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public:
+	UGORogersUltimateSkill();
+	virtual void PostInitProperties() override;
 };

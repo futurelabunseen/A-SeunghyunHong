@@ -14,4 +14,7 @@ class GUARDIANSORDERS_API UGOBeastSkill02 : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public:
+	UGOBeastSkill02();
+	virtual void PostInitProperties() override;
 };

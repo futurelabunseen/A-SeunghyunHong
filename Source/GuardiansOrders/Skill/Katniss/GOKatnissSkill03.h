@@ -14,4 +14,7 @@ class GUARDIANSORDERS_API UGOKatnissSkill03 : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public:
+	UGOKatnissSkill03();
+	virtual void PostInitProperties() override;
 };

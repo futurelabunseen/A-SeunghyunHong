@@ -14,4 +14,7 @@ class GUARDIANSORDERS_API UGOBrideUltimateSkill : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public:
+	UGOBrideUltimateSkill();
+	virtual void PostInitProperties() override;
 };

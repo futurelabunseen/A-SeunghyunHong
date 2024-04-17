@@ -14,4 +14,8 @@ class GUARDIANSORDERS_API UGORogersSkill03 : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
+public:
+	UGORogersSkill03();
+	virtual void PostInitProperties() override;
+
 };
