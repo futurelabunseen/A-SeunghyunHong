@@ -29,6 +29,7 @@ public:
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
 
+// Skill Section
 protected:
 	/** Q Skill */
 	TObjectPtr<UGORogersSkill01> GORogersSkill01;

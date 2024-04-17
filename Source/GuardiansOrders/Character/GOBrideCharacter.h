@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GOPlayerCharacter.h"
+#include "Skill/Bride/GOBrideSkill01.h"
+#include "Skill/Bride/GOBrideSkill02.h"
+#include "Skill/Bride/GOBrideSkill03.h"
+#include "Skill/Bride/GOBrideUltimateSkill.h"
 #include "GOBrideCharacter.generated.h"
 
 UCLASS()
@@ -24,4 +28,18 @@ public:
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
+
+// Skill Section
+protected:
+	/** Q Skill */
+	TObjectPtr<UGOBrideSkill01> UGOBrideSkill01;
+
+	/** W Skill */
+	TObjectPtr<UGOBrideSkill02> UGOBrideSkill02;
+
+	/** E Skill */
+	TObjectPtr<UGOBrideSkill03> UGOBrideSkill03;
+
+	/** R Skill */
+	TObjectPtr<UGOBrideUltimateSkill> UGOBrideUltimateSkill;
 };

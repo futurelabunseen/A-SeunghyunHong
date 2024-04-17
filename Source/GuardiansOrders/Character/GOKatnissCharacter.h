@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/GOPlayerCharacter.h"
+#include "Skill/Katniss/GOKatnissSkill01.h"
+#include "Skill/Katniss/GOKatnissSkill02.h"
+#include "Skill/Katniss/GOKatnissSkill03.h"
+#include "Skill/Katniss/GOKatnissUltimateSkill.h"
 #include "GOKatnissCharacter.generated.h"
 
 UCLASS()
@@ -24,5 +28,19 @@ public:
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
+
+// Skill Section
+protected:
+	/** Q Skill */
+	TObjectPtr<UGOKatnissSkill01> GOKatnissSkill01;
+
+	/** W Skill */
+	TObjectPtr<UGOKatnissSkill02> GOKatnissSkill02;
+
+	/** E Skill */
+	TObjectPtr<UGOKatnissSkill03> GOKatnissSkill03;
+
+	/** R Skill */
+	TObjectPtr<UGOKatnissUltimateSkill> GOKatnissUltimateSkill;
 };
 
