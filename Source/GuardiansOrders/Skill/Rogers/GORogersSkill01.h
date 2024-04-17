@@ -16,4 +16,6 @@ class GUARDIANSORDERS_API UGORogersSkill01 : public UGOSkillBase
 	
 public: 
 	UGORogersSkill01();
+	virtual void PostInitProperties() override;
+
 };

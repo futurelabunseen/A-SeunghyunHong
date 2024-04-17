@@ -60,7 +60,7 @@ void AGORogersCharacter::BeginPlay()
 	if (GORogersSkill01)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 Name: %s"), *GORogersSkill01->Name);
-		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 DamageMultiplier: %f"), GORogersSkill01->DamageMultiplier);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 DamageMultiplier: %f"), GORogersSkill01->GetTotalSkillStat().DamageMultiplier);
 	}
 	else
 	{
