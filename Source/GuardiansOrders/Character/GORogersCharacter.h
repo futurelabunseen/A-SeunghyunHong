@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Character/GOPlayerCharacter.h"
-#include "Skill/GORogersSkill01.h"
+#include "Skill/Rogers/GORogersSkill01.h"
+#include "Skill/Rogers/GORogersSkill02.h"
+#include "Skill/Rogers/GORogersSkill03.h"
+#include "Skill/Rogers/GORogersUltimateSkill.h"
 #include "GORogersCharacter.generated.h"
 
 UCLASS()
@@ -27,5 +30,15 @@ public:
 	virtual void OnSkillR() override;
 
 protected:
+	/** Q Skill */
 	TObjectPtr<UGORogersSkill01> GORogersSkill01;
+
+	/** W Skill */
+	TObjectPtr<UGORogersSkill02> GORogersSkill02;
+
+	/** E Skill */
+	TObjectPtr<UGORogersSkill03> GORogersSkill03;
+
+	/** R Skill */
+	TObjectPtr<UGORogersUltimateSkill> GORogersUltimateSkill;
 };

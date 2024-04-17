@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GORogersCharacter.h"
@@ -13,7 +13,34 @@ AGORogersCharacter::AGORogersCharacter()
 	{
 		HeroDataAsset = DataAsset.Object;
 		Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Rogers));
-		// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
+	}
+
+	// GORogersSkill01 객체 생성
+	GORogersSkill01 = CreateDefaultSubobject<UGORogersSkill01>(TEXT("GORogersSkill01"));
+	if (!GORogersSkill01)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill01"));
+	}
+
+	// GORogersSkill02 객체 생성
+	GORogersSkill02 = CreateDefaultSubobject<UGORogersSkill02>(TEXT("GORogersSkill02"));
+	if (!GORogersSkill02)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill02"));
+	}
+
+	// GORogersSkill03 객체 생성
+	GORogersSkill03 = CreateDefaultSubobject<UGORogersSkill03>(TEXT("GORogersSkill03"));
+	if (!GORogersSkill03)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill03"));
+	}
+
+	// GORogersUltimateSkill 객체 생성
+	GORogersUltimateSkill = CreateDefaultSubobject<UGORogersUltimateSkill>(TEXT("GORogersUltimateSkill"));
+	if (!GORogersUltimateSkill)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersUltimateSkill"));
 	}
 }
 
@@ -30,6 +57,16 @@ void AGORogersCharacter::Tick(float DeltaTime)
 void AGORogersCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (GORogersSkill01)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 Name: %s"), *GORogersSkill01->Name);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 DamageMultiplier: %f"), GORogersSkill01->DamageMultiplier);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GORogersSkill01 is not initialized!"));
+	}
+	
 }
 
 void AGORogersCharacter::OnSkillQ()

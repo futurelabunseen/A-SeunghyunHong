@@ -23,6 +23,8 @@ protected:
 public:
 	FORCEINLINE void SetCurrentSkillType(const float InTypeNumber) { CurrentSkillType = InTypeNumber; }
 	FORCEINLINE void SetBaseSkillStat(const FGOSkillStat& InBaseSkillStat) { BaseSkillStat = InBaseSkillStat; }
+	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return BaseSkillStat; }
+
 	void SetSkillStat(int8 InNewSkillType);
 	void ResetSkillStat();
 

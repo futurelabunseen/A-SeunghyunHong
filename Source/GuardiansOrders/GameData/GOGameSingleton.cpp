@@ -28,7 +28,7 @@ UGOGameSingleton::UGOGameSingleton()
 	ensure(CharacterMaxCnt > 0);
 
 	// Skill stat
-	static ConstructorHelpers::FObjectFinder<UDataTable> SkillStatDataTableRef(TEXT("/Script/Engine.DataTable'/Game/GameData/SkillDataTable/GOSkillStatTable.GOSkillStatTable'"));
+	static ConstructorHelpers::FObjectFinder<UDataTable> SkillStatDataTableRef(TEXT("/Script/Engine.DataTable'/Game/GameData/SkillDataTable/GOSkillStatDataTable.GOSkillStatDataTable'"));
 	if (nullptr != SkillStatDataTableRef.Object)
 	{
 		const UDataTable* DataTable = SkillStatDataTableRef.Object;

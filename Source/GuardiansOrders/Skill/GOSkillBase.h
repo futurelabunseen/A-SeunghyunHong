@@ -20,11 +20,6 @@ class GUARDIANSORDERS_API UGOSkillBase : public UObject
 
 public:
 	UGOSkillBase();
-
-	/**
-	  * Called after the C++ constructor and after the properties have been initialized, including those loaded from config.
-	  * This is called before any serialization or other setup has happened.
-	  */
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
 
@@ -40,15 +35,14 @@ public:
 	
 // Stat Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UGOSkillStatComponent> SkillStat;
+
 
 // Data Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill Data")
 	UGOSkillDataAsset* SkillDataAsset;
 
-private:
+public:
 	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
 	FString Name;	
 	

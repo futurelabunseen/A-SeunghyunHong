@@ -4,17 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Skill/GOSkillBase.h"
-#include "GORogersSkill01.generated.h"
+#include "GORogersSkill02.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GUARDIANSORDERS_API UGORogersSkill01 : public UGOSkillBase
+class GUARDIANSORDERS_API UGORogersSkill02 : public UGOSkillBase
 {
 	GENERATED_BODY()
 	
-public: 
-	UGORogersSkill01();
-
 };
