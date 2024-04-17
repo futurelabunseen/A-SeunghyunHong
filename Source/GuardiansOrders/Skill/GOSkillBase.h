@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "Share/EGOSkill.h"
 #include "GameData/GOSkillDataAsset.h"
+#include "GameData/GOSkillStat.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -34,7 +35,23 @@ public:
 	FORCEINLINE void SetCooldown() { CoolDownTimer = CoolDownTime; }
 	
 // Stat Section
+public:
+	FORCEINLINE void SetCurrentSkillType(const float InTypeNumber) { CurrentSkillType = InTypeNumber; }
+	FORCEINLINE void SetSkillStat(const FGOSkillStat& InSkillStat) { SkillStat = InSkillStat; }
+	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return SkillStat; }
+
+	void SetSkillStat(int8 InNewSkillType);
+	void ResetSkillStat();
+
+private:
+	void InitializeSkillStats();
+
 protected:
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	float CurrentSkillType;
+
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = SkillStat)
+	FGOSkillStat SkillStat;
 
 
 // Data Section
