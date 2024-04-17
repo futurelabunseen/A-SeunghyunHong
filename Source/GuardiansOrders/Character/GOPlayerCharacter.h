@@ -21,6 +21,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USplineComponent;
 class UGOHUDWidget;
+class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
@@ -84,6 +85,9 @@ protected:
 	// Input-Skill
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> HeroSkillMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionBaseSkill;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ActionSkillQ;
@@ -156,6 +160,14 @@ protected:
 
 // Skill Section
 protected:
+	// My Skill System
+	
+	// Skill Cast Component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UGOSkillCastComponent* SkillCastComponent;
+
+	// Multiplayer lecture
+
 	/**
 	* 채널이 활성화되는 시작부터 끝까지 프로퍼티 리플리케이션이 활성화됩니다.
 	*/

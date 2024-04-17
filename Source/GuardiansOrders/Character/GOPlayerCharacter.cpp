@@ -92,6 +92,12 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 		HeroSkillMappingContext = SkillInputMappingContextRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionBaseSkillRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_BaseSkill.IA_BaseSkill'"));
+	if (nullptr != InputActionBaseSkillRef.Object)
+	{
+		ActionBaseSkill = InputActionBaseSkillRef.Object;
+	}
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSkillQRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_SkillQ.IA_SkillQ'"));
 	if (nullptr != InputActionSkillQRef.Object)
 	{
@@ -123,6 +129,9 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 	}
 
 	bCanAttack = true;
+
+	// Skill Cast Component
+	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 
 	// Character State Init
 	ActionStateBitMask = EGOPlayerActionState::None;
@@ -252,6 +261,7 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Completed, this, &AGOPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Canceled, this, &AGOPlayerCharacter::OnSetDestinationReleased);
 
+		EnhancedInputComponent->BindAction(ActionBaseSkill, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
 		// EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillQ);
 		EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
