@@ -7,6 +7,7 @@
 #include "UI/GOManaBarWidget.h"
 #include "UI/GOHUDWidget.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
+#include "Skill/GOSkillCastComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
