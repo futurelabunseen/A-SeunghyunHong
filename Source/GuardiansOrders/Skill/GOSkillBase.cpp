@@ -23,6 +23,13 @@ void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
+bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
+{
+	// CastingTimeLeft -= DeltaTime;
+	// return CastingTimeLeft <= 0.0f;
+	return true;
+}
+
 void UGOSkillBase::SetSkillStat(int8 InNewSkillType)
 {
 }
