@@ -8,18 +8,23 @@ AGOBeastCharacter::AGOBeastCharacter()
 {
 	bReplicates = true;
 
-	static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Beast.GOHero_Beast"));
-	if (DataAsset.Succeeded())
-	{
-		HeroDataAsset = DataAsset.Object;
-		Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Beast));
-		// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
-	}
+	//FName CharacterName = FName(TEXT("Beast"));
+
+	//static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Beast.GOHero_Beast"));
+	//if (DataAsset.Succeeded())
+	//{
+	//	HeroDataAsset = DataAsset.Object;
+	//	Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Beast));
+	//	// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
+	//}
 }
 
 void AGOBeastCharacter::PostInitializeComponents()
 {
+
 	Super::PostInitializeComponents();
+	SetData(FName(TEXT("Beast")));
+
 }
 
 void AGOBeastCharacter::Tick(float DeltaTime)

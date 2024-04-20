@@ -8,18 +8,19 @@ AGOKatnissCharacter::AGOKatnissCharacter()
 {
 	bReplicates = true;
 
-	static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Katniss.GOHero_Katniss"));
-	if (DataAsset.Succeeded())
-	{
-		HeroDataAsset = DataAsset.Object;
-		Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Katniss));
-		// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
-	}
+	//static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Katniss.GOHero_Katniss"));
+	//if (DataAsset.Succeeded())
+	//{
+	//	HeroDataAsset = DataAsset.Object;
+	//	Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Katniss));
+	//	// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
+	//}
 }
 
 void AGOKatnissCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	SetData(FName(TEXT("Katniss")));
 }
 
 void AGOKatnissCharacter::Tick(float DeltaTime)
