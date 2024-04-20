@@ -62,6 +62,31 @@ enum class EGOSkillCategory : uint8
 	Max UMETA(Hidden)
 };
 
+UENUM(BlueprintType)
+enum class ESkillTriggerType : uint8
+{
+	None UMETA(Hidden),
+
+	Target UMETA(DisplayName = "Target"),
+	NonTargetDirection UMETA(DisplayName = "NonTargetDirection"),
+	NonTargetRange UMETA(DisplayName = "NonTargetRange"),
+
+	Max UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
+enum class ESkillAffectType : uint8
+{
+	None UMETA(Hidden),
+
+	Damage UMETA(DisplayName = "Damage"),
+	Block UMETA(DisplayName = "Block"),
+	Heal UMETA(DisplayName = "Heal"),
+	Buff UMETA(DisplayName = "Buff"),
+
+	Max UMETA(Hidden)
+};
+
 ////////////////////////////////////////////////////////////////
 // 스킬의 타입입니다. 데이터 테이블의 순서와 일치합니다. 
 // GOSkillStatTable.csv 를 참고해주세요 
