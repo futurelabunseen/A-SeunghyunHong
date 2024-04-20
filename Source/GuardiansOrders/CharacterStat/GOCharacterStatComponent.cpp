@@ -15,27 +15,59 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 
 	// 액터 컴포넌트 리플리케이트
 	SetIsReplicated(true);
+
+	ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataObj(TEXT("DataTable'/Game/GameData/CharacterStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
+	if (CharacterStatDataObj.Succeeded())
+	{
+		CharacterStatDataTable = CharacterStatDataObj.Object;
+	}
 }
 
 void UGOCharacterStatComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-	ResetStat();
+	// ResetStat();
 
 	OnStatChanged.AddUObject(this, &UGOCharacterStatComponent::SetNewMaxHp);
 	OnStatChanged.AddUObject(this, &UGOCharacterStatComponent::SetNewMaxMana);
 }
 
-void UGOCharacterStatComponent::SetCharacterStat(int8 InNewCharacterType)
+void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 {
+	static const FString ContextString(TEXT("Character Stat Data Lookup"));
+	if (!CharacterStatDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CharacterStatDataTable is not initialized."));
+		return;
+	}
+	FGOCharacterStat* CharacterStatDataRow = CharacterStatDataTable->FindRow<FGOCharacterStat>(InCharacterName, ContextString);
+	if (CharacterStatDataRow)
+	{
+		SetBaseStat(*CharacterStatDataRow);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
+	}
 	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
 	//SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
 
-	UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
-	CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, GameSubsystem->CharacterMaxCnt);
-	SetBaseStat(GameSubsystem->GetCharacterStat(CurrentCharacterType));
-
-	check(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f);
+	//UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+	//if (!GameSubsystem)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("GameSubsystem이 유효하지 않습니다."));
+	//	return;
+	//}
+	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, GameSubsystem->CharacterMaxCnt);
+	//SetBaseStat(GameSubsystem->GetCharacterStat(CurrentCharacterType));
+	//if (!(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f))
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Character stats for type %d are not initialized properly."), CurrentCharacterType);
+	//	// Set default or fallback values
+	//	BaseStat.MaxHp = 100.0f;  // Default value if not set
+	//	BaseStat.MaxMana = 100.0f;  // Default value if not set
+	//}
+	//check(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f);
 }
 
 float UGOCharacterStatComponent::ApplyDamage(float InDamage)
@@ -82,6 +114,7 @@ void UGOCharacterStatComponent::BeginPlay()
 {
 	GO_SUBLOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::BeginPlay();
+	ResetStat();
 	GetWorld()->GetTimerManager().SetTimer(ManaRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateMana, 1.0f, true, 1.0f);
 	GetWorld()->GetTimerManager().SetTimer(HpRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateHp, 1.0f, true, 1.0f);
 }
@@ -190,7 +223,7 @@ void UGOCharacterStatComponent::OnRep_MaxMana()
 
 void UGOCharacterStatComponent::ResetStat()
 {
-	SetCharacterStat(CurrentCharacterType);
+	// SetCharacterStat(CurrentCharacterType);
 	MaxHp = BaseStat.MaxHp;
 	MaxMana = BaseStat.MaxMana;
 	SetHp(MaxHp);

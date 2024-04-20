@@ -9,12 +9,23 @@
 
 UGOSkillBase::UGOSkillBase()
 {
+	ConstructorHelpers::FObjectFinder<UDataTable> SkillDataObj(TEXT("DataTable'/Game/GameData/SkillDataTable/GOSkillDataTable.GOSkillDataTable'"));
+	if (SkillDataObj.Succeeded())
+	{
+		SkillDataTable = SkillDataObj.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> SkillStatDataObj(TEXT("DataTable'/Game/GameData/SkillStatDataTable/GOSkillStatDataTable.GOSkillStatDataTable'"));
+	if (SkillStatDataObj.Succeeded())
+	{
+		SkillStatDataTable = SkillStatDataObj.Object;
+	}
 }
 
 void UGOSkillBase::PostInitProperties()
 {
 	Super::PostInitProperties();
-	InitializeSkillStats();
+	// InitializeSkillStats();
 
 }
 
@@ -30,13 +41,13 @@ bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
 	return true;
 }
 
-void UGOSkillBase::SetSkillStat(int8 InNewSkillType)
-{
-}
-
-void UGOSkillBase::ResetSkillStat()
-{
-}
+//void UGOSkillBase::SetSkillStat(int8 InNewSkillType)
+//{
+//}
+//
+//void UGOSkillBase::ResetSkillStat()
+//{
+//}
 
 void UGOSkillBase::InitializeSkillStats()
 {
@@ -53,13 +64,40 @@ void UGOSkillBase::InitializeSkillStats()
 	}
 
 	// 게임 서브시스템에서 스킬 타입에 맞는 스킬 스탯을 검색하고 설정
-	if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
+	//if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
+	//{
+	//	UGOGameSubsystem* GameSubsystem = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	//	if (GameSubsystem)
+	//	{
+	//		SkillStat = GameSubsystem->GetSkillStat(CurrentSkillType);
+	//		SetSkillStat(SkillStat);
+	//	}
+	//}
+}
+
+void UGOSkillBase::Set(FName InSkillName)
+{
+	if (!SkillDataTable)
 	{
-		UGOGameSubsystem* GameSubsystem = GameInstance->GetSubsystem<UGOGameSubsystem>();
-		if (GameSubsystem)
+		UE_LOG(LogTemp, Warning, TEXT("SkillDataTable is not set for this skill base class."));
+		return;
+	}
+
+	FGOSkillData* SkillDataRow = SkillDataTable->FindRow<FGOSkillData>(InSkillName, TEXT(""), true);
+	if (SkillDataRow)
+	{
+		// 데이터 테이블에서 찾은 데이터로 멤버 변수를 설정합니다.
+		SkillData = *SkillDataRow;
+
+		// 스킬 스탯 설정
+		FGOSkillStat* SkillStatRow = SkillStatDataTable->FindRow<FGOSkillStat>(SkillDataRow->SkillStatName, TEXT(""), true);
+		if (SkillStatRow)
 		{
-			SkillStat = GameSubsystem->GetSkillStat(CurrentSkillType);
-			SetSkillStat(SkillStat);
+			SkillStat = *SkillStatRow;
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Skill data not found for name: %s"), *InSkillName.ToString());
 	}
 }

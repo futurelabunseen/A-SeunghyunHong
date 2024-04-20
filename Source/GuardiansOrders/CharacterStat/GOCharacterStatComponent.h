@@ -39,7 +39,8 @@ public:
 
 	FOnStatChangedDelegate OnStatChanged;
 
-	void SetCharacterStat(int8 InNewCharacterType);
+	//void SetCharacterStat(int8 InNewCharacterType);
+	void SetCharacterStat(FName InCharacterName);
 	FORCEINLINE void SetCurrentCharacterType(const float InTypeNumber) { CurrentCharacterType = InTypeNumber; }
 	FORCEINLINE float GetCurrentCharacterType() const { return CurrentCharacterType; }
 	
@@ -64,6 +65,9 @@ public:
 	void SetMana(float NewMana);
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UDataTable* CharacterStatDataTable;
+
 	// called when hp is changed
 	void SetHp(float NewHp);
 

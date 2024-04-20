@@ -163,8 +163,8 @@ protected:
 	// My Skill System
 	
 	// Skill Cast Component
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UGOSkillCastComponent* SkillCastComponent;
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UGOSkillCastComponent* SkillCastComponent;*/
 
 	// Multiplayer lecture
 

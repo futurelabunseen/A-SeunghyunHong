@@ -7,6 +7,9 @@
 #include "Share/EGOSkill.h"
 #include "GameData/GOSkillDataAsset.h"
 #include "GameData/GOSkillStat.h"
+
+#include "GameData/GOSkillData.h"
+
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -73,8 +76,8 @@ public:
 	FORCEINLINE void SetSkillStat(const FGOSkillStat& InSkillStat) { SkillStat = InSkillStat; }
 	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return SkillStat; }
 
-	void SetSkillStat(int8 InNewSkillType);
-	void ResetSkillStat();
+	//void SetSkillStat(int8 InNewSkillType);
+	//void ResetSkillStat();
 
 private:
 	void InitializeSkillStats();
@@ -86,10 +89,25 @@ protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = SkillStat)
 	FGOSkillStat SkillStat;
 
+	UPROPERTY(VisibleInstanceOnly, Category = SkillData)
+	FGOSkillData SkillData;
+
 // Data Section
-protected:
+public:
+	// 스킬 데이터를 설정하는 함수입니다.
+	UFUNCTION(BlueprintCallable, Category = "Data set")
+	void Set(FName InSkillName);
+
+	// 스킬 데이터 테이블 참조입니다.
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
+	UDataTable* SkillDataTable;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
+	UDataTable* SkillStatDataTable;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill Data")
-	UGOSkillDataAsset* SkillDataAsset;
+	UGOSkillDataAsset* SkillDataAsset;	
+	
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
@@ -112,8 +130,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = SkillSetting)
 	TObjectPtr <UNiagaraSystem> VFX;
-
-	// TODO: SFX
 
 	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
 	//float DamageMultiplier = 0;

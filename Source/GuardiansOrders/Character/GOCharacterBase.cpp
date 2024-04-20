@@ -6,6 +6,7 @@
 #include "UI/GOStatsBarWidget.h"
 #include "UI/GOHpBarWidget.h"
 #include "UI/GOManaBarWidget.h"
+#include "Skill/GOSkillCastComponent.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -81,7 +82,6 @@ AGOCharacterBase::AGOCharacterBase()
 	//	ManaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//}
 
-	// Widget Component : Stats
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
@@ -93,12 +93,31 @@ AGOCharacterBase::AGOCharacterBase()
 		StatsBar->SetDrawSize(FVector2D(130.0f, 30.0f));
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	 }
+
+	ConstructorHelpers::FObjectFinder<UDataTable> CharacterDataObj(TEXT("DataTable'/Game/GameData/CharacterDataTable/GOCharacterDataTable.GOCharacterDataTable'"));
+	if (CharacterDataObj.Succeeded())
+	{
+		CharacterDataTable = CharacterDataObj.Object;
+	}	
+	
+	//ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataObj(TEXT("DataTable'/Game/GameData/CharacterStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
+	//if (CharacterStatDataObj.Succeeded())
+	//{
+	//	CharacterStatDataTable = CharacterStatDataObj.Object;
+	//}
+
+	SkillQ = nullptr;
+	SkillW = nullptr;
+	SkillE = nullptr;
+	SkillR = nullptr;
+
+	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 }
 
 void AGOCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
+	// GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	Stat->OnHpZero.AddUObject(this, &AGOCharacterBase::SetDead);
 	Stat->OnStatChanged.AddUObject(this, &AGOCharacterBase::ApplyStat);
 	Stat->OnManaZero.AddUObject(this, &AGOCharacterBase::NoMana);
@@ -112,6 +131,87 @@ void AGOCharacterBase::Tick(float DeltaTime)
 void AGOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AGOCharacterBase::SetData(FName InCharacterName)
+{
+	// Character Data Lookup
+	static const FString ContextString(TEXT("Character Data Lookup"));
+
+	FGOCharacterData* CharacterDataRow = CharacterDataTable->FindRow<FGOCharacterData>(InCharacterName, ContextString, true);
+	if (CharacterDataRow)
+	{
+		CharacterData = *CharacterDataRow;
+
+		// SetCharacterStatData(InCharacterName);
+		if (Stat)
+		{
+			Stat->SetCharacterStat(InCharacterName);
+		}
+
+		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
+		SetSkillDataW(CharacterData.DefaultSkillNameW);
+		SetSkillDataE(CharacterData.DefaultSkillNameE);
+		SetSkillDataR(CharacterData.DefaultSkillNameR);
+
+		GetMesh()->SetSkeletalMesh(CharacterData.SkeletalMesh);
+		GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
+		
+		GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
+	}
+}
+
+void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
+{
+	// Character Stat Data Lookup
+	static const FString ContextString(TEXT("Character Stat Data Lookup"));
+
+	if (!CharacterStatDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CharacterStatDataTable is not initialized."));
+		return;
+	}
+
+	FGOCharacterStat* CharacterStatDataRow = CharacterStatDataTable->FindRow<FGOCharacterStat>(InCharacterName, ContextString, true);
+	if (CharacterStatDataRow)
+	{
+		CharacterStat = *CharacterStatDataRow;
+
+		// StatComponent Ã³¸®
+		Stat->SetBaseStat(CharacterStat);
+	}
+}
+
+void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
+{
+	if (SkillQ)
+	{
+		SkillQ->Set(InSkillName);
+	}
+}
+
+void AGOCharacterBase::SetSkillDataW(FName InSkillName)
+{
+	if (SkillW)
+	{
+		SkillW->Set(InSkillName);
+	}
+}
+
+void AGOCharacterBase::SetSkillDataE(FName InSkillName)
+{
+	if (SkillE)
+	{
+		SkillE->Set(InSkillName);
+	}
+}
+
+void AGOCharacterBase::SetSkillDataR(FName InSkillName)
+{
+	if (SkillR)
+	{
+		SkillR->Set(InSkillName);
+	}
 }
 
 void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
@@ -213,8 +313,11 @@ void AGOCharacterBase::SetDead()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
 	SetActorEnableCollision(false);
-	HpBar->SetHiddenInGame(true);
-	ManaBar->SetHiddenInGame(true);
+    if (HpBar) // Ensure HpBar is not null
+        HpBar->SetHiddenInGame(true);
+    
+    if (ManaBar) // Ensure ManaBar is not null
+        ManaBar->SetHiddenInGame(true);
 	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	//if (PlayerController)
 	//{

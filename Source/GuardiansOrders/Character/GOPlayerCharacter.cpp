@@ -132,7 +132,7 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 	bCanAttack = true;
 
 	// Skill Cast Component
-	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
+	// SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 
 	// Character State Init
 	ActionStateBitMask = EGOPlayerActionState::None;
@@ -612,10 +612,18 @@ void AGOPlayerCharacter::ResetPlayer()
 		AnimInstance->StopAllMontages(0.0f);
 	}
 	// Stat->SetCharacterStat(1);
-	Stat->ResetStat();
+	if (Stat)
+	{
+		Stat->ResetStat();
+	}
+
 	SetActorEnableCollision(true);
-	HpBar->SetHiddenInGame(false);
-	ManaBar->SetHiddenInGame(false);
+
+	if (HpBar) // Ensure HpBar is not null
+		HpBar->SetHiddenInGame(false);
+
+	if (ManaBar) // Ensure ManaBar is not null
+		ManaBar->SetHiddenInGame(false);
 
 	if (HasAuthority())
 	{
