@@ -50,6 +50,27 @@ public:
 	  */
 	void OnInterruptCast();
 
+protected:
+	/**
+	  * 타겟 스킬 처리 로직
+	  */
+	void HandleTargetSkill(UGOSkillBase* Skill);
+	
+	/**
+	  * 자동 타겟 스킬 처리 로직
+	  */
+	void HandleAutoTargetSkill(UGOSkillBase* Skill);
+	
+	/**
+	  * 방향성 스킬 처리 로직
+	  */
+	void HandleDirectionalSkill(UGOSkillBase* Skill);
+	
+	/**
+	  * 범위 스킬 처리 로직
+	  */
+	void HandleAreaOfEffectSkill(UGOSkillBase* Skill);
+
 private:
 	bool bIsCastable = false;
 

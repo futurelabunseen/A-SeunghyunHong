@@ -369,6 +369,38 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 }
 
+void AGOPlayerCharacter::OnSkillQ()
+{
+	if (SkillCastComponent && SkillQ)
+	{
+		SkillCastComponent->OnStartCast(SkillQ);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillW()
+{
+	if (SkillCastComponent && SkillW)
+	{
+		SkillCastComponent->OnStartCast(SkillW);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillE()
+{
+	if (SkillCastComponent && SkillE)
+	{
+		SkillCastComponent->OnStartCast(SkillE);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillR()
+{
+	if (SkillCastComponent && SkillR)
+	{
+		SkillCastComponent->OnStartCast(SkillR);
+	}
+}
+
 void AGOPlayerCharacter::OnSkillF()
 {
 	Stat->HealHp();
@@ -428,6 +460,12 @@ void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 void AGOPlayerCharacter::Attack()
 {
+	// Test
+	if (SkillCastComponent && SkillQ)
+	{
+		SkillCastComponent->OnStartCast(SkillQ);
+	}
+
 	// ProcessComboCommand();
 
 	if (bCanAttack)
