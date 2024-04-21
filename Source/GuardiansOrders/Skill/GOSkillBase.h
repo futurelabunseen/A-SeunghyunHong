@@ -20,7 +20,7 @@ class UNiagaraSystem;
  /*
    * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
    */
-UCLASS()
+UCLASS(BlueprintType)
 class GUARDIANSORDERS_API UGOSkillBase : public UObject
 {
 	GENERATED_BODY()
@@ -62,11 +62,6 @@ public:
 	virtual void ActivateEffect() {};
 
 public:
-	bool ReduceCastingTime(float DeltaTime);
-
-	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE void SetCoolDownTime() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE float GetCastingTime() { return GetTotalSkillStat().CastingTime; }
 
 // Stat & Data Section
 public:
@@ -74,6 +69,14 @@ public:
 	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return SkillStat; }
 	FORCEINLINE FGOSkillData GetTotalSkillData() const { return SkillData; }
 	//void ResetSkillStat();
+
+	bool ReduceCastingTime(float DeltaTime);
+	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolDownTime; }
+	FORCEINLINE void SetCoolDownTime() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
+	FORCEINLINE float GetCastingTime() { return GetTotalSkillStat().CastingTime; }
+
+	FORCEINLINE ESkillTriggerType GetSkillTriggerType() const { return GetTotalSkillData().SkillTriggerType; }
+	FORCEINLINE ESkillAffectType GetSkillAffectType() const { return GetTotalSkillData().SkillAffectType; }
 
 protected:
 

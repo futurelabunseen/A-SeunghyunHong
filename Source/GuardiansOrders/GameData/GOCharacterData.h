@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" 
 #include "GOCharacterStat.h"
+#include "Skill/GOSkillBase.h"
 #include "GOCharacterData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -27,7 +28,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TObjectPtr<class UGOSkillBase> SkillQ;
+	TObjectPtr<UGOSkillBase> SkillQ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TObjectPtr<UGOSkillBase> SkillW;
