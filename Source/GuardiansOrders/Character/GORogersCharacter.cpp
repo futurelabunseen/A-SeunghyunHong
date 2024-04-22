@@ -23,16 +23,16 @@ void AGORogersCharacter::Tick(float DeltaTime)
 void AGORogersCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (SkillQ)
+
+	if (SkillQInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ Name: %s"), *SkillQ->GetTotalSkillData().SkillName);
-		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ DamageMultiplier: %f"), SkillQ->GetTotalSkillStat().DamageMultiplier);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ Name: %s"), *SkillQInstance->GetTotalSkillData().SkillName);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ DamageMultiplier: %f"), SkillQInstance->GetTotalSkillStat().DamageMultiplier);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("GORogersSkill01 is not initialized!"));
 	}
-	
 }
 
 void AGORogersCharacter::OnSkillQ()

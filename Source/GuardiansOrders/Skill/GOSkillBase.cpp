@@ -39,7 +39,7 @@ bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
 	return true;
 }
 
-void UGOSkillBase::Set(FName InSkillName)
+void UGOSkillBase::InitializeSkill(FName InSkillName)
 {
 	if (!SkillDataTable)
 	{
@@ -64,4 +64,6 @@ void UGOSkillBase::Set(FName InSkillName)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Skill data not found for name: %s"), *InSkillName.ToString());
 	}
+
+
 }
