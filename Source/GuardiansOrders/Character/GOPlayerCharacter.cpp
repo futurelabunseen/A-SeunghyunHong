@@ -195,14 +195,14 @@ void AGOPlayerCharacter::PossessedBy(AController* NewController)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 
 	AActor* OwnerActor = GetOwner();
-	if (OwnerActor)
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner YES1: %s"), *OwnerActor->GetName());
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner NO1: %s"), TEXT("No Owner"));
-	}
+	//if (OwnerActor)
+	//{
+	//	GO_LOG(LogGONetwork, Log, TEXT("Owner YES1: %s"), *OwnerActor->GetName());
+	//}
+	//else
+	//{
+	//	GO_LOG(LogGONetwork, Log, TEXT("Owner NO1: %s"), TEXT("No Owner"));
+	//}
 
 	Super::PossessedBy(NewController);
 	
@@ -269,6 +269,10 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
 		EnhancedInputComponent->BindAction(ActionSkillF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillF);
+
+		UE_LOG(LogTemp, Log, TEXT("SetupPlayerInputComponent done"));
+		EnhancedInputComponent->Activate();
+
 	}
 }
 
@@ -289,6 +293,8 @@ void AGOPlayerCharacter::MoveGamePad(const FInputActionValue& Value)
 
 void AGOPlayerCharacter::OnInputStarted()
 {
+	UE_LOG(LogTemp, Log, TEXT("MouseAndKeyboard 0"));
+
 	if (InputSubsystem->GetCurrentInputType() == ECommonInputType::MouseAndKeyboard)
 	{
 		UE_LOG(LogTemp, Log, TEXT("MouseAndKeyboard"));
