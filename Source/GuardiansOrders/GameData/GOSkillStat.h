@@ -35,7 +35,7 @@ public:
 	float CoolDownTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float CastingTime;
+	float CastingTime; // CastDuratoinTime // ex. AttackTime
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	float ManaCost;

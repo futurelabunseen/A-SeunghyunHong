@@ -2,7 +2,6 @@
 
 
 #include "Skill/Rogers/GORogersSkill01.h"
-#include "Share/EGOSkill.h"
 
 UGORogersSkill01::UGORogersSkill01()
 {
@@ -12,4 +11,30 @@ UGORogersSkill01::UGORogersSkill01()
 void UGORogersSkill01::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGORogersSkill01::StartCast()
+{
+}
+
+void UGORogersSkill01::FinishCast()
+{
+}
+
+void UGORogersSkill01::InterruptedCast()
+{
+}
+
+void UGORogersSkill01::ActivateEffect()
+{
+}
+
+bool UGORogersSkill01::IsCasting() const
+{
+	return false;
+}
+
+bool UGORogersSkill01::IsCastable() const
+{
+	return GetCoolDownTimer() <= 0;
 }
