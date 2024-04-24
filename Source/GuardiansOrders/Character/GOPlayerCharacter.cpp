@@ -369,6 +369,38 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 }
 
+void AGOPlayerCharacter::OnSkillQ()
+{
+	if (SkillCastComponent && SkillQInstance)
+	{
+		SkillCastComponent->OnStartCast(SkillQInstance);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillW()
+{
+	if (SkillCastComponent && SkillWInstance)
+	{
+		SkillCastComponent->OnStartCast(SkillWInstance);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillE()
+{
+	if (SkillCastComponent && SkillEInstance)
+	{
+		SkillCastComponent->OnStartCast(SkillEInstance);
+	}
+}
+
+void AGOPlayerCharacter::OnSkillR()
+{
+	if (SkillCastComponent && SkillRInstance)
+	{
+		SkillCastComponent->OnStartCast(SkillRInstance);
+	}
+}
+
 void AGOPlayerCharacter::OnSkillF()
 {
 	Stat->HealHp();
