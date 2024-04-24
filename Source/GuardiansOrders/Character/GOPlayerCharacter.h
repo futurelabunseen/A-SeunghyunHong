@@ -102,7 +102,10 @@ protected:
 	TObjectPtr<UInputAction> ActionSkillR;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ActionSkillF;
+	TObjectPtr<UInputAction> ActionSkillF;	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionShowMaxBasicAttackRange;
 
 
 	void MoveGamePad(const FInputActionValue& Value);
@@ -111,11 +114,15 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
+
 	virtual void OnSkillQ();
 	virtual void OnSkillW();
 	virtual void OnSkillE();
 	virtual void OnSkillR();
 	void OnSkillF();
+
+	// 최대 공격 사거리를 보여주는 콜백 함수입니다. 
+	void OnShowMaxBasicAttackRange();
 
 public:
 	// Time Threshold to know if it was a short press.
@@ -153,6 +160,12 @@ protected:
 	float SplineMeshTickness = 0.1;
 
 	void SelfMove();
+
+private:
+	UPROPERTY(Transient)
+	TObjectPtr<UDecalComponent> BasicAttackRangeDecal;
+
+	bool bIsDecalVisible;
 
 // UI Section
 protected:

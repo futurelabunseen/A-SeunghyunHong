@@ -64,6 +64,8 @@ public:
 	float UseSkill(float SkillManaCost);
 	void SetMana(float NewMana);
 
+	FORCEINLINE float GetMaxBasicAttackRange() const { return BaseStat.MaxBasicAttackRange; }
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	UDataTable* CharacterStatDataTable;

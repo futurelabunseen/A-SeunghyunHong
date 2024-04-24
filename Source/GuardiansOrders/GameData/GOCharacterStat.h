@@ -15,6 +15,7 @@ public:
 		MaxHp(0.0f),
 		HpRegenerationRate(0.0f),
 		MovementSpeed(0.0f),
+		MaxBasicAttackRange(0.0f),
 		BaseDamage(0.0f),
 		DamageRange(0.0f),
 		DamageRadius(0.0f),
@@ -31,6 +32,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float MovementSpeed;	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float MaxBasicAttackRange;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float BaseDamage;

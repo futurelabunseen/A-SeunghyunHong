@@ -2,7 +2,6 @@
 
 
 #include "Skill/Rogers/GORogersSkill01.h"
-#include "Skill/GOSkillStatComponent.h"
 #include "Share/EGOSkill.h"
 
 UGORogersSkill01::UGORogersSkill01()

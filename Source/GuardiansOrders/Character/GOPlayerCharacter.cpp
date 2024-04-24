@@ -32,8 +32,11 @@
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
 #include "Interface/GOBattleInterface.h"
+#include <Kismet/GameplayStatics.h>
+#include "Components/DecalComponent.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter()
+	: bIsDecalVisible(false)
 {
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -127,6 +130,12 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 	if (nullptr != InputActionSkillFRef.Object)
 	{
 		ActionSkillF = InputActionSkillFRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDecalARef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_MaxBasicAttackRange.IA_MaxBasicAttackRange'"));
+	if (nullptr != InputActionDecalARef.Object)
+	{
+		ActionShowMaxBasicAttackRange = InputActionDecalARef.Object;
 	}
 
 	bCanAttack = true;
@@ -269,6 +278,8 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
 		EnhancedInputComponent->BindAction(ActionSkillF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillF);
+		
+		EnhancedInputComponent->BindAction(ActionShowMaxBasicAttackRange, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnShowMaxBasicAttackRange);
 	}
 }
 
@@ -405,6 +416,33 @@ void AGOPlayerCharacter::OnSkillF()
 {
 	Stat->HealHp();
 	UE_LOG(LogTemp, Log, TEXT("Common Skill F is triggered. Up to 20 percent of HP recovers. "));
+}
+
+void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
+{
+	float MaxBasicAttackRange = Stat->GetMaxBasicAttackRange();
+	
+	if (!BasicAttackRangeDecal)
+	{
+		BasicAttackRangeDecal = NewObject<UDecalComponent>(this, UDecalComponent::StaticClass());
+		if (BasicAttackRangeDecal)
+		{
+			BasicAttackRangeDecal->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+			BasicAttackRangeDecal->SetWorldRotation(FRotator(90.0f, 0.0f, 0.0f)); 
+			BasicAttackRangeDecal->SetRelativeLocation(FVector(0.f, 0.f, -150.f)); 
+			// BasicAttackRangeDecal->SetRelativeScale3D(FVector(1, 1, 1)); // Uniform scale
+			BasicAttackRangeDecal->SetDecalMaterial(LoadObject<UMaterialInterface>(nullptr, TEXT("Engine.Material'/Game/Assets/MagicCircles/MI_MagicCircle_blue.MI_MagicCircle_blue'")));
+			BasicAttackRangeDecal->RegisterComponent();
+			BasicAttackRangeDecal->SetVisibility(false); // Start invisible
+		}
+	}
+
+	float DecalSize = MaxBasicAttackRange / 200.0f; 
+	BasicAttackRangeDecal->SetRelativeScale3D(FVector(DecalSize, DecalSize, DecalSize));
+
+	// Toggle visibility
+	bIsDecalVisible = !bIsDecalVisible;
+	BasicAttackRangeDecal->SetVisibility(bIsDecalVisible);
 }
 
 void AGOPlayerCharacter::SelfMove()
