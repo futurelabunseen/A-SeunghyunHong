@@ -15,8 +15,7 @@ public:
 		DamageRange(0.0f),
 		DamageRadius(0.0f),
 		DamageSpeed(0.0f),
-		CoolDownTime(0.f),
-		CastingTime(0.f),
+		CoolTime(0.0f),
 		ManaCost(0.0f) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
@@ -32,10 +31,7 @@ public:
 	float DamageSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float CoolDownTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float CastingTime;
+	float CoolTime;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	float ManaCost;

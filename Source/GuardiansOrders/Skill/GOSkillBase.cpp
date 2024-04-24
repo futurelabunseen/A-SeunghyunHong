@@ -39,6 +39,14 @@ bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
 	return true;
 }
 
+//void UGOSkillBase::SetSkillStat(int8 InNewSkillType)
+//{
+//}
+//
+//void UGOSkillBase::ResetSkillStat()
+//{
+//}
+
 void UGOSkillBase::Set(FName InSkillName)
 {
 	if (!SkillDataTable)

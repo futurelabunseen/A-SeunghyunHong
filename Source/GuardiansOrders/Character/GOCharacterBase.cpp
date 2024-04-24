@@ -1,4 +1,4 @@
-ï»¿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GOCharacterBase.h"
@@ -46,8 +46,8 @@ AGOCharacterBase::AGOCharacterBase()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->bEnablePhysicsInteraction = false;
-	GetCharacterMovement()->GroundFriction = 8.0f; // ê¸°ë³¸ ë§ˆì°°ë ¥ì„ ì¦ê°€ì‹œì¼œ ë¯¸ë„ëŸ¬ì§ ê°ì†Œ
-	GetCharacterMovement()->BrakingFrictionFactor = 2.0f; // ë¸Œë ˆì´í‚¹(ì •ì§€) ë§ˆì°°ë ¥ì„ ì¦ê°€
+	GetCharacterMovement()->GroundFriction = 8.0f; // ±âº» ¸¶Âû·ÂÀ» Áõ°¡½ÃÄÑ ¹Ì²ô·¯Áü °¨¼Ò
+	GetCharacterMovement()->BrakingFrictionFactor = 2.0f; // ºê·¹ÀÌÅ·(Á¤Áö) ¸¶Âû·ÂÀ» Áõ°¡
 	// GetCharacterMovement()->SlideAlongSurface(false);
 
 	// Mesh
@@ -108,10 +108,10 @@ AGOCharacterBase::AGOCharacterBase()
 	//	CharacterStatDataTable = CharacterStatDataObj.Object;
 	//}
 
-	SkillQ = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillQ"));
-	SkillW = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillW"));
-	SkillE = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillE"));
-	SkillR = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillR"));
+	SkillQ = nullptr;
+	SkillW = nullptr;
+	SkillE = nullptr;
+	SkillR = nullptr;
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 }
@@ -151,7 +151,6 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			Stat->SetCharacterStat(InCharacterName);
 		}
 
-		// ìŠ¤í‚¬ ë°ì´í„° í…Œì´ë¸”ì˜ RowName
 		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
 		SetSkillDataW(CharacterData.DefaultSkillNameW);
 		SetSkillDataE(CharacterData.DefaultSkillNameE);
@@ -180,18 +179,13 @@ void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
 	{
 		CharacterStat = *CharacterStatDataRow;
 
-		// StatComponent ì²˜ë¦¬
+		// StatComponent Ã³¸®
 		Stat->SetBaseStat(CharacterStat);
 	}
 }
 
 void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 {
-	if (!SkillQ)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SetSkillDataQ"));
-	}
-
 	if (SkillQ)
 	{
 		SkillQ->Set(InSkillName);
@@ -251,7 +245,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
 	if (StatsBarWidget)
 	{
-		// StatsBar ìœ„ì ¯ ì•ˆì˜ HPë°”ì™€ ë§ˆë‚˜ë°”ì— ëŒ€í•œ ì°¸ì¡°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+		// StatsBar À§Á¬ ¾ÈÀÇ HP¹Ù¿Í ¸¶³ª¹Ù¿¡ ´ëÇÑ ÂüÁ¶¸¦ °¡Á®¿É´Ï´Ù.
 		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->HpBar);
 		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->ManaBar);
 		UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
@@ -259,7 +253,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		
 		if (HpBarWidget && ManaBarWidget)
 		{
-			// HPì™€ ë§ˆë‚˜ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ë¥¼ ìƒíƒœ ë³€ê²½ ì´ë²¤íŠ¸ì— ë°”ì¸ë”©í•©ë‹ˆë‹¤.
+			// HP¿Í ¸¶³ª ¾÷µ¥ÀÌÆ® ÇÔ¼ö¸¦ »óÅÂ º¯°æ ÀÌº¥Æ®¿¡ ¹ÙÀÎµùÇÕ´Ï´Ù.
 			HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);

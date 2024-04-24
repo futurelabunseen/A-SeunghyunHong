@@ -64,18 +64,24 @@ public:
 public:
 	bool ReduceCastingTime(float DeltaTime);
 
-	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE void SetCoolDownTime() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE float GetCastingTime() { return GetTotalSkillStat().CastingTime; }
+	FORCEINLINE const FString& GetName() const { return Name; }
+	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolTime; }
+	FORCEINLINE void SetCooldown() { CoolDownTimer = GetTotalSkillStat().CoolTime; }
+	// TODO: FORCEINLINE float GetCastingTime() { return GetTotalSkillStat().CastingTime; }
+	FORCEINLINE float GetCastingTime() { return CastingTime; }
 
-// Stat & Data Section
+// Stat Section
 public:
+	FORCEINLINE void SetCurrentSkillType(const int32 InTypeNumber) { CurrentSkillType = InTypeNumber; }
 	FORCEINLINE void SetSkillStat(const FGOSkillStat& InSkillStat) { SkillStat = InSkillStat; }
 	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return SkillStat; }
-	FORCEINLINE FGOSkillData GetTotalSkillData() const { return SkillData; }
+
+	//void SetSkillStat(int8 InNewSkillType);
 	//void ResetSkillStat();
 
 protected:
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	int32 CurrentSkillType;
 
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = SkillStat)
 	FGOSkillStat SkillStat;
@@ -95,8 +101,66 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
 	UDataTable* SkillStatDataTable;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skill Data")
+	UGOSkillDataAsset* SkillDataAsset;	
 	
+
 public:
+	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
+	FString Name;	
+	
+	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
+	FText Description;
+
+	UPROPERTY(EditAnywhere, Category = SkillSetting)
+	EGOSkillType Type;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
+	TObjectPtr<UTexture2D> Texture;
+
+	UPROPERTY(EditDefaultsOnly, Category = SkillSetting)
+	TObjectPtr<UAnimMontage> SkillAnim;
+
+	UPROPERTY(EditAnywhere, Category = SkillSetting)
+	TObjectPtr <UMaterial> DecalMaterial;
+
+	UPROPERTY(EditAnywhere, Category = SkillSetting)
+	TObjectPtr <UNiagaraSystem> VFX;
+
+	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	//float DamageMultiplier = 0;
+
+	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	//float DamageRange = 0;
+	//
+	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	//float DamageRadius = 0;
+	//
+	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	//float DamageSpeed = 0;	
+	//
+	//UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	//float ManaCost = 0;
+
+	//UPROPERTY(EditDefaultsOnly, Replicated, Category = SkillSetting)
+	//float CoolTime;
+
 	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
 	float CoolDownTimer = 0;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
+	//float DetectionRadius = 0;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
+	//float DetectionDegree = 0;
+
+	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	float CastingTime = 0;
+
+	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
+	float Id = 0;
 };
+
+
+/**/

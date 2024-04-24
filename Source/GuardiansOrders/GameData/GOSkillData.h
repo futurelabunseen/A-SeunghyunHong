@@ -1,10 +1,13 @@
-ï»¿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "Share/EGOSkill.h"
 #include "GOSkillEffectAsset.h"
 #include "GOSkillData.generated.h"
+
+
+// #include "Animation/AnimMontage.h"
 
 USTRUCT(BlueprintType)
 struct FGOSkillData : public FTableRowBase
@@ -14,40 +17,35 @@ struct FGOSkillData : public FTableRowBase
     public:
     FGOSkillData() :
         SkillStatName(NAME_None),
-        SkillName(""),
-        Description(""),
-        SkillTriggerType(ESkillTriggerType::None),
-        SkillAffectType(ESkillAffectType::None),
         SkillAnim(nullptr),
         SkillEffectAsset(nullptr),
-        SkillIcon(nullptr)
+        SkillIcon(nullptr),
+        SkillTriggerType(ESkillTriggerType::None), 
+        SkillAffectType(ESkillAffectType::None)
         {}
     
-    // ìŠ¤í‚¬ ìŠ¤íƒ¯ì„ ìœ„í•œ í…Œì´ë¸” RowName ì…ë‹ˆë‹¤.
+    // ½ºÅ³ ½ºÅÈÀ» À§ÇÑ Å×ÀÌºí RowName ÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     FName SkillStatName;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillData")
-    FString SkillName;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillData")
-    FString Description;
-    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     ESkillTriggerType SkillTriggerType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     ESkillAffectType SkillAffectType;
 
+    // ½ºÅ³ ¾Ö´Ï¸ŞÀÌ¼ÇÀ» À§ÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
-    // ìŠ¤í‚¬ íš¨ê³¼ ì• ì…‹ì„ ìœ„í•œ ì°¸ì¡°ì…ë‹ˆë‹¤. (ë¯¸ì •: ì• ì…‹ ë˜ëŠ” í…Œì´ë¸”)
+    // ½ºÅ³ È¿°ú ¾Ö¼ÂÀ» À§ÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UGOSkillEffectAsset> SkillEffectAsset;
 
-    // ìŠ¤í‚¬ ì•„ì´ì½˜ì˜ í…ìŠ¤ì³ì…ë‹ˆë‹¤.
+    // ½ºÅ³ ¾ÆÀÌÄÜÀÇ ÅØ½ºÃÄÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
+
+    // Ãß°¡ÀûÀÎ ¸â¹ö º¯¼öµé...
 };
 
