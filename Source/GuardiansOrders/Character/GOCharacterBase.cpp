@@ -108,10 +108,10 @@ AGOCharacterBase::AGOCharacterBase()
 	//	CharacterStatDataTable = CharacterStatDataObj.Object;
 	//}
 
-	//SkillQ = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillQ"));
-	//SkillW = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillW"));
-	//SkillE = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillE"));
-	//SkillR = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillR"));
+	SkillQ = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillQ"));
+	SkillW = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillW"));
+	SkillE = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillE"));
+	SkillR = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillR"));
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 }
@@ -151,11 +151,6 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			Stat->SetCharacterStat(InCharacterName);
 		}
 
-		SkillQ = CharacterData.SkillQ;
-		SkillW = CharacterData.SkillW;
-		SkillE = CharacterData.SkillE;
-		SkillR = CharacterData.SkillR;
-		
 		// 스킬 데이터 테이블의 RowName
 		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
 		SetSkillDataW(CharacterData.DefaultSkillNameW);
