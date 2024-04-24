@@ -79,6 +79,9 @@ public:
 	//void SetSkillStat(int8 InNewSkillType);
 	//void ResetSkillStat();
 
+private:
+	void InitializeSkillStats();
+
 protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
 	int32 CurrentSkillType;
