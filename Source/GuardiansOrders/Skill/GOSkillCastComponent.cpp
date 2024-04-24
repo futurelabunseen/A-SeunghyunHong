@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Skill/GOSkillCastComponent.h"
@@ -45,10 +45,10 @@ void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
 	ESkillTriggerType TriggerType = InSkillInstance->GetSkillTriggerType();
 	ESkillAffectType AffectType = InSkillInstance->GetSkillAffectType();
 
-	// ½ºÅ³ Ä³½ºÆÃ ½ÃÀÛ ·ÎÁ÷
+	// ìŠ¤í‚¬ ìºìŠ¤íŒ… ì‹œì‘ ë¡œì§
 	bIsOnCasting = true;
 
-	// Cast»óÅÂ È°¼ºÈ­ ¿¹. ´õ À¯¿¬ÇÑ ¹æ¹ıÀ» ½á¾ßÇÑ´Ù
+	// Castìƒíƒœ í™œì„±í™” ì˜ˆ. ë” ìœ ì—°í•œ ë°©ë²•ì„ ì¨ì•¼í•œë‹¤
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
 	CurrentSkill = InSkillInstance;
@@ -62,15 +62,30 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 		return;
 	}
 
-	// ½ºÅ³ Ä³½ºÆÃ Áß ¾÷µ¥ÀÌÆ® ·ÎÁ÷
+	/*
+	ìºë¦­í„°ê°€ í•´ì•¼í•˜ëŠ” ì¼
+	- ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
+	- ê³µê²©
+	- RPC
+	- ë“±ë“±..
+	*/
+
+	// ìŠ¤í‚¬ ìºìŠ¤íŒ… ì¤‘ ì—…ë°ì´íŠ¸ ë¡œì§
 	CurrentSkill->UpdateCast(DeltaTime);
 
-	//Å×½ºÆ®¿ë ÄÚµå ... µ¨¸®°ÔÀÌÆ®¸¦ »ç¿ëÇØ¾ßÇÒÁö?
-	AActor* OwnerActor = GetOwner();
-	AGOCharacterBase* OwnerCharacter = Cast<AGOCharacterBase>(OwnerActor);
-	if (OwnerCharacter)
+	//í…ŒìŠ¤íŠ¸ìš© ì½”ë“œ ... ë¸ë¦¬ê²Œì´íŠ¸ ë˜ëŠ” ì¸í„°í˜ì´ìŠ¤ë¥¼ ì‚¬ìš©í•˜ì
+	//AActor* OwnerActor = GetOwner();
+	//AGOCharacterBase* OwnerCharacter = Cast<AGOCharacterBase>(OwnerActor);
+	//if (OwnerCharacter)
+	//{
+	//	OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+	//}
+	if (AActor* Owner = GetOwner())
 	{
-		OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
+		{
+			GOPlaySkillAnimInterface->PlaySkillAnim();
+		}
 	}
 
 	if (DeltaTime > CurrentSkill->GetCastingTime())
@@ -86,10 +101,10 @@ void UGOSkillCastComponent::OnFinishCast()
 		return;
 	}
 	CurrentSkill->ActivateEffect();
-	CurrentSkill->FinishCast();  // ½ºÅ³ÀÇ ¿Ï·á ·ÎÁ÷ ½ÇÇà
+	CurrentSkill->FinishCast();  // ìŠ¤í‚¬ì˜ ì™„ë£Œ ë¡œì§ ì‹¤í–‰
 	CurrentSkill = nullptr;
 	bIsOnCasting = false;
-	//GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast »óÅÂ ºñÈ°¼ºÈ­
+	//GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast ìƒíƒœ ë¹„í™œì„±í™”
 
 }
 
@@ -100,9 +115,9 @@ void UGOSkillCastComponent::OnInterruptCast()
 		return;
 	}
 
-	CurrentSkill->InterruptedCast();  // ½ºÅ³ Áß´Ü ·ÎÁ÷ ½ÇÇà
+	CurrentSkill->InterruptedCast();  // ìŠ¤í‚¬ ì¤‘ë‹¨ ë¡œì§ ì‹¤í–‰
 	CurrentSkill = nullptr;
 	bIsOnCasting = false;
-	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast »óÅÂ ºñÈ°¼ºÈ­
+	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast ìƒíƒœ ë¹„í™œì„±í™”
 }
 

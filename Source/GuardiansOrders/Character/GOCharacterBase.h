@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "Interface/GOAnimationAttackInterface.h"
 #include "Interface/GOCharacterWidgetInterface.h"
+#include "Interface/GOPlaySkillAnimInterface.h"
+
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
@@ -19,7 +21,7 @@ class UGOUserWidget;
 class UGOSkillCastComponent;
 
 UCLASS()
-class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
+class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface, public IGOPlaySkillAnimInterface
 {
 	GENERATED_BODY()
 	
@@ -149,7 +151,16 @@ protected:
 	// 마나가 없을 때 호출되는 함수입니다.
 	virtual void NoMana();
 
+// ======== IPlaySkillAnimInterface ========
 
+	virtual UGOSkillCastComponent* GetSkillCastComponent()
+	{
+		return SkillCastComponent;
+	}
 
+	virtual void PlaySkillAnim()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[ACharacterBase::PlaySkillAnim] called. This function is inherited from GOPlaySkillAnimInterface. "));
+	}
 
 }; // End Of Class
