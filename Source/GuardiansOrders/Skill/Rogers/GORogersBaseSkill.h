@@ -30,4 +30,5 @@ public:
 private:
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
+
 };

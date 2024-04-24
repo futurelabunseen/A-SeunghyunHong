@@ -15,6 +15,8 @@ void UGOBeastSkill01::PostInitProperties()
 
 void UGOBeastSkill01::StartCast()
 {
+	SetCoolDownTimer();
+	bIsCasting = true;
 }
 
 void UGOBeastSkill01::UpdateCast(float DeltaTime)

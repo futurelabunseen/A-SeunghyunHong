@@ -15,18 +15,12 @@ void UGORogersUltimateSkill::PostInitProperties()
 
 void UGORogersUltimateSkill::StartCast()
 {
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] Start Skill Casting: UGORogersSkill02"));
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] StartCast: Montage Name: %s"), *GetTotalSkillData().SkillAnim.GetName());
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] StartCast: SkillName Name: %s"), *GetTotalSkillData().SkillName);
-
 	SetCoolDownTimer();
 	bIsCasting = true;
 }
 
 void UGORogersUltimateSkill::UpdateCast(float DeltaTime)
 {
-	if (!bIsCasting) return;
-
 }
 
 void UGORogersUltimateSkill::FinishCast()
@@ -43,10 +37,10 @@ void UGORogersUltimateSkill::ActivateEffect()
 
 bool UGORogersUltimateSkill::IsCasting() const
 {
-	return bIsCasting;
+	return false;
 }
 
 bool UGORogersUltimateSkill::IsCastable() const
 {
-	return GetCoolDownTimer() <= 0;
+	return false;
 }

@@ -15,25 +15,20 @@ void UGORogersSkill03::PostInitProperties()
 
 void UGORogersSkill03::StartCast()
 {
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] Start Skill Casting: UGORogersSkill03"));
-
 	SetCoolDownTimer();
 	bIsCasting = true;
 }
 
 void UGORogersSkill03::UpdateCast(float DeltaTime)
 {
-	if (!bIsCasting) return;
 }
 
 void UGORogersSkill03::FinishCast()
 {
-	bIsCasting = false;
 }
 
 void UGORogersSkill03::InterruptedCast()
 {
-	bIsCasting = false;
 }
 
 void UGORogersSkill03::ActivateEffect()
@@ -42,10 +37,10 @@ void UGORogersSkill03::ActivateEffect()
 
 bool UGORogersSkill03::IsCasting() const
 {
-	return bIsCasting;
+	return false;
 }
 
 bool UGORogersSkill03::IsCastable() const
 {
-	return GetCoolDownTimer() <= 0;
+	return false;
 }

@@ -29,5 +29,6 @@ public:
 
 private:
 	//bool bIsCastable = false;
-	//bool bIsCasting = false;
+	//bool bIsOnCasting = false;
+
 };

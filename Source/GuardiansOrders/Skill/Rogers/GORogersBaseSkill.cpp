@@ -37,10 +37,10 @@ void UGORogersBaseSkill::ActivateEffect()
 
 bool UGORogersBaseSkill::IsCasting() const
 {
-	return bIsCasting;
+	return false;
 }
 
 bool UGORogersBaseSkill::IsCastable() const
 {
-	return GetCoolDownTimer() <= 0;
+	return false;
 }

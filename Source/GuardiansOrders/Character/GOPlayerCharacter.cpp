@@ -133,14 +133,25 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 
 	// Skill Cast Component
 	// SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-	// 
-	bReplicates = true;
-	SetReplicateMovement(true);
+
+	// Character State Init
+	ActionStateBitMask = EGOPlayerActionState::None;
 }
 
 void AGOPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	if (HeroDataAsset)
+	{
+		GetMesh()->SetSkeletalMesh(HeroDataAsset->SkeletalMesh);
+		GetMesh()->SetAnimInstanceClass(HeroDataAsset->AnimBlueprint);
+		HeroType = HeroDataAsset->HeroType;
+		RoleType = HeroDataAsset->RoleType;
+		AttackRange = HeroDataAsset->AttackRange;
+		Archetype = HeroDataAsset->Archetype;
+		// Stat->SetCharacterStat(static_cast<int32>(HeroType));
+	}
 }
 
 void AGOPlayerCharacter::Tick(float DeltaTime)
@@ -184,6 +195,14 @@ void AGOPlayerCharacter::PossessedBy(AController* NewController)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 
 	AActor* OwnerActor = GetOwner();
+	if (OwnerActor)
+	{
+		GO_LOG(LogGONetwork, Log, TEXT("Owner YES1: %s"), *OwnerActor->GetName());
+	}
+	else
+	{
+		GO_LOG(LogGONetwork, Log, TEXT("Owner NO1: %s"), TEXT("No Owner"));
+	}
 
 	Super::PossessedBy(NewController);
 	
@@ -250,15 +269,6 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
 		EnhancedInputComponent->BindAction(ActionSkillF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillF);
-
-
-		UE_LOG(LogTemp, Log, TEXT("SetupPlayerInputComponent done"));
-		EnhancedInputComponent->Activate();
-		UE_LOG(LogTemp, Log, TEXT("[Input] Input Component Activated"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Input] EnhancedInputComponent is null"));
 	}
 }
 
@@ -279,8 +289,6 @@ void AGOPlayerCharacter::MoveGamePad(const FInputActionValue& Value)
 
 void AGOPlayerCharacter::OnInputStarted()
 {
-	UE_LOG(LogTemp, Log, TEXT("MouseAndKeyboard 0"));
-
 	if (InputSubsystem->GetCurrentInputType() == ECommonInputType::MouseAndKeyboard)
 	{
 		UE_LOG(LogTemp, Log, TEXT("MouseAndKeyboard"));
@@ -438,26 +446,24 @@ void AGOPlayerCharacter::SetupHUDWidget(UGOHUDWidget* InHUDWidget)
 
 void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGOPlayerCharacter, bCanAttack);
 
+	DOREPLIFETIME(AGOPlayerCharacter, ActionStateBitMask);
 
+	DOREPLIFETIME(AGOPlayerCharacter, BlownRecoveryTimer);
+	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTime);
+	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTimer);
+	DOREPLIFETIME(AGOPlayerCharacter, ImpactTimer);
 }
 
 void AGOPlayerCharacter::Attack()
 {
-	// Test
-	//if (SkillCastComponent && SkillQ)
-	//{
-	//	SkillCastComponent->OnStartCast(SkillQ);
-	//}
-
 	// ProcessComboCommand();
 
 	if (bCanAttack)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Input] Skill Q action triggered"));
-
 		// 클라이언트에게 애니메이션 재생, 타이머 재생을 맡깁니다.
 		if (!HasAuthority())
 		{
@@ -478,10 +484,6 @@ void AGOPlayerCharacter::Attack()
 
 		// 서버에게 서버시간과 함께 명령을 보냅니다.
 		ServerRPCAttack(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Input] Attempted Skill Q when unable to attack"));
 	}
 }
 
@@ -690,6 +692,47 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 	return ActualDamage;
+}
+
+void AGOPlayerCharacter::SimulateStateUpdateOnServer(float DeltaTime)
+{
+	if (!GetCharacterMovement()->IsFalling() && IsFlashing() || !IsFlashing())
+		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Flash);
+
+	if (GetCharacterMovement()->IsMovingOnGround())
+		ActionStateBitMask = ActionStateBitMask | EGOPlayerActionState::Move;
+	else
+		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Move);
+
+	if (ImpactTimer > 0)
+		ImpactTimer -= DeltaTime;
+
+	if (InvincibleTimer > 0)
+		InvincibleTimer -= DeltaTime;
+
+	if (BlownRecoveryTimer > 0 && !GetCharacterMovement()->IsFalling())
+		BlownRecoveryTimer -= DeltaTime;
+
+	//if (IsImpacted() && ImpactTimer <= 0)
+	//{
+	//	RecoveryFromImpacted();
+	//}
+
+	//if (IsBlown() && BlownRecoveryTimer <= 0)
+	//{
+	//	RecoveryFromBlown();
+	//}
+}
+
+bool AGOPlayerCharacter::IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const
+{
+	return true;
+	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->
+	//		GetCastableOnImpacted()) ||
+	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->
+	//		GetCastableOnImpacted()) ||
+	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->GetCastableOnBlown()) ||
+	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->GetCastableOnBlown());
 }
 
 bool AGOPlayerCharacter::ServerRPCAttack_Validate(float AttackStartTime)

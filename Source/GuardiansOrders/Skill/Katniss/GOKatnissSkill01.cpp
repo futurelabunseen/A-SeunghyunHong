@@ -15,6 +15,8 @@ void UGOKatnissSkill01::PostInitProperties()
 
 void UGOKatnissSkill01::StartCast()
 {
+	SetCoolDownTimer();
+	bIsCasting = true;
 }
 
 void UGOKatnissSkill01::UpdateCast(float DeltaTime)
