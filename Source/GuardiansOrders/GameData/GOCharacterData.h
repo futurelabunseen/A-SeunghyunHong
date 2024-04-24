@@ -13,10 +13,10 @@ struct FGOCharacterData : public FTableRowBase
 
 public:
 	FGOCharacterData() :
-		SkillQClass(nullptr),
-		SkillWClass(nullptr),
-		SkillEClass(nullptr),
-		SkillRClass(nullptr),
+		SkillQ(nullptr),
+		SkillW(nullptr),
+		SkillE(nullptr),
+		SkillR(nullptr),
 		DefaultBaseSkillName(NAME_None),
 		DefaultSkillNameQ(NAME_None),
 		DefaultSkillNameW(NAME_None),
@@ -26,17 +26,18 @@ public:
 		AnimBlueprint(nullptr)
 		{}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TSubclassOf<UGOSkillBase> SkillQClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TSubclassOf<UGOSkillBase> SkillWClass;
+	TObjectPtr<UGOSkillBase> SkillQ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TSubclassOf<UGOSkillBase> SkillEClass;
+	TObjectPtr<UGOSkillBase> SkillW;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TSubclassOf<UGOSkillBase> SkillRClass;
+	TObjectPtr<UGOSkillBase> SkillE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TObjectPtr<UGOSkillBase> SkillR;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName DefaultBaseSkillName;

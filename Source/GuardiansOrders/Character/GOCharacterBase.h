@@ -65,31 +65,18 @@ protected:
 
 	FGOCharacterStat CharacterStat;
 
-	// 스킬 클래스 정보
+	// 스킬 슬롯 멤버 변수 선언
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillQClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillWClass;
+	TObjectPtr<UGOSkillBase> SkillQ;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillEClass;
+	TObjectPtr<UGOSkillBase> SkillW;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillRClass;
+	TObjectPtr<UGOSkillBase> SkillE;
 
-	// 스킬 인스턴스
-	UPROPERTY()
-	TObjectPtr<UGOSkillBase> SkillQInstance;
-
-	UPROPERTY()
-	TObjectPtr<UGOSkillBase> SkillWInstance;
-
-	UPROPERTY()
-	TObjectPtr<UGOSkillBase> SkillEInstance;
-
-	UPROPERTY()
-	TObjectPtr<UGOSkillBase> SkillRInstance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TObjectPtr<UGOSkillBase> SkillR;
 
 // Stat Section
 protected:

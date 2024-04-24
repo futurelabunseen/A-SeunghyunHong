@@ -108,7 +108,6 @@ AGOCharacterBase::AGOCharacterBase()
 	//	CharacterStatDataTable = CharacterStatDataObj.Object;
 	//}
 
-	// TObjectPtr로 했을 땐 오류가 나지 않았지만 TSubclassOf 오류가 나므로 주석 처리
 	//SkillQ = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillQ"));
 	//SkillW = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillW"));
 	//SkillE = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillE"));
@@ -152,11 +151,11 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			Stat->SetCharacterStat(InCharacterName);
 		}
 
-		SkillQClass = CharacterData.SkillQClass;
-		SkillWClass = CharacterData.SkillWClass;
-		SkillEClass = CharacterData.SkillEClass;
-		SkillRClass = CharacterData.SkillRClass;
-
+		SkillQ = CharacterData.SkillQ;
+		SkillW = CharacterData.SkillW;
+		SkillE = CharacterData.SkillE;
+		SkillR = CharacterData.SkillR;
+		
 		// 스킬 데이터 테이블의 RowName
 		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
 		SetSkillDataW(CharacterData.DefaultSkillNameW);
@@ -193,79 +192,38 @@ void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
 
 void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 {
-	if (SkillQClass != nullptr)
+	if (!SkillQ)
 	{
-		SkillQInstance = NewObject<UGOSkillBase>(this, SkillQClass);
-		if (SkillQInstance)
-		{
-
-			SkillQInstance->InitializeSkill(InSkillName);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("SetSkillDataQ"));
 	}
 
-	//if (SkillQ)
-	//{
-	//	SkillQ->Set(InSkillName);
-	//}
-
-	//if (*SkillQ)
-	//{
-	//	UGOSkillBase* SkillInstance = NewObject<UGOSkillBase>(this, SkillQ);
-	//	if (SkillInstance)
-	//	{
-	//		SkillInstance->InitializeSkill(InSkillName);
-	//	}
-	//}
-
-	//if (SkillQClass.IsValid())
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("SOFT 3"));
-
-	//	UGOSkillBase* LoadedSkill = Cast<UGOSkillBase>(SkillQClass.LoadSynchronous());
-	//	if (LoadedSkill)
-	//	{
-	//		SkillQInstance = NewObject<UGOSkillBase>(this, LoadedSkill->GetClass());
-	//		if (SkillQInstance)
-	//		{
-	//			SkillQInstance->InitializeSkill(InSkillName);
-	//		}
-	//	}
-	//}
+	if (SkillQ)
+	{
+		SkillQ->Set(InSkillName);
+	}
 }
 
 void AGOCharacterBase::SetSkillDataW(FName InSkillName)
 {
-	if (SkillWClass != nullptr)
+	if (SkillW)
 	{
-		SkillWInstance = NewObject<UGOSkillBase>(this, SkillWClass);
-		if (SkillWInstance)
-		{
-			SkillWInstance->InitializeSkill(InSkillName);
-		}
+		SkillW->Set(InSkillName);
 	}
 }
 
 void AGOCharacterBase::SetSkillDataE(FName InSkillName)
 {
-	if (SkillEClass != nullptr)
+	if (SkillE)
 	{
-		SkillEInstance = NewObject<UGOSkillBase>(this, SkillEClass);
-		if (SkillEInstance)
-		{
-			SkillEInstance->InitializeSkill(InSkillName);
-		}
+		SkillE->Set(InSkillName);
 	}
 }
 
 void AGOCharacterBase::SetSkillDataR(FName InSkillName)
 {
-	if (SkillRClass != nullptr)
+	if (SkillR)
 	{
-		SkillRInstance = NewObject<UGOSkillBase>(this, SkillRClass);
-		if (SkillRInstance)
-		{
-			SkillRInstance->InitializeSkill(InSkillName);
-		}
+		SkillR->Set(InSkillName);
 	}
 }
 

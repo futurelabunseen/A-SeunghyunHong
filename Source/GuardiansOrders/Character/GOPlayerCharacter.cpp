@@ -371,33 +371,33 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	if (SkillCastComponent && SkillQInstance)
+	if (SkillCastComponent && SkillQ)
 	{
-		SkillCastComponent->OnStartCast(SkillQInstance);
+		SkillCastComponent->OnStartCast(SkillQ);
 	}
 }
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	if (SkillCastComponent && SkillWInstance)
+	if (SkillCastComponent && SkillW)
 	{
-		SkillCastComponent->OnStartCast(SkillWInstance);
+		SkillCastComponent->OnStartCast(SkillW);
 	}
 }
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	if (SkillCastComponent && SkillEInstance)
+	if (SkillCastComponent && SkillE)
 	{
-		SkillCastComponent->OnStartCast(SkillEInstance);
+		SkillCastComponent->OnStartCast(SkillE);
 	}
 }
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	if (SkillCastComponent && SkillRInstance)
+	if (SkillCastComponent && SkillR)
 	{
-		SkillCastComponent->OnStartCast(SkillRInstance);
+		SkillCastComponent->OnStartCast(SkillR);
 	}
 }
 
@@ -461,10 +461,10 @@ void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 void AGOPlayerCharacter::Attack()
 {
 	// Test
-	//if (SkillCastComponent && SkillQ)
-	//{
-	//	SkillCastComponent->OnStartCast(SkillQ);
-	//}
+	if (SkillCastComponent && SkillQ)
+	{
+		SkillCastComponent->OnStartCast(SkillQ);
+	}
 
 	// ProcessComboCommand();
 

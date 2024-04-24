@@ -20,7 +20,7 @@ class UNiagaraSystem;
  /*
    * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
    */
-UCLASS(Blueprintable)
+UCLASS(BlueprintType)
 class GUARDIANSORDERS_API UGOSkillBase : public UObject
 {
 	GENERATED_BODY()
@@ -90,7 +90,7 @@ protected:
 public:
 	// 스킬 데이터를 설정하는 함수입니다.
 	UFUNCTION(BlueprintCallable, Category = "Data set")
-	void InitializeSkill(FName InSkillName);
+	void Set(FName InSkillName);
 
 	// 스킬 데이터 테이블 참조입니다.
 	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
