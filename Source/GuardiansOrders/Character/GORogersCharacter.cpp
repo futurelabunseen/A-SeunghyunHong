@@ -23,16 +23,6 @@ void AGORogersCharacter::Tick(float DeltaTime)
 void AGORogersCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//if (GORogersSkill01)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 Name: %s"), *GORogersSkill01->Name);
-	//	UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 DamageMultiplier: %f"), GORogersSkill01->GetTotalSkillStat().DamageMultiplier);
-	//}
-	//else
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("GORogersSkill01 is not initialized!"));
-	//}
-	
 }
 
 void AGORogersCharacter::OnSkillQ()
@@ -58,4 +48,10 @@ void AGORogersCharacter::OnSkillR()
 {
 	Super::OnSkillR();
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill R is triggered."));
+}
+
+void AGORogersCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+	UE_LOG(LogTemp, Warning, TEXT("[AGORogersCharacter::PlaySkillAnim]  1 called. This function is inherited from GOPlaySkillAnimInterface. "));
 }

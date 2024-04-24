@@ -31,15 +31,13 @@ public:
 
 // Skill Section
 protected:
-	/** Q Skill */
-	TObjectPtr<UGORogersSkill01> GORogersSkill01;
 
-	/** W Skill */
-	TObjectPtr<UGORogersSkill02> GORogersSkill02;
+// ======== IPlaySkillAnimInterface ========
+	virtual UGOSkillCastComponent* GetSkillCastComponent()
+	{
+		return SkillCastComponent;
+	}
 
-	/** E Skill */
-	TObjectPtr<UGORogersSkill03> GORogersSkill03;
+	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill) override;
 
-	/** R Skill */
-	TObjectPtr<UGORogersUltimateSkill> GORogersUltimateSkill;
 };

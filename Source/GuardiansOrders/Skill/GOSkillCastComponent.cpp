@@ -63,28 +63,23 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	}
 
 	/*
-	캐릭터가 해야하는 일
-	- 애니메이션 재생
-	- 공격
-	- RPC
+	CastComponent는 OnUpdateCast에서 공격 판정과 상관없이 캐릭터가 해야하는 일을 하도록 시킨다.
+	- 스킬 유효 범위 시각화하세요
+	- 마나 소모하세요
+	- 스킬 애니메이션 재생하세요
+	- RPC 하세요
+	- 이펙트 재생하세요
 	- 등등..
 	*/
 
 	// 스킬 캐스팅 중 업데이트 로직
 	CurrentSkill->UpdateCast(DeltaTime);
 
-	//테스트용 코드 ... 델리게이트 또는 인터페이스를 사용하자
-	//AActor* OwnerActor = GetOwner();
-	//AGOCharacterBase* OwnerCharacter = Cast<AGOCharacterBase>(OwnerActor);
-	//if (OwnerCharacter)
-	//{
-	//	OwnerCharacter->GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
-	//}
 	if (AActor* Owner = GetOwner())
 	{
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
-			GOPlaySkillAnimInterface->PlaySkillAnim();
+			GOPlaySkillAnimInterface->PlaySkillAnim(CurrentSkill);
 		}
 	}
 
@@ -108,6 +103,9 @@ void UGOSkillCastComponent::OnFinishCast()
 
 }
 
+// Tick에서 확인해야겠지? 스킬 취소
+// 애초에 스킬이 언제 취소되는지 확인해주기-> 상태 체크? 
+// PlayerActionState 말고 어떤 상태를 또 만들어줘야 하나? Cast에 대한 상태..? 으악
 void UGOSkillCastComponent::OnInterruptCast()
 {
 	if (CurrentSkill == nullptr)

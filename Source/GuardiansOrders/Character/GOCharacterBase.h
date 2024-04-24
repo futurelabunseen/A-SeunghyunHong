@@ -158,7 +158,7 @@ protected:
 		return SkillCastComponent;
 	}
 
-	virtual void PlaySkillAnim()
+	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[ACharacterBase::PlaySkillAnim] called. This function is inherited from GOPlaySkillAnimInterface. "));
 	}
