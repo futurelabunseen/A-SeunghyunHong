@@ -430,17 +430,18 @@ void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
 			BasicAttackRangeDecal->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 			BasicAttackRangeDecal->SetWorldRotation(FRotator(90.0f, 0.0f, 0.0f)); 
 			BasicAttackRangeDecal->SetRelativeLocation(FVector(0.f, 0.f, -150.f)); 
-			// BasicAttackRangeDecal->SetRelativeScale3D(FVector(1, 1, 1)); // Uniform scale
-			BasicAttackRangeDecal->SetDecalMaterial(LoadObject<UMaterialInterface>(nullptr, TEXT("Engine.Material'/Game/Assets/MagicCircles/MI_MagicCircle_blue.MI_MagicCircle_blue'")));
+			// BasicAttackRangeDecal->SetRelativeScale3D(FVector(1, 1, 1));
+			BasicAttackRangeDecal->SetDecalMaterial(LoadObject<UMaterialInterface>(nullptr, TEXT("Engine.Material'/Game/Material/M_MaxBasicAttackRangeDecal.M_MaxBasicAttackRangeDecal'")));
 			BasicAttackRangeDecal->RegisterComponent();
-			BasicAttackRangeDecal->SetVisibility(false); // Start invisible
+			BasicAttackRangeDecal->SetVisibility(false);
 		}
 	}
 
-	float DecalSize = MaxBasicAttackRange / 200.0f; 
-	BasicAttackRangeDecal->SetRelativeScale3D(FVector(DecalSize, DecalSize, DecalSize));
+	float MinScale = 1.f;
+	float ScaleFactor = 200.0f; // 사거리를 스케일로 변환하는 기준 값
+	float DecalScale = FMath::Max(MinScale, MaxBasicAttackRange / ScaleFactor);
+	BasicAttackRangeDecal->SetRelativeScale3D(FVector(DecalScale, DecalScale, DecalScale));
 
-	// Toggle visibility
 	bIsDecalVisible = !bIsDecalVisible;
 	BasicAttackRangeDecal->SetVisibility(bIsDecalVisible);
 }

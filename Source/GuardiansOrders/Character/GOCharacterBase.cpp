@@ -38,6 +38,7 @@ AGOCharacterBase::AGOCharacterBase()
 	// Capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 95.0f);
 	GetCapsuleComponent()->SetCollisionProfileName(CPROFILE_GOCAPSULE);
+	GetCapsuleComponent()->bReceivesDecals = false;
 
 	// Movement
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -52,6 +53,7 @@ AGOCharacterBase::AGOCharacterBase()
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
 	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->bReceivesDecals = false;
 
 	// Stat Component
 	Stat = CreateDefaultSubobject<UGOCharacterStatComponent>(TEXT("Stat"));
