@@ -5,16 +5,42 @@
 
 UGOBeastSkill02::UGOBeastSkill02()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Beast_Skill02));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Beast/GOSkill_Beast_Skill02.GOSkill_Beast_Skill02"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGOBeastSkill02::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGOBeastSkill02::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGOBeastSkill02::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOBeastSkill02::FinishCast()
+{
+}
+
+void UGOBeastSkill02::InterruptedCast()
+{
+}
+
+void UGOBeastSkill02::ActivateEffect()
+{
+}
+
+bool UGOBeastSkill02::IsCasting() const
+{
+	return false;
+}
+
+bool UGOBeastSkill02::IsCastable() const
+{
+	return false;
 }

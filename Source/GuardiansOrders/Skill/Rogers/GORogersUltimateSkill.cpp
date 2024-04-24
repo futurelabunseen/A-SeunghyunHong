@@ -5,16 +5,42 @@
 
 UGORogersUltimateSkill::UGORogersUltimateSkill()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Rogers_UltimateSkill));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Rogers/GOSkill_Rogers_UltimateSkill.GOSkill_Rogers_UltimateSkill"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGORogersUltimateSkill::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGORogersUltimateSkill::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGORogersUltimateSkill::UpdateCast(float DeltaTime)
+{
+}
+
+void UGORogersUltimateSkill::FinishCast()
+{
+}
+
+void UGORogersUltimateSkill::InterruptedCast()
+{
+}
+
+void UGORogersUltimateSkill::ActivateEffect()
+{
+}
+
+bool UGORogersUltimateSkill::IsCasting() const
+{
+	return false;
+}
+
+bool UGORogersUltimateSkill::IsCastable() const
+{
+	return false;
 }

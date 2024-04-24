@@ -17,16 +17,24 @@ struct FGOSkillData : public FTableRowBase
     public:
     FGOSkillData() :
         SkillStatName(NAME_None),
+        SkillName(""),
+        Description(""),
+        SkillTriggerType(ESkillTriggerType::None),
+        SkillAffectType(ESkillAffectType::None),
         SkillAnim(nullptr),
         SkillEffectAsset(nullptr),
-        SkillIcon(nullptr),
-        SkillTriggerType(ESkillTriggerType::None), 
-        SkillAffectType(ESkillAffectType::None)
-        {}
-    
+        SkillIcon(nullptr)
+    {}
+
     // 스킬 스탯을 위한 테이블 RowName 입니다.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     FName SkillStatName;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillData")
+    FString SkillName;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillData")
+    FString Description;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     ESkillTriggerType SkillTriggerType;
@@ -34,18 +42,15 @@ struct FGOSkillData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     ESkillAffectType SkillAffectType;
 
-    // 스킬 애니메이션을 위한 참조입니다.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
-    // 스킬 효과 애셋을 위한 참조입니다.
+    // 스킬 효과 애셋을 위한 참조입니다. (미정: 애셋 또는 테이블)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UGOSkillEffectAsset> SkillEffectAsset;
 
     // 스킬 아이콘의 텍스쳐입니다.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
-
-    // 추가적인 멤버 변수들...
 };
 

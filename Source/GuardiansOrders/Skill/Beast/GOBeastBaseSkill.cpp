@@ -5,16 +5,42 @@
 
 UGOBeastBaseSkill::UGOBeastBaseSkill()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Beast_BaseSkill));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Beast/GOSkill_Beast_BaseSkill.GOSkill_Beast_BaseSkill"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGOBeastBaseSkill::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGOBeastBaseSkill::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGOBeastBaseSkill::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOBeastBaseSkill::FinishCast()
+{
+}
+
+void UGOBeastBaseSkill::InterruptedCast()
+{
+}
+
+void UGOBeastBaseSkill::ActivateEffect()
+{
+}
+
+bool UGOBeastBaseSkill::IsCasting() const
+{
+	return false;
+}
+
+bool UGOBeastBaseSkill::IsCastable() const
+{
+	return false;
 }

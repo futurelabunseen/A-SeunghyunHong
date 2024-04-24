@@ -25,8 +25,6 @@ UGOSkillBase::UGOSkillBase()
 void UGOSkillBase::PostInitProperties()
 {
 	Super::PostInitProperties();
-	// InitializeSkillStats();
-
 }
 
 void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -34,48 +32,12 @@ void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
+void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
 {
-	// CastingTimeLeft -= DeltaTime;
-	// return CastingTimeLeft <= 0.0f;
-	return true;
+	SkillOwnerCharacter = NewOwner;
 }
 
-//void UGOSkillBase::SetSkillStat(int8 InNewSkillType)
-//{
-//}
-//
-//void UGOSkillBase::ResetSkillStat()
-//{
-//}
-
-void UGOSkillBase::InitializeSkillStats()
-{
-	// DataAsset
-	if (SkillDataAsset)
-	{
-		Name = SkillDataAsset->Name;
-		Description = SkillDataAsset->Description;
-		Type = SkillDataAsset->Type;
-		Texture = SkillDataAsset->Texture;
-		SkillAnim = SkillDataAsset->SkillAnim;
-		// DecalMaterial = SkillDataAsset->DecalMaterial;
-		// VFX = SkillDataAsset->VFX;
-	}
-
-	// 게임 서브시스템에서 스킬 타입에 맞는 스킬 스탯을 검색하고 설정
-	//if (UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(this))
-	//{
-	//	UGOGameSubsystem* GameSubsystem = GameInstance->GetSubsystem<UGOGameSubsystem>();
-	//	if (GameSubsystem)
-	//	{
-	//		SkillStat = GameSubsystem->GetSkillStat(CurrentSkillType);
-	//		SetSkillStat(SkillStat);
-	//	}
-	//}
-}
-
-void UGOSkillBase::Set(FName InSkillName)
+void UGOSkillBase::InitializeSkill(FName InSkillName)
 {
 	if (!SkillDataTable)
 	{

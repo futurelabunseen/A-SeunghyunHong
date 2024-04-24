@@ -5,16 +5,42 @@
 
 UGOKatnissSkill01::UGOKatnissSkill01()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Katniss_Skill01));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Katniss/GOSkill_Katniss_Skill01.GOSkill_Katniss_Skill01"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGOKatnissSkill01::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGOKatnissSkill01::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGOKatnissSkill01::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOKatnissSkill01::FinishCast()
+{
+}
+
+void UGOKatnissSkill01::InterruptedCast()
+{
+}
+
+void UGOKatnissSkill01::ActivateEffect()
+{
+}
+
+bool UGOKatnissSkill01::IsCasting() const
+{
+	return false;
+}
+
+bool UGOKatnissSkill01::IsCastable() const
+{
+	return false;
 }

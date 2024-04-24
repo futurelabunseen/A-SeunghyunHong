@@ -7,14 +7,6 @@
 AGOKatnissCharacter::AGOKatnissCharacter()
 {
 	bReplicates = true;
-
-	//static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Katniss.GOHero_Katniss"));
-	//if (DataAsset.Succeeded())
-	//{
-	//	HeroDataAsset = DataAsset.Object;
-	//	Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Katniss));
-	//	// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
-	//}
 }
 
 void AGOKatnissCharacter::PostInitializeComponents()
@@ -37,20 +29,24 @@ void AGOKatnissCharacter::BeginPlay()
 
 void AGOKatnissCharacter::OnSkillQ()
 {
+	Super::OnSkillQ();
 }
 
 void AGOKatnissCharacter::OnSkillW()
 {
+	Super::OnSkillW();
 	// ProcessComboCommand();
 	UE_LOG(LogTemp, Log, TEXT("Katniss Skill W is triggered."));
 }
 
 void AGOKatnissCharacter::OnSkillE()
 {
+	Super::OnSkillE();
 	UE_LOG(LogTemp, Log, TEXT("Katniss Skill E is triggered."));
 }
 
 void AGOKatnissCharacter::OnSkillR()
 {
+	Super::OnSkillR();
 	UE_LOG(LogTemp, Log, TEXT("Katniss Skill E is triggered."));
 }

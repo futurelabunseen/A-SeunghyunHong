@@ -5,16 +5,42 @@
 
 UGOBrideSkill02::UGOBrideSkill02()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Bride_Skill02));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Bride/GOSkill_Bride_Skill02.GOSkill_Bride_Skill02"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGOBrideSkill02::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGOBrideSkill02::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGOBrideSkill02::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOBrideSkill02::FinishCast()
+{
+}
+
+void UGOBrideSkill02::InterruptedCast()
+{
+}
+
+void UGOBrideSkill02::ActivateEffect()
+{
+}
+
+bool UGOBrideSkill02::IsCasting() const
+{
+	return false;
+}
+
+bool UGOBrideSkill02::IsCastable() const
+{
+	return false;
 }

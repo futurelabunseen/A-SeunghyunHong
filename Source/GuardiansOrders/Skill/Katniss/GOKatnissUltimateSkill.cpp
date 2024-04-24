@@ -5,16 +5,42 @@
 
 UGOKatnissUltimateSkill::UGOKatnissUltimateSkill()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Katniss_UltimateSkill));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Katniss/GOSkill_Katniss_UltimateSkill.GOSkill_Katniss_UltimateSkill"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGOKatnissUltimateSkill::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGOKatnissUltimateSkill::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGOKatnissUltimateSkill::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOKatnissUltimateSkill::FinishCast()
+{
+}
+
+void UGOKatnissUltimateSkill::InterruptedCast()
+{
+}
+
+void UGOKatnissUltimateSkill::ActivateEffect()
+{
+}
+
+bool UGOKatnissUltimateSkill::IsCasting() const
+{
+	return false;
+}
+
+bool UGOKatnissUltimateSkill::IsCastable() const
+{
+	return false;
 }

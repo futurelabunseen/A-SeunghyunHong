@@ -5,16 +5,42 @@
 
 UGORogersSkill03::UGORogersSkill03()
 {
-	SetCurrentSkillType(static_cast<int32>(EGOHeroSkillType::GOSkill_Rogers_Skill03));
 
-	static ConstructorHelpers::FObjectFinder<UGOSkillDataAsset> DataAsset(TEXT("/Game/GameData/SkillDataAsset/Rogers/GOSkill_Rogers_Skill03.GOSkill_Rogers_Skill03"));
-	if (DataAsset.Succeeded())
-	{
-		SkillDataAsset = DataAsset.Object;
-	}
 }
 
 void UGORogersSkill03::PostInitProperties()
 {
 	Super::PostInitProperties();
+}
+
+void UGORogersSkill03::StartCast()
+{
+	SetCoolDownTimer();
+	bIsCasting = true;
+}
+
+void UGORogersSkill03::UpdateCast(float DeltaTime)
+{
+}
+
+void UGORogersSkill03::FinishCast()
+{
+}
+
+void UGORogersSkill03::InterruptedCast()
+{
+}
+
+void UGORogersSkill03::ActivateEffect()
+{
+}
+
+bool UGORogersSkill03::IsCasting() const
+{
+	return false;
+}
+
+bool UGORogersSkill03::IsCastable() const
+{
+	return false;
 }
