@@ -188,6 +188,8 @@ void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 		{
 			SkillQInstance->InitializeSkill(InSkillName);
 			SkillQInstance->SetSkillOwner(this);
+
+			SkillSlot.Add(SkillQInstance);
 		}
 	}
 }
@@ -201,6 +203,8 @@ void AGOCharacterBase::SetSkillDataW(FName InSkillName)
 		{
 			SkillWInstance->InitializeSkill(InSkillName);
 			SkillWInstance->SetSkillOwner(this);
+
+			SkillSlot.Add(SkillWInstance);
 		}
 	}
 }
@@ -214,6 +218,8 @@ void AGOCharacterBase::SetSkillDataE(FName InSkillName)
 		{
 			SkillEInstance->InitializeSkill(InSkillName);
 			SkillEInstance->SetSkillOwner(this);
+		
+			SkillSlot.Add(SkillEInstance);
 		}
 	}
 }
@@ -227,6 +233,8 @@ void AGOCharacterBase::SetSkillDataR(FName InSkillName)
 		{
 			SkillRInstance->InitializeSkill(InSkillName);
 			SkillRInstance->SetSkillOwner(this);
+
+			SkillSlot.Add(SkillRInstance);
 		}
 	}
 }

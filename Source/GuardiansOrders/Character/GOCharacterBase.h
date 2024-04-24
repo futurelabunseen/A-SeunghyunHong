@@ -88,6 +88,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TObjectPtr<UGOSkillBase> SkillRInstance;
 
+// Skill Slot Section
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SkillSlot)
+	TArray<UGOSkillBase*> SkillSlot;
+
+	const int32 SKILLSOT_CAPACITY{ 5 };
+
 // Stat Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess="true"))
