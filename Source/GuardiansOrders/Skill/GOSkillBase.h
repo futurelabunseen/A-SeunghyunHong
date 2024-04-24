@@ -29,20 +29,13 @@ public:
 	UGOSkillBase();
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
-	
-	/**
-	  * 스킬의 소유자
-	  */
-	void SetSkillOwner(AActor* NewOwner);
-	FORCEINLINE AActor* GetSkillOwner() { return SkillOwnerCharacter; };
-
-	virtual bool IsCastable() const PURE_VIRTUAL(UGOSkillBase::IsCastable, return false; );
-	virtual bool IsCasting() const PURE_VIRTUAL(UGOSkillBase::IsCasting, return false; );
-	//virtual bool IsCastable() const { return CoolDownTimer <= 0; }
-	//bool IsCasting() const { return bIsOnCasting; }
 
 public:
-
+	/**
+	  * 구체적인 스킬 내용
+      */
+	virtual void Activate() {};
+	
 	/**
 	  * 스킬이 시작될 때 호출되는 함수로, 스킬 사용의 초기화 단계를 처리합니다.
 	  */
@@ -53,12 +46,6 @@ public:
 	  */
 	virtual void UpdateCast(float DeltaTime) {};
 	
-	/**
-	  * 구체적인 스킬 내용으로, UpdateCast 내에서 호출되지 않을까- 라고 생각 중 
-	  * 스킬에 따라서, 즉발이거나 시간 차를 두고 공격이 될 수 있으므로?
-	  */
-	virtual void Activate() {};
-
 	/**
 	  * 스킬 사용이 완료됐을 때 호출되는 함수로, 스킬의 결과를 처리하고 마무리하는 작업을 수행합니다.
 	  */
@@ -83,9 +70,9 @@ public:
 	FORCEINLINE FGOSkillData GetTotalSkillData() const { return SkillData; }
 	//void ResetSkillStat();
 
+	bool ReduceCastingTime(float DeltaTime);
 	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE void SetCoolDownTimer() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
-	FORCEINLINE float GetCoolDownTimer() const { return CoolDownTimer; }
+	FORCEINLINE void SetCoolDownTime() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
 	FORCEINLINE float GetCastingTime() { return GetTotalSkillStat().CastingTime; }
 
 	FORCEINLINE ESkillTriggerType GetSkillTriggerType() const { return GetTotalSkillData().SkillTriggerType; }
@@ -93,16 +80,11 @@ public:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY(Transient, VisibleInstanceOnly, Category = SkillStat)
 	FGOSkillStat SkillStat;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY(VisibleInstanceOnly, Category = SkillData)
 	FGOSkillData SkillData;
-
-	// 스킬 소유자에 대한 참조입니다.
-	TObjectPtr<AActor> SkillOwnerCharacter;
-	// 스킬의 피격자가 될 캐릭터에 대한 참조입니다.
-	TObjectPtr<AActor> SkillTargetCharacter;
 
 // Data Section
 public:
@@ -119,24 +101,5 @@ public:
 	
 public:
 	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
-	float CoolDownTimer = 0; // SetCoolDownTime() 잊지말기!!!
-
-public:
-	// 스킬 시전 가능한지의 여부
-	bool bIsCastable = false;
-
-	// 스킬이 현재 캐스팅 중인지의 여부
-	bool bIsCasting = false;
-
-protected:
-	// TODO: Auto targeting
-	/** true 이면 캐릭터는 캐스팅 방향을 기준으로 목표물에 근접하는 것을 목표로 합니다. */
-	UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	EAutoDetectionType AutoDetectionType = EAutoDetectionType::None;
-
-	UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	float DetectionRadius = 200;
-
-	UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	float DetectionDegree = 45;
+	float CoolDownTimer = 0;
 };

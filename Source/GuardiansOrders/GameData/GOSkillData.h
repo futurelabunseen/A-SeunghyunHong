@@ -11,7 +11,7 @@ struct FGOSkillData : public FTableRowBase
 {
     GENERATED_BODY()
 
-public:
+    public:
     FGOSkillData() :
         SkillStatName(NAME_None),
         SkillName(""),

@@ -9,8 +9,6 @@
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
-#include "Share/EGOPlayerActionState.h"
-#include "Share/GOOrder.h"
 #include "GOCharacterBase.generated.h"
 
 class UGOCharacterStatComponent;
@@ -29,7 +27,6 @@ public:
 	AGOCharacterBase();
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -61,6 +58,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Data")
 	UDataTable* CharacterStatDataTable;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	UDataTable* SkillDataTable;
+
 	FGOCharacterData CharacterData;
 
 	FGOCharacterStat CharacterStat;
@@ -79,16 +79,16 @@ protected:
 	TSubclassOf<UGOSkillBase> SkillRClass;
 
 	// 스킬 인스턴스
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY()
 	TObjectPtr<UGOSkillBase> SkillQInstance;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY()
 	TObjectPtr<UGOSkillBase> SkillWInstance;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY()
 	TObjectPtr<UGOSkillBase> SkillEInstance;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	UPROPERTY()
 	TObjectPtr<UGOSkillBase> SkillRInstance;
 
 // Stat Section
@@ -146,113 +146,7 @@ protected:
 	// 마나가 없을 때 호출되는 함수입니다.
 	virtual void NoMana();
 
-// State section
-private:
-	UPROPERTY(Replicated, VisibleInstanceOnly,
-	Meta = (Bitmask, BitmaskEnum = "EGOPlayerActionState"), Category = "Player State")
-	uint32 ActionStateBitMask = 0;
 
-	UPROPERTY(EditDefaultsOnly)
-	float DefaultImpactTime = 0.67f;
 
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float ImpactTimer = 0;
 
-	UPROPERTY(EditDefaultsOnly)
-	float DefaultBlownRecoveryTime = 1 + 0.43;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float BlownRecoveryTimer = 0;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float InvincibleTimer = 0;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float InvincibleTime = 0;
-
-public:
-	void SimulateStateUpdateOnServer(float DeltaTime);
-
-	/**
-	 * IsOrderExecutableState: 현재 Impacted, Cast, Died 상태라면 명령 처리 불가
-	 * (현재 공격을 받고 있거나, 스킬을 사용 중이거나, 죽은 상태라면)
-	 * TODO: HasEnoughMana?
-	 */
-	uint8 IsOrderExecutableState() const
-	{
-		return ((ActionStateBitMask & EGOPlayerActionStateValue::OrderUnAcceptableBitMask) == 0);
-	}
-
-	bool IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const;
-
-    // 상태 설정, 제거, 확인
-    void SetCharacterActionState(EGOPlayerActionState::State State);
-    void ClearCharacterActionState(EGOPlayerActionState::State State);
-    bool IsCharacterActionStateSet(EGOPlayerActionState::State State) const;
-
-	bool IsMoving() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Move);
-		// return (ActionStateBitMask & EGOPlayerActionState::Move);
-	}
-
-	bool IsFlashing() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Flash);
-		// return (ActionStateBitMask & EGOPlayerActionState::Flash);
-	}
-
-	bool IsCasting() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Cast);
-		// return (ActionStateBitMask & EGOPlayerActionState::Cast);
-	}
-
-	bool IsImpacted() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Impacted);
-		// return (ActionStateBitMask & EGOPlayerActionState::Impacted);
-	}
-
-	bool IsBlown() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Blown);
-		// return (ActionStateBitMask & EGOPlayerActionState::Blown);
-	}
-
-	bool IsInvincible() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Invincible);
-		// return (ActionStateBitMask & EGOPlayerActionState::Invincible);
-	}
-
-	bool IsDead() const
-	{
-		return IsCharacterActionStateSet(EGOPlayerActionState::Died);
-		// return (ActionStateBitMask & EGOPlayerActionState::Died);
-	}
-
-//#if defined(UE_BUILD_DEBUG) || defined(UE_BUILD_DEVELOPMENT)
-//
-//	private
-//		:
-//			void PrintCharacterStateOnScreen() const
-//			{
-//				GEngine->AddOnScreenDebugMessage(11, 10.f, FColor::Green,
-//					FString::Printf(TEXT(
-//						"[CharacterActionState]\n"
-//						"IsMoving: %d\nIsFlashing: %d\nIsAttacking: %d\n"
-//						"IsImpacted: %d\nIsBlown: %d\nIsInvincible: %d\nIsDead: %d\n"\
-//					),
-//						IsMoving(), 
-//						IsFlashing(),
-//						IsCasting(),
-//						IsImpacted(),
-//						IsBlown(),
-//						IsInvincible(),
-//						IsDead()
-//					));
-//			}
-//
-//#endif
 }; // End Of Class

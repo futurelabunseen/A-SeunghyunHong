@@ -9,7 +9,6 @@
 
 UGOSkillBase::UGOSkillBase()
 {
-	// TODO: 어디서 가지고 있는 것이 좋을까? 게임 서브 시스템?
 	ConstructorHelpers::FObjectFinder<UDataTable> SkillDataObj(TEXT("DataTable'/Game/GameData/SkillDataTable/GOSkillDataTable.GOSkillDataTable'"));
 	if (SkillDataObj.Succeeded())
 	{
@@ -33,9 +32,11 @@ void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
-void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
+bool UGOSkillBase::ReduceCastingTime(float DeltaTime)
 {
-	SkillOwnerCharacter = NewOwner;
+	// CastingTimeLeft -= DeltaTime;
+	// return CastingTimeLeft <= 0.0f;
+	return true;
 }
 
 void UGOSkillBase::InitializeSkill(FName InSkillName)

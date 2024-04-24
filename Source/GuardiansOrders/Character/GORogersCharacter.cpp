@@ -37,24 +37,21 @@ void AGORogersCharacter::BeginPlay()
 
 void AGORogersCharacter::OnSkillQ()
 {
-	Super::OnSkillQ();
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill Q is triggered."));
 }
 
 void AGORogersCharacter::OnSkillW()
 {
-	Super::OnSkillW();
+	// ProcessComboCommand();
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill W is triggered."));
 }
 
 void AGORogersCharacter::OnSkillE()
 {
-	Super::OnSkillE();
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill E is triggered."));
 }
 
 void AGORogersCharacter::OnSkillR()
 {
-	Super::OnSkillR();
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill R is triggered."));
 }

@@ -133,9 +133,9 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 
 	// Skill Cast Component
 	// SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-	// 
-	bReplicates = true;
-	SetReplicateMovement(true);
+
+	// Character State Init
+	ActionStateBitMask = EGOPlayerActionState::None;
 }
 
 void AGOPlayerCharacter::PostInitializeComponents()
@@ -389,7 +389,6 @@ void AGOPlayerCharacter::OnSkillE()
 {
 	if (SkillCastComponent && SkillEInstance)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[SkillSystem] AGOPlayerCharacter called OnSkillE"));
 		SkillCastComponent->OnStartCast(SkillEInstance);
 	}
 }
@@ -398,7 +397,6 @@ void AGOPlayerCharacter::OnSkillR()
 {
 	if (SkillCastComponent && SkillRInstance)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[SkillSystem] AGOPlayerCharacter called OnSkillR"));
 		SkillCastComponent->OnStartCast(SkillRInstance);
 	}
 }
@@ -448,10 +446,16 @@ void AGOPlayerCharacter::SetupHUDWidget(UGOHUDWidget* InHUDWidget)
 
 void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGOPlayerCharacter, bCanAttack);
 
+	DOREPLIFETIME(AGOPlayerCharacter, ActionStateBitMask);
 
+	DOREPLIFETIME(AGOPlayerCharacter, BlownRecoveryTimer);
+	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTime);
+	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTimer);
+	DOREPLIFETIME(AGOPlayerCharacter, ImpactTimer);
 }
 
 void AGOPlayerCharacter::Attack()
@@ -694,6 +698,47 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		}
 	}
 	return ActualDamage;
+}
+
+void AGOPlayerCharacter::SimulateStateUpdateOnServer(float DeltaTime)
+{
+	if (!GetCharacterMovement()->IsFalling() && IsFlashing() || !IsFlashing())
+		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Flash);
+
+	if (GetCharacterMovement()->IsMovingOnGround())
+		ActionStateBitMask = ActionStateBitMask | EGOPlayerActionState::Move;
+	else
+		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Move);
+
+	if (ImpactTimer > 0)
+		ImpactTimer -= DeltaTime;
+
+	if (InvincibleTimer > 0)
+		InvincibleTimer -= DeltaTime;
+
+	if (BlownRecoveryTimer > 0 && !GetCharacterMovement()->IsFalling())
+		BlownRecoveryTimer -= DeltaTime;
+
+	//if (IsImpacted() && ImpactTimer <= 0)
+	//{
+	//	RecoveryFromImpacted();
+	//}
+
+	//if (IsBlown() && BlownRecoveryTimer <= 0)
+	//{
+	//	RecoveryFromBlown();
+	//}
+}
+
+bool AGOPlayerCharacter::IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const
+{
+	return true;
+	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->
+	//		GetCastableOnImpacted()) ||
+	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->
+	//		GetCastableOnImpacted()) ||
+	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->GetCastableOnBlown()) ||
+	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->GetCastableOnBlown());
 }
 
 bool AGOPlayerCharacter::ServerRPCAttack_Validate(float AttackStartTime)

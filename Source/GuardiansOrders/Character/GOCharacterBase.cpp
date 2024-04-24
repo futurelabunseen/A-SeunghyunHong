@@ -27,7 +27,6 @@
 #include "Animation/AnimMontage.h"
 #include "Physics/GOCollision.h"
 #include "Engine/DamageEvents.h"
-#include "Net/UnrealNetwork.h"
 
 AGOCharacterBase::AGOCharacterBase()
 {
@@ -102,17 +101,20 @@ AGOCharacterBase::AGOCharacterBase()
 	{
 		CharacterDataTable = CharacterDataObj.Object;
 	}	
+	
+	//ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataObj(TEXT("DataTable'/Game/GameData/CharacterStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
+	//if (CharacterStatDataObj.Succeeded())
+	//{
+	//	CharacterStatDataTable = CharacterStatDataObj.Object;
+	//}
+
+	// TObjectPtr로 했을 땐 오류가 나지 않았지만 TSubclassOf 오류가 나므로 주석 처리
+	//SkillQ = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillQ"));
+	//SkillW = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillW"));
+	//SkillE = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillE"));
+	//SkillR = CreateDefaultSubobject<UGOSkillBase>(TEXT("SkillR"));
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-
-	// Character State Init
-	// ActionStateBitMask = EGOPlayerActionState::None;
-	SetCharacterActionState(EGOPlayerActionState::None);
-
-	// Enable replication
-	bReplicates = true;
-	SetReplicateMovement(true);
-
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -127,25 +129,6 @@ void AGOCharacterBase::PostInitializeComponents()
 void AGOCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//#if defined(UE_BUILD_DEBUG) || defined(UE_BUILD_DEVELOPMENT)
-	//		//if (IsLocallyControlled())
-	//		//{
-	//			PrintCharacterStateOnScreen();
-	//		//}
-	//#endif
-	
-}
-
-void AGOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	//DOREPLIFETIME(AGOCharacterBase, ActionStateBitMask);
-	//DOREPLIFETIME(AGOCharacterBase, BlownRecoveryTimer);
-	//DOREPLIFETIME(AGOCharacterBase, InvincibleTime);
-	//DOREPLIFETIME(AGOCharacterBase, InvincibleTimer);
-	//DOREPLIFETIME(AGOCharacterBase, ImpactTimer);
 }
 
 void AGOCharacterBase::BeginPlay()
@@ -215,8 +198,8 @@ void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 		SkillQInstance = NewObject<UGOSkillBase>(this, SkillQClass);
 		if (SkillQInstance)
 		{
+
 			SkillQInstance->InitializeSkill(InSkillName);
-			SkillQInstance->SetSkillOwner(this); 
 		}
 	}
 
@@ -258,7 +241,6 @@ void AGOCharacterBase::SetSkillDataW(FName InSkillName)
 		if (SkillWInstance)
 		{
 			SkillWInstance->InitializeSkill(InSkillName);
-			SkillWInstance->SetSkillOwner(this);
 		}
 	}
 }
@@ -271,7 +253,6 @@ void AGOCharacterBase::SetSkillDataE(FName InSkillName)
 		if (SkillEInstance)
 		{
 			SkillEInstance->InitializeSkill(InSkillName);
-			SkillEInstance->SetSkillOwner(this);
 		}
 	}
 }
@@ -284,7 +265,6 @@ void AGOCharacterBase::SetSkillDataR(FName InSkillName)
 		if (SkillRInstance)
 		{
 			SkillRInstance->InitializeSkill(InSkillName);
-			SkillRInstance->SetSkillOwner(this);
 		}
 	}
 }
@@ -414,61 +394,4 @@ void AGOCharacterBase::GetMana()
 void AGOCharacterBase::NoMana()
 {
 	// TODO: No Mana
-}
-
-// State Section
-void AGOCharacterBase::SimulateStateUpdateOnServer(float DeltaTime)
-{
-	if (!GetCharacterMovement()->IsFalling() && IsFlashing() || !IsFlashing())
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Flash);
-
-	if (GetCharacterMovement()->IsMovingOnGround())
-		ActionStateBitMask = ActionStateBitMask | EGOPlayerActionState::Move;
-	else
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Move);
-
-	if (ImpactTimer > 0)
-		ImpactTimer -= DeltaTime;
-
-	if (InvincibleTimer > 0)
-		InvincibleTimer -= DeltaTime;
-
-	if (BlownRecoveryTimer > 0 && !GetCharacterMovement()->IsFalling())
-		BlownRecoveryTimer -= DeltaTime;
-
-	//if (IsImpacted() && ImpactTimer <= 0)
-	//{
-	//	RecoveryFromImpacted();
-	//}
-
-	//if (IsBlown() && BlownRecoveryTimer <= 0)
-	//{
-	//	RecoveryFromBlown();
-	//}
-}
-
-bool AGOCharacterBase::IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const
-{
-	return true;
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->GetCastableOnBlown()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->GetCastableOnBlown());
-}
-
-void AGOCharacterBase::SetCharacterActionState(EGOPlayerActionState::State State)
-{
-	ActionStateBitMask |= State;
-}
-
-void AGOCharacterBase::ClearCharacterActionState(EGOPlayerActionState::State State)
-{
-	ActionStateBitMask &= ~State;
-}
-
-bool AGOCharacterBase::IsCharacterActionStateSet(EGOPlayerActionState::State State) const
-{
-	return (ActionStateBitMask & State) != 0;
 }
