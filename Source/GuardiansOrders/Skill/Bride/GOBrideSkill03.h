@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS()
 class GUARDIANSORDERS_API UGOBrideSkill03 : public UGOSkillBase
 {
 	GENERATED_BODY()
