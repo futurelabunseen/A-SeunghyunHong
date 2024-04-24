@@ -7,6 +7,41 @@
 AGORogersCharacter::AGORogersCharacter()
 {
 	bReplicates = true;
+
+	//static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Rogers.GOHero_Rogers"));
+	//if (DataAsset.Succeeded())
+	//{
+	//	HeroDataAsset = DataAsset.Object;
+	//	Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Rogers));
+	//}
+
+	//// GORogersSkill01 객체 생성
+	//GORogersSkill01 = CreateDefaultSubobject<UGORogersSkill01>(TEXT("GORogersSkill01"));
+	//if (!GORogersSkill01)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill01"));
+	//}
+
+	//// GORogersSkill02 객체 생성
+	//GORogersSkill02 = CreateDefaultSubobject<UGORogersSkill02>(TEXT("GORogersSkill02"));
+	//if (!GORogersSkill02)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill02"));
+	//}
+
+	//// GORogersSkill03 객체 생성
+	//GORogersSkill03 = CreateDefaultSubobject<UGORogersSkill03>(TEXT("GORogersSkill03"));
+	//if (!GORogersSkill03)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersSkill03"));
+	//}
+
+	//// GORogersUltimateSkill 객체 생성
+	//GORogersUltimateSkill = CreateDefaultSubobject<UGORogersUltimateSkill>(TEXT("GORogersUltimateSkill"));
+	//if (!GORogersUltimateSkill)
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("Failed to create GORogersUltimateSkill"));
+	//}
 }
 
 void AGORogersCharacter::PostInitializeComponents()
@@ -23,10 +58,10 @@ void AGORogersCharacter::Tick(float DeltaTime)
 void AGORogersCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if (SkillQ)
+	if (GORogersSkill01)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ Name: %s"), *SkillQ->GetTotalSkillData().SkillName);
-		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkillQ DamageMultiplier: %f"), SkillQ->GetTotalSkillStat().DamageMultiplier);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 Name: %s"), *GORogersSkill01->Name);
+		UE_LOG(LogTemp, Warning, TEXT("SkillStat GORogersSkill01 DamageMultiplier: %f"), GORogersSkill01->GetTotalSkillStat().DamageMultiplier);
 	}
 	else
 	{

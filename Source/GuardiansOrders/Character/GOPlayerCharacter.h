@@ -111,10 +111,10 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	virtual void OnSkillQ(); // Test로 virtual을 붙여둠.
-	virtual void OnSkillW();
-	virtual void OnSkillE();
-	virtual void OnSkillR();
+	virtual void OnSkillQ() {};
+	virtual void OnSkillW() {};
+	virtual void OnSkillE() {};
+	virtual void OnSkillR() {};
 	void OnSkillF();
 
 public:
