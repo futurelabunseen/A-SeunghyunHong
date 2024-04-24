@@ -1,4 +1,4 @@
-ï»¿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -6,12 +6,15 @@
 #include "GOSkillEffectAsset.h"
 #include "GOSkillData.generated.h"
 
+
+// #include "Animation/AnimMontage.h"
+
 USTRUCT(BlueprintType)
 struct FGOSkillData : public FTableRowBase
 {
     GENERATED_BODY()
 
-public:
+    public:
     FGOSkillData() :
         SkillStatName(NAME_None),
         SkillName(""),
@@ -21,9 +24,9 @@ public:
         SkillAnim(nullptr),
         SkillEffectAsset(nullptr),
         SkillIcon(nullptr)
-        {}
-    
-    // ìŠ¤í‚¬ ìŠ¤íƒ¯ì„ ìœ„í•œ í…Œì´ë¸” RowName ì…ë‹ˆë‹¤.
+    {}
+
+    // ½ºÅ³ ½ºÅÈÀ» À§ÇÑ Å×ÀÌºí RowName ÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     FName SkillStatName;
 
@@ -32,7 +35,7 @@ public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "SkillData")
     FString Description;
-    
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     ESkillTriggerType SkillTriggerType;
 
@@ -42,11 +45,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
-    // ìŠ¤í‚¬ íš¨ê³¼ ì• ì…‹ì„ ìœ„í•œ ì°¸ì¡°ì…ë‹ˆë‹¤. (ë¯¸ì •: ì• ì…‹ ë˜ëŠ” í…Œì´ë¸”)
+    // ½ºÅ³ È¿°ú ¾Ö¼ÂÀ» À§ÇÑ ÂüÁ¶ÀÔ´Ï´Ù. (¹ÌÁ¤: ¾Ö¼Â ¶Ç´Â Å×ÀÌºí)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UGOSkillEffectAsset> SkillEffectAsset;
 
-    // ìŠ¤í‚¬ ì•„ì´ì½˜ì˜ í…ìŠ¤ì³ì…ë‹ˆë‹¤.
+    // ½ºÅ³ ¾ÆÀÌÄÜÀÇ ÅØ½ºÃÄÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
 };

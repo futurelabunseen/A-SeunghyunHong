@@ -8,6 +8,8 @@
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
+#include "Share/EGOPlayerActionState.h"
+#include "Share/GOOrder.h"
 #include "GOPlayerCharacter.generated.h"
 
 struct FInputActionValue;
@@ -109,7 +111,7 @@ protected:
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
-	virtual void OnSkillQ(); // Test로 virtual을 붙여둠.
+	virtual void OnSkillQ();
 	virtual void OnSkillW();
 	virtual void OnSkillE();
 	virtual void OnSkillR();
@@ -288,5 +290,80 @@ protected:
 	FGOOrder ServerBufferedOrder;
 
 
+// State section
+private:
+	UPROPERTY(Replicated, VisibleInstanceOnly,
+	Meta = (Bitmask, BitmaskEnum = "EGOPlayerActionState"), Category = "Player State")
+	uint32 ActionStateBitMask = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DefaultImpactTime = 0.67f;
+
+	UPROPERTY(VisibleInstanceOnly, Replicated)
+	float ImpactTimer = 0;
+
+	UPROPERTY(EditDefaultsOnly)
+	float DefaultBlownRecoveryTime = 1 + 0.43;
+
+	UPROPERTY(VisibleInstanceOnly, Replicated)
+	float BlownRecoveryTimer = 0;
+
+	UPROPERTY(VisibleInstanceOnly, Replicated)
+	float InvincibleTimer = 0;
+
+	UPROPERTY(VisibleInstanceOnly, Replicated)
+	float InvincibleTime = 0;
+
+public:
+	void SimulateStateUpdateOnServer(float DeltaTime);
+
+	/**
+	 * 현재 Impacted, Cast, Died  상태라면 
+	 * (현재 공격을 받고 있거나, 스킬을 사용 중이거나, 죽은 상태라면)
+	 */
+	uint8 IsOrderExecutableState() const
+	{
+		return ((ActionStateBitMask & EGOPlayerActionStateValue::OrderUnAcceptableBitMask) == 0);
+	}
+
+	bool IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const;
+
+
+
+
+	bool IsMoving() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Move);
+	}
+
+	bool IsFlashing() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Flash);
+	}
+
+	bool IsCasting() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Cast);
+	}
+
+	bool IsImpacted() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Impacted);
+	}
+
+	bool IsBlown() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Blown);
+	}
+
+	bool IsInvincible() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Invincible);
+	}
+
+	bool IsDied() const
+	{
+		return (ActionStateBitMask & EGOPlayerActionState::Died);
+	}
 
 };

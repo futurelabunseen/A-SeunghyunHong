@@ -7,14 +7,6 @@
 AGOBrideCharacter::AGOBrideCharacter()
 {
 	bReplicates = true;
-
-	//static ConstructorHelpers::FObjectFinder<UGOCharacterDataAsset> DataAsset(TEXT("/Game/GameData/HeroDataAsset/GOHero_Bride.GOHero_Bride"));
-	//if (DataAsset.Succeeded())
-	//{
-	//	HeroDataAsset = DataAsset.Object;
-	//	Stat->SetCurrentCharacterType(static_cast<int32>(EHeroType::Bride));
-	//	// ManaRegenerationRate = Stat->GetTotalStat().ManaRegenerationRate;
-	//}
 }
 
 void AGOBrideCharacter::PostInitializeComponents()

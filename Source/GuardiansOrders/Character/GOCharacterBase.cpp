@@ -1,4 +1,4 @@
-ï»¿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GOCharacterBase.h"
@@ -27,7 +27,6 @@
 #include "Animation/AnimMontage.h"
 #include "Physics/GOCollision.h"
 #include "Engine/DamageEvents.h"
-#include "Net/UnrealNetwork.h"
 
 AGOCharacterBase::AGOCharacterBase()
 {
@@ -47,8 +46,7 @@ AGOCharacterBase::AGOCharacterBase()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->bEnablePhysicsInteraction = false;
-	GetCharacterMovement()->GroundFriction = 8.0f; 
-	GetCharacterMovement()->BrakingFrictionFactor = 2.0f; 
+	// GetCharacterMovement()->SlideAlongSurface(false);
 
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
@@ -103,21 +101,12 @@ AGOCharacterBase::AGOCharacterBase()
 	}	
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-
-	// Character State Init
-	// ActionStateBitMask = EGOPlayerActionState::None;
-	// SetCharacterActionState(EGOPlayerActionState::None);
-
-	// Enable replication
-	bReplicates = true;
-	SetReplicateMovement(true);
-
 }
 
 void AGOCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
+	// GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	Stat->OnHpZero.AddUObject(this, &AGOCharacterBase::SetDead);
 	Stat->OnStatChanged.AddUObject(this, &AGOCharacterBase::ApplyStat);
 	Stat->OnManaZero.AddUObject(this, &AGOCharacterBase::NoMana);
@@ -126,41 +115,11 @@ void AGOCharacterBase::PostInitializeComponents()
 void AGOCharacterBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//#if defined(UE_BUILD_DEBUG) || defined(UE_BUILD_DEVELOPMENT)
-	//		//if (IsLocallyControlled())
-	//		//{
-	//			PrintCharacterStateOnScreen();
-	//		//}
-	//#endif
-	
-
-}
-
-void AGOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	//DOREPLIFETIME(AGOCharacterBase, ActionStateBitMask);
-	//DOREPLIFETIME(AGOCharacterBase, BlownRecoveryTimer);
-	//DOREPLIFETIME(AGOCharacterBase, InvincibleTime);
-	//DOREPLIFETIME(AGOCharacterBase, InvincibleTimer);
-	//DOREPLIFETIME(AGOCharacterBase, ImpactTimer);
 }
 
 void AGOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-
-	if (!PlayerController)
-	{
-		if (!HasAuthority())
-		{
-			EnableInput(PlayerController);
-		}
-	}
 }
 
 void AGOCharacterBase::SetData(FName InCharacterName)
@@ -184,7 +143,7 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 		SkillEClass = CharacterData.SkillEClass;
 		SkillRClass = CharacterData.SkillRClass;
 
-		// ìŠ¤í‚¬ ë°ì´í„° í…Œì´ë¸”ì˜ RowName
+		// ½ºÅ³ µ¥ÀÌÅÍ Å×ÀÌºíÀÇ RowName
 		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
 		SetSkillDataW(CharacterData.DefaultSkillNameW);
 		SetSkillDataE(CharacterData.DefaultSkillNameE);
@@ -192,7 +151,7 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 
 		GetMesh()->SetSkeletalMesh(CharacterData.SkeletalMesh);
 		GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
-		
+
 		GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	}
 }
@@ -213,7 +172,7 @@ void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
 	{
 		CharacterStat = *CharacterStatDataRow;
 
-		// StatComponent ì²˜ë¦¬
+		// StatComponent Ã³¸®
 		Stat->SetBaseStat(CharacterStat);
 	}
 }
@@ -299,7 +258,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
 	if (StatsBarWidget)
 	{
-		// StatsBar ìœ„ì ¯ ì•ˆì˜ HPë°”ì™€ ë§ˆë‚˜ë°”ì— ëŒ€í•œ ì°¸ì¡°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+		// StatsBar À§Á¬ ¾ÈÀÇ HP¹Ù¿Í ¸¶³ª¹Ù¿¡ ´ëÇÑ ÂüÁ¶¸¦ °¡Á®¿É´Ï´Ù.
 		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->HpBar);
 		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->ManaBar);
 		UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
@@ -307,7 +266,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		
 		if (HpBarWidget && ManaBarWidget)
 		{
-			// HPì™€ ë§ˆë‚˜ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ë¥¼ ìƒíƒœ ë³€ê²½ ì´ë²¤íŠ¸ì— ë°”ì¸ë”©í•©ë‹ˆë‹¤.
+			// HP¿Í ¸¶³ª ¾÷µ¥ÀÌÆ® ÇÔ¼ö¸¦ »óÅÂ º¯°æ ÀÌº¥Æ®¿¡ ¹ÙÀÎµùÇÕ´Ï´Ù.
 			HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
@@ -395,61 +354,4 @@ void AGOCharacterBase::GetMana()
 void AGOCharacterBase::NoMana()
 {
 	// TODO: No Mana
-}
-
-// State Section
-void AGOCharacterBase::SimulateStateUpdateOnServer(float DeltaTime)
-{
-	if (!GetCharacterMovement()->IsFalling() && IsFlashing() || !IsFlashing())
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Flash);
-
-	if (GetCharacterMovement()->IsMovingOnGround())
-		ActionStateBitMask = ActionStateBitMask | EGOPlayerActionState::Move;
-	else
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Move);
-
-	if (ImpactTimer > 0)
-		ImpactTimer -= DeltaTime;
-
-	if (InvincibleTimer > 0)
-		InvincibleTimer -= DeltaTime;
-
-	if (BlownRecoveryTimer > 0 && !GetCharacterMovement()->IsFalling())
-		BlownRecoveryTimer -= DeltaTime;
-
-	//if (IsImpacted() && ImpactTimer <= 0)
-	//{
-	//	RecoveryFromImpacted();
-	//}
-
-	//if (IsBlown() && BlownRecoveryTimer <= 0)
-	//{
-	//	RecoveryFromBlown();
-	//}
-}
-
-bool AGOCharacterBase::IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const
-{
-	return true;
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->GetCastableOnBlown()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->GetCastableOnBlown());
-}
-
-void AGOCharacterBase::SetCharacterActionState(EGOPlayerActionState::State State)
-{
-	ActionStateBitMask |= State;
-}
-
-void AGOCharacterBase::ClearCharacterActionState(EGOPlayerActionState::State State)
-{
-	ActionStateBitMask &= ~State;
-}
-
-bool AGOCharacterBase::IsCharacterActionStateSet(EGOPlayerActionState::State State) const
-{
-	return (ActionStateBitMask & State) != 0;
 }

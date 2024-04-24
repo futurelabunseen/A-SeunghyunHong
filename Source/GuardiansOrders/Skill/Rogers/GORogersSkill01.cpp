@@ -2,6 +2,8 @@
 
 
 #include "Skill/Rogers/GORogersSkill01.h"
+#include "Skill/GOSkillStatComponent.h"
+#include "Share/EGOSkill.h"
 
 UGORogersSkill01::UGORogersSkill01()
 {
@@ -17,6 +19,10 @@ void UGORogersSkill01::StartCast()
 {
 	SetCoolDownTimer();
 	bIsCasting = true;
+}
+
+void UGORogersSkill01::UpdateCast(float DeltaTime)
+{
 }
 
 void UGORogersSkill01::FinishCast()
@@ -38,5 +44,5 @@ bool UGORogersSkill01::IsCasting() const
 
 bool UGORogersSkill01::IsCastable() const
 {
-	return GetCoolDownTimer() <= 0;
+	return false;
 }

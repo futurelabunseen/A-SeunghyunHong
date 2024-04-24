@@ -33,6 +33,7 @@ void AGOBeastCharacter::OnSkillQ()
 
 void AGOBeastCharacter::OnSkillW()
 {
+	// ProcessComboCommand();
 	Super::OnSkillW();
 	UE_LOG(LogTemp, Log, TEXT("Beast Skill W is triggered."));
 }

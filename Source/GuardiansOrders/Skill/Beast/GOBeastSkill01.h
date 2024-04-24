@@ -18,6 +18,7 @@ public:
 	UGOBeastSkill01();
 	virtual void PostInitProperties() override;
 
+
 public:
 	virtual void StartCast() override;
 	virtual void UpdateCast(float DeltaTime) override;

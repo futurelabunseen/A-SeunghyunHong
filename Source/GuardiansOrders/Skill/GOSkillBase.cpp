@@ -9,7 +9,6 @@
 
 UGOSkillBase::UGOSkillBase()
 {
-	// TODO: 어디서 가지고 있는 것이 좋을까? 게임 서브 시스템?
 	ConstructorHelpers::FObjectFinder<UDataTable> SkillDataObj(TEXT("DataTable'/Game/GameData/SkillDataTable/GOSkillDataTable.GOSkillDataTable'"));
 	if (SkillDataObj.Succeeded())
 	{
@@ -63,6 +62,4 @@ void UGOSkillBase::InitializeSkill(FName InSkillName)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Skill data not found for name: %s"), *InSkillName.ToString());
 	}
-
-
 }

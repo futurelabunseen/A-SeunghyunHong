@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" 
 #include "GOCharacterStat.h"
-#include "Skill/GOSkillBase.h"
 #include "GOCharacterData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -24,10 +23,9 @@ public:
 		DefaultSkillNameR(NAME_None),
 		SkeletalMesh(nullptr),
 		AnimBlueprint(nullptr)
-		{}
-
+	{}
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	TSubclassOf<UGOSkillBase> SkillQClass;
+	TSubclassOf<class UGOSkillBase> SkillQClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TSubclassOf<UGOSkillBase> SkillWClass;
@@ -42,7 +40,7 @@ public:
 	FName DefaultBaseSkillName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
-	FName DefaultSkillNameQ; 
+	FName DefaultSkillNameQ;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName DefaultSkillNameW;

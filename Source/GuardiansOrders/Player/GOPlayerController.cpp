@@ -6,10 +6,8 @@
 #include "UI/GOHUDWidget.h"
 #include "CommonActivatableWidget.h"
 
-
 AGOPlayerController::AGOPlayerController()
 {
-    bReplicates = true;
     /*
     static ConstructorHelpers::FClassFinder<UGOHUDWidget> GOHUDWidgetRef(TEXT("/Game/UI/HUD/CWBP_GOHUD.CWBP_GOHUD_C"));
     if (GOHUDWidgetRef.Class)

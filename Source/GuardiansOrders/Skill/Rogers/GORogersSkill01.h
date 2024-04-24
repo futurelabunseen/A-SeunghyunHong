@@ -20,6 +20,7 @@ public:
 
 public:
 	virtual void StartCast() override;
+	virtual void UpdateCast(float DeltaTime) override;
 	virtual void FinishCast() override;
 	virtual void InterruptedCast() override;
 	virtual void ActivateEffect() override;
@@ -29,4 +30,5 @@ public:
 private:
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
+
 };
