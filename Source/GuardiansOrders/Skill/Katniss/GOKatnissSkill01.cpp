@@ -12,3 +12,33 @@ void UGOKatnissSkill01::PostInitProperties()
 {
 	Super::PostInitProperties();
 }
+
+void UGOKatnissSkill01::StartCast()
+{
+}
+
+void UGOKatnissSkill01::UpdateCast(float DeltaTime)
+{
+}
+
+void UGOKatnissSkill01::FinishCast()
+{
+}
+
+void UGOKatnissSkill01::InterruptedCast()
+{
+}
+
+void UGOKatnissSkill01::ActivateEffect()
+{
+}
+
+bool UGOKatnissSkill01::IsCasting() const
+{
+	return false;
+}
+
+bool UGOKatnissSkill01::IsCastable() const
+{
+	return false;
+}

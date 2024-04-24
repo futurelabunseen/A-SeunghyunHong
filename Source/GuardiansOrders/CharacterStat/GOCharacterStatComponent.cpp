@@ -26,7 +26,7 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 void UGOCharacterStatComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
-	// ResetStat();
+	ResetStat();
 
 	OnStatChanged.AddUObject(this, &UGOCharacterStatComponent::SetNewMaxHp);
 	OnStatChanged.AddUObject(this, &UGOCharacterStatComponent::SetNewMaxMana);

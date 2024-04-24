@@ -15,6 +15,8 @@ void UGORogersSkill01::PostInitProperties()
 
 void UGORogersSkill01::StartCast()
 {
+	SetCoolDownTimer();
+	bIsCasting = true;
 }
 
 void UGORogersSkill01::FinishCast()

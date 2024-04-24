@@ -2,4 +2,11 @@
 
 
 #include "GameData/GOGameInstance.h"
+#include "GOGameSubsystem.h"  
 
+void UGOGameInstance::Init()
+{
+    Super::Init();
+
+   
+}

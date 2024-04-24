@@ -14,4 +14,6 @@ class GUARDIANSORDERS_API UGOGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+public:
+	virtual void Init() override;
 };
