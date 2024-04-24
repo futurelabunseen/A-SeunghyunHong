@@ -107,7 +107,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	// 스킬 캐스팅 중 업데이트 로직
 	CurrentSkill->UpdateCast(DeltaTime);
 
-	//테스트용 코드 ... 델리게이트를 사용해야할지?
+	//이렇게 하는 방식이 맞는지
 	AActor* OwnerActor = GetOwner();
 	AGOCharacterBase* OwnerCharacter = Cast<AGOCharacterBase>(OwnerActor);
 	if (OwnerCharacter)

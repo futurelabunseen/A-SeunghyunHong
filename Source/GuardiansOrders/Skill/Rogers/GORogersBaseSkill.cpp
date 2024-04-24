@@ -15,8 +15,6 @@ void UGORogersBaseSkill::PostInitProperties()
 
 void UGORogersBaseSkill::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
 }
 
 void UGORogersBaseSkill::UpdateCast(float DeltaTime)

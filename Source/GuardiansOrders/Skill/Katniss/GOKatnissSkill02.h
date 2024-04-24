@@ -17,17 +17,4 @@ class GUARDIANSORDERS_API UGOKatnissSkill02 : public UGOSkillBase
 public:
 	UGOKatnissSkill02();
 	virtual void PostInitProperties() override;
-
-public:
-	virtual void StartCast() override;
-	virtual void UpdateCast(float DeltaTime) override;
-	virtual void FinishCast() override;
-	virtual void InterruptedCast() override;
-	virtual void ActivateEffect() override;
-	virtual bool IsCasting() const override;
-	virtual bool IsCastable() const override;
-
-private:
-	//bool bIsCastable = false;
-	//bool bIsOnCasting = false;
 };

@@ -141,6 +141,17 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 void AGOPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	if (HeroDataAsset)
+	{
+		GetMesh()->SetSkeletalMesh(HeroDataAsset->SkeletalMesh);
+		GetMesh()->SetAnimInstanceClass(HeroDataAsset->AnimBlueprint);
+		HeroType = HeroDataAsset->HeroType;
+		RoleType = HeroDataAsset->RoleType;
+		AttackRange = HeroDataAsset->AttackRange;
+		Archetype = HeroDataAsset->Archetype;
+		// Stat->SetCharacterStat(static_cast<int32>(HeroType));
+	}
 }
 
 void AGOPlayerCharacter::Tick(float DeltaTime)
@@ -184,6 +195,14 @@ void AGOPlayerCharacter::PossessedBy(AController* NewController)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 
 	AActor* OwnerActor = GetOwner();
+	//if (OwnerActor)
+	//{
+	//	GO_LOG(LogGONetwork, Log, TEXT("Owner YES1: %s"), *OwnerActor->GetName());
+	//}
+	//else
+	//{
+	//	GO_LOG(LogGONetwork, Log, TEXT("Owner NO1: %s"), TEXT("No Owner"));
+	//}
 
 	Super::PossessedBy(NewController);
 	
@@ -251,14 +270,9 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
 		EnhancedInputComponent->BindAction(ActionSkillF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillF);
 
-
 		UE_LOG(LogTemp, Log, TEXT("SetupPlayerInputComponent done"));
 		EnhancedInputComponent->Activate();
-		UE_LOG(LogTemp, Log, TEXT("[Input] Input Component Activated"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[Input] EnhancedInputComponent is null"));
+
 	}
 }
 
@@ -381,6 +395,7 @@ void AGOPlayerCharacter::OnSkillE()
 {
 	if (SkillCastComponent && SkillEInstance)
 	{
+		UE_LOG(LogTemp, Log, TEXT("[SkillSystem] AGOPlayerCharacter called OnSkillE"));
 		SkillCastComponent->OnStartCast(SkillEInstance);
 	}
 }
@@ -389,6 +404,7 @@ void AGOPlayerCharacter::OnSkillR()
 {
 	if (SkillCastComponent && SkillRInstance)
 	{
+		UE_LOG(LogTemp, Log, TEXT("[SkillSystem] AGOPlayerCharacter called OnSkillR"));
 		SkillCastComponent->OnStartCast(SkillRInstance);
 	}
 }
@@ -456,8 +472,6 @@ void AGOPlayerCharacter::Attack()
 
 	if (bCanAttack)
 	{
-		UE_LOG(LogTemp, Log, TEXT("[Input] Skill Q action triggered"));
-
 		// 클라이언트에게 애니메이션 재생, 타이머 재생을 맡깁니다.
 		if (!HasAuthority())
 		{
@@ -478,10 +492,6 @@ void AGOPlayerCharacter::Attack()
 
 		// 서버에게 서버시간과 함께 명령을 보냅니다.
 		ServerRPCAttack(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Input] Attempted Skill Q when unable to attack"));
 	}
 }
 

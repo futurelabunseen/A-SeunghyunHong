@@ -106,7 +106,7 @@ AGOCharacterBase::AGOCharacterBase()
 
 	// Character State Init
 	// ActionStateBitMask = EGOPlayerActionState::None;
-	// SetCharacterActionState(EGOPlayerActionState::None);
+	SetCharacterActionState(EGOPlayerActionState::None);
 
 	// Enable replication
 	bReplicates = true;
@@ -117,7 +117,7 @@ AGOCharacterBase::AGOCharacterBase()
 void AGOCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
+	// GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	Stat->OnHpZero.AddUObject(this, &AGOCharacterBase::SetDead);
 	Stat->OnStatChanged.AddUObject(this, &AGOCharacterBase::ApplyStat);
 	Stat->OnManaZero.AddUObject(this, &AGOCharacterBase::NoMana);
@@ -134,7 +134,6 @@ void AGOCharacterBase::Tick(float DeltaTime)
 	//		//}
 	//#endif
 	
-
 }
 
 void AGOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -151,16 +150,6 @@ void AGOCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 void AGOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-
-	if (!PlayerController)
-	{
-		if (!HasAuthority())
-		{
-			EnableInput(PlayerController);
-		}
-	}
 }
 
 void AGOCharacterBase::SetData(FName InCharacterName)
@@ -226,9 +215,38 @@ void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 		if (SkillQInstance)
 		{
 			SkillQInstance->InitializeSkill(InSkillName);
-			SkillQInstance->SetSkillOwner(this);
+			SkillQInstance->SetSkillOwner(this); 
 		}
 	}
+
+	//if (SkillQ)
+	//{
+	//	SkillQ->Set(InSkillName);
+	//}
+
+	//if (*SkillQ)
+	//{
+	//	UGOSkillBase* SkillInstance = NewObject<UGOSkillBase>(this, SkillQ);
+	//	if (SkillInstance)
+	//	{
+	//		SkillInstance->InitializeSkill(InSkillName);
+	//	}
+	//}
+
+	//if (SkillQClass.IsValid())
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("SOFT 3"));
+
+	//	UGOSkillBase* LoadedSkill = Cast<UGOSkillBase>(SkillQClass.LoadSynchronous());
+	//	if (LoadedSkill)
+	//	{
+	//		SkillQInstance = NewObject<UGOSkillBase>(this, LoadedSkill->GetClass());
+	//		if (SkillQInstance)
+	//		{
+	//			SkillQInstance->InitializeSkill(InSkillName);
+	//		}
+	//	}
+	//}
 }
 
 void AGOCharacterBase::SetSkillDataW(FName InSkillName)
