@@ -47,8 +47,9 @@ AGOCharacterBase::AGOCharacterBase()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->bEnablePhysicsInteraction = false;
-	GetCharacterMovement()->GroundFriction = 8.0f; 
-	GetCharacterMovement()->BrakingFrictionFactor = 2.0f; 
+	GetCharacterMovement()->GroundFriction = 8.0f; // 기본 마찰력을 증가시켜 미끄러짐 감소
+	GetCharacterMovement()->BrakingFrictionFactor = 2.0f; // 브레이킹(정지) 마찰력을 증가
+	// GetCharacterMovement()->SlideAlongSurface(false);
 
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
