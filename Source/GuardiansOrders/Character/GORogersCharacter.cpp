@@ -25,6 +25,12 @@ void AGORogersCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AGORogersCharacter::OnBaseSkill()
+{
+	Super::OnBaseSkill();
+	UE_LOG(LogTemp, Log, TEXT("Rogers Base Skill is triggered."));
+}
+
 void AGORogersCharacter::OnSkillQ()
 {
 	Super::OnSkillQ();
@@ -50,8 +56,8 @@ void AGORogersCharacter::OnSkillR()
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill R is triggered."));
 }
 
-void AGORogersCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
-{
-	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
-	UE_LOG(LogTemp, Warning, TEXT("[AGORogersCharacter::PlaySkillAnim]  1 called. This function is inherited from GOPlaySkillAnimInterface. "));
-}
+//void AGORogersCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
+//{
+//	 GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+//	 UE_LOG(LogTemp, Warning, TEXT("[AGORogersCharacter::PlaySkillAnim]  1 called. This function is inherited from GOPlaySkillAnimInterface. "));
+//}

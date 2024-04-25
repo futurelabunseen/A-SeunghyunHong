@@ -6,8 +6,6 @@
 #include "GameFramework/Character.h"
 #include "Interface/GOAnimationAttackInterface.h"
 #include "Interface/GOCharacterWidgetInterface.h"
-#include "Interface/GOPlaySkillAnimInterface.h"
-
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
@@ -21,7 +19,7 @@ class UGOUserWidget;
 class UGOSkillCastComponent;
 
 UCLASS()
-class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface, public IGOPlaySkillAnimInterface
+class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
 {
 	GENERATED_BODY()
 	
@@ -41,6 +39,9 @@ protected:
 	void SetCharacterStatData(FName InCharacterName);
 
 	// 개별 스킬 데이터를 설정합니다.
+	UFUNCTION(BlueprintCallable, Category = "Skills")
+	void SetBaseSkillData(FName InSkillName);
+
 	UFUNCTION(BlueprintCallable, Category = "Skills")
 	void SetSkillDataQ(FName InSkillName);
 
@@ -66,6 +67,9 @@ protected:
 
 	// 스킬 클래스 정보
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TSubclassOf<UGOSkillBase> BaseSkillClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TSubclassOf<UGOSkillBase> SkillQClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
@@ -78,6 +82,9 @@ protected:
 	TSubclassOf<UGOSkillBase> SkillRClass;
 
 	// 스킬 인스턴스
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TObjectPtr<UGOSkillBase> BaseSkillInstance;	
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TObjectPtr<UGOSkillBase> SkillQInstance;
 
@@ -151,16 +158,6 @@ protected:
 	// 마나가 없을 때 호출되는 함수입니다.
 	virtual void NoMana();
 
-// ======== IPlaySkillAnimInterface ========
 
-	virtual UGOSkillCastComponent* GetSkillCastComponent()
-	{
-		return SkillCastComponent;
-	}
-
-	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[ACharacterBase::PlaySkillAnim] called. This function is inherited from GOPlaySkillAnimInterface. "));
-	}
 
 }; // End Of Class

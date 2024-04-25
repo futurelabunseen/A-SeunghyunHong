@@ -25,6 +25,12 @@ void AGOBrideCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AGOBrideCharacter::OnBaseSkill()
+{
+	Super::OnBaseSkill();
+	UE_LOG(LogTemp, Log, TEXT("Bride Base Skill is triggered."));
+}
+
 void AGOBrideCharacter::OnSkillQ()
 {
 	Super::OnSkillQ();

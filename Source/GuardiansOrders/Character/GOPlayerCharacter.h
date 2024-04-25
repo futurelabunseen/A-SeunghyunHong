@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/GOCharacterBase.h"
 #include "Interface/GOCharacterHUDInterface.h"
+#include "Interface/GOPlaySkillAnimInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -25,7 +26,7 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface
 {
 	GENERATED_BODY()
 	
@@ -115,6 +116,7 @@ protected:
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 
+	virtual void OnBaseSkill();
 	virtual void OnSkillQ();
 	virtual void OnSkillW();
 	virtual void OnSkillE();
@@ -379,4 +381,17 @@ public:
 		return (ActionStateBitMask & EGOPlayerActionState::Died);
 	}
 
+// ======== IGOPlaySkillAnimInterface ========
+
+	virtual UGOSkillCastComponent* GetSkillCastComponent()
+	{
+		return SkillCastComponent;
+	}
+
+	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill);
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 1 called. This function is inherited from GOPlaySkillAnimInterface. "));
+	//	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+	//	
+	//}
 };

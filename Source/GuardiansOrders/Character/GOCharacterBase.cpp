@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GOCharacterBase.h"
@@ -140,12 +140,14 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			Stat->SetCharacterStat(InCharacterName);
 		}
 
+		BaseSkillClass = CharacterData.BaseSkillClass;
 		SkillQClass = CharacterData.SkillQClass;
 		SkillWClass = CharacterData.SkillWClass;
 		SkillEClass = CharacterData.SkillEClass;
 		SkillRClass = CharacterData.SkillRClass;
 
-		// ½ºÅ³ µ¥ÀÌÅÍ Å×ÀÌºíÀÇ RowName
+		// ìŠ¤í‚¬ ë°ì´í„° í…Œì´ë¸”ì˜ RowName
+		SetBaseSkillData(CharacterData.DefaultBaseSkillName);
 		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
 		SetSkillDataW(CharacterData.DefaultSkillNameW);
 		SetSkillDataE(CharacterData.DefaultSkillNameE);
@@ -174,8 +176,23 @@ void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
 	{
 		CharacterStat = *CharacterStatDataRow;
 
-		// StatComponent Ã³¸®
+		// StatComponent ì²˜ë¦¬
 		Stat->SetBaseStat(CharacterStat);
+	}
+}
+
+void AGOCharacterBase::SetBaseSkillData(FName InSkillName)
+{
+	if (BaseSkillClass != nullptr)
+	{
+		BaseSkillInstance = NewObject<UGOSkillBase>(this, BaseSkillClass);
+		if (BaseSkillInstance)
+		{
+			BaseSkillInstance->InitializeSkill(InSkillName);
+			BaseSkillInstance->SetSkillOwner(this);
+
+			SkillSlot.Add(BaseSkillInstance);
+		}
 	}
 }
 
@@ -268,7 +285,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
 	if (StatsBarWidget)
 	{
-		// StatsBar À§Á¬ ¾ÈÀÇ HP¹Ù¿Í ¸¶³ª¹Ù¿¡ ´ëÇÑ ÂüÁ¶¸¦ °¡Á®¿É´Ï´Ù.
+		// StatsBar ìœ„ì ¯ ì•ˆì˜ HPë°”ì™€ ë§ˆë‚˜ë°”ì— ëŒ€í•œ ì°¸ì¡°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
 		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->HpBar);
 		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->ManaBar);
 		UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
@@ -276,7 +293,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		
 		if (HpBarWidget && ManaBarWidget)
 		{
-			// HP¿Í ¸¶³ª ¾÷µ¥ÀÌÆ® ÇÔ¼ö¸¦ »óÅÂ º¯°æ ÀÌº¥Æ®¿¡ ¹ÙÀÎµùÇÕ´Ï´Ù.
+			// HPì™€ ë§ˆë‚˜ ì—…ë°ì´íŠ¸ í•¨ìˆ˜ë¥¼ ìƒíƒœ ë³€ê²½ ì´ë²¤íŠ¸ì— ë°”ì¸ë”©í•©ë‹ˆë‹¤.
 			HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
@@ -365,3 +382,4 @@ void AGOCharacterBase::NoMana()
 {
 	// TODO: No Mana
 }
+

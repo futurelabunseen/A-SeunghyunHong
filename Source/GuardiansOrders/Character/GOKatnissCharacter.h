@@ -24,6 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void OnBaseSkill() override;
 	virtual void OnSkillQ() override;
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
@@ -31,16 +32,6 @@ public:
 
 // Skill Section
 protected:
-	/** Q Skill */
-	TObjectPtr<UGOKatnissSkill01> GOKatnissSkill01;
 
-	/** W Skill */
-	TObjectPtr<UGOKatnissSkill02> GOKatnissSkill02;
-
-	/** E Skill */
-	TObjectPtr<UGOKatnissSkill03> GOKatnissSkill03;
-
-	/** R Skill */
-	TObjectPtr<UGOKatnissUltimateSkill> GOKatnissUltimateSkill;
 };
 

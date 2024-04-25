@@ -12,6 +12,7 @@ struct FGOCharacterData : public FTableRowBase
 
 public:
 	FGOCharacterData() :
+		BaseSkillClass(nullptr),
 		SkillQClass(nullptr),
 		SkillWClass(nullptr),
 		SkillEClass(nullptr),
@@ -24,6 +25,9 @@ public:
 		SkeletalMesh(nullptr),
 		AnimBlueprint(nullptr)
 	{}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TSubclassOf<class UGOSkillBase> BaseSkillClass;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TSubclassOf<class UGOSkillBase> SkillQClass;
 

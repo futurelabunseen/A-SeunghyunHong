@@ -3,10 +3,10 @@
 
 #include "Skill/GOSkillCastComponent.h"
 #include "Character/GOCharacterBase.h"
+#include <Interface/GOPlaySkillAnimInterface.h>
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
-
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
@@ -80,6 +80,13 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
 			GOPlaySkillAnimInterface->PlaySkillAnim(CurrentSkill);
+			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
+
+		}
+
+		if (IGOAnimationAttackInterface* GOAnimAttackInterfac = Cast<IGOAnimationAttackInterface>(Owner))
+		{
+			GOAnimAttackInterfac->AttackHitCheck();
 		}
 	}
 

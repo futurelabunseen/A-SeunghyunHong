@@ -150,17 +150,6 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 void AGOPlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
-	if (HeroDataAsset)
-	{
-		GetMesh()->SetSkeletalMesh(HeroDataAsset->SkeletalMesh);
-		GetMesh()->SetAnimInstanceClass(HeroDataAsset->AnimBlueprint);
-		HeroType = HeroDataAsset->HeroType;
-		RoleType = HeroDataAsset->RoleType;
-		AttackRange = HeroDataAsset->AttackRange;
-		Archetype = HeroDataAsset->Archetype;
-		// Stat->SetCharacterStat(static_cast<int32>(HeroType));
-	}
 }
 
 void AGOPlayerCharacter::Tick(float DeltaTime)
@@ -271,7 +260,7 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Completed, this, &AGOPlayerCharacter::OnSetDestinationReleased);
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Canceled, this, &AGOPlayerCharacter::OnSetDestinationReleased);
 
-		EnhancedInputComponent->BindAction(ActionBaseSkill, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
+		EnhancedInputComponent->BindAction(ActionBaseSkill, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnBaseSkill);
 		// EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillQ);
 		EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
@@ -378,6 +367,14 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 	FollowTime = 0.f;
 
+}
+
+void AGOPlayerCharacter::OnBaseSkill()
+{
+	if (SkillCastComponent && BaseSkillInstance)
+	{
+		SkillCastComponent->OnStartCast(BaseSkillInstance);
+	}
 }
 
 void AGOPlayerCharacter::OnSkillQ()
@@ -501,13 +498,13 @@ void AGOPlayerCharacter::Attack()
 {
 	// ProcessComboCommand();
 
-	if (bCanAttack)
+	if (bCanAttack)// 상태 체크
 	{
 		// 클라이언트에게 애니메이션 재생, 타이머 재생을 맡깁니다.
 		if (!HasAuthority())
 		{
 			bCanAttack = false;
-			// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 			GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime, false);
 			//FTimerHandle Handle;
@@ -517,8 +514,9 @@ void AGOPlayerCharacter::Attack()
 			//		// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 			//	}
 			//), AttackTime, false, -1.0f);
+			UE_LOG(LogTemp, Log, TEXT("요기1: Attack() ")); // 클라는 요기1, 요기2 // 서버는 요기2, 요기3
 
-			PlayAttackAnimation();
+			PlayAttackAnimation(); //요기
 		}
 
 		// 서버에게 서버시간과 함께 명령을 보냅니다.
@@ -666,12 +664,12 @@ void AGOPlayerCharacter::OnRep_CanAttack()
 	if (!bCanAttack)
 	{
 		// 공격할 수 없다면 움직이지 못합니다.
-		// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	}
 	else
 	{
 		// 공격할 수 있다면 움직일 수 있습니다.
-		// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		 GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 }
 
@@ -710,7 +708,7 @@ void AGOPlayerCharacter::ResetPlayer()
 void AGOPlayerCharacter::ResetAttack()
 {
 	bCanAttack = true;
-	// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void AGOPlayerCharacter::SetDead()
@@ -810,8 +808,9 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 	//), AttackTime - AttackTimeDifference, false, -1.0f);
 
 	LastAttakStartTime = AttackStartTime;
-	PlayAttackAnimation();
-	
+	PlayAttackAnimation(); //요기
+	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
+
 	// MulticastRPCAttack();
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
@@ -823,20 +822,28 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
 				if (OtherPlayer)
 				{
-					OtherPlayer->ClientRPCPlayAnimation(this);
+					OtherPlayer->ClientRPCPlayAnimation(this); //요기
+					UE_LOG(LogTemp, Log, TEXT("요기3: Attack() "));
+
 				}
 			}
 		}
 	}
 }
 
-// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다.
+//// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다.
 void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 {
 	if (!IsLocallyControlled())
 	{
 		// 현재 클라이언트는 이미 모션을 재생했으므로
 		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-		PlayAttackAnimation();
+		PlayAttackAnimation(); //요기
 	}
+}
+
+void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 2 called. This function is inherited from GOPlaySkillAnimInterface. "));
+	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
 }

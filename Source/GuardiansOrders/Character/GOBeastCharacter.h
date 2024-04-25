@@ -24,6 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void OnBaseSkill() override;
 	virtual void OnSkillQ() override;
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
@@ -31,15 +32,5 @@ public:
 
 // Skill Section
 protected:
-	/** Q Skill */
-	TObjectPtr<UGOBeastSkill01> UGOBeastSkill01;
 
-	/** W Skill */
-	TObjectPtr<UGOBeastSkill02> UGOBeastSkill02;
-
-	/** E Skill */
-	TObjectPtr<UGOBeastSkill03> UGOBeastSkill03;
-
-	/** R Skill */
-	TObjectPtr<UGOBeastUltimateSkill> UGOBeastUltimateSkill;
 };

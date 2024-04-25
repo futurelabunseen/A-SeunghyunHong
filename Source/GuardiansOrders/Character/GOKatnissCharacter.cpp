@@ -27,6 +27,12 @@ void AGOKatnissCharacter::BeginPlay()
 
 }
 
+void AGOKatnissCharacter::OnBaseSkill()
+{
+	Super::OnBaseSkill();
+	UE_LOG(LogTemp, Log, TEXT("Katniss Base Skill is triggered."));
+}
+
 void AGOKatnissCharacter::OnSkillQ()
 {
 	Super::OnSkillQ();

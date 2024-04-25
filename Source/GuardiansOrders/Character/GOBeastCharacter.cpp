@@ -25,6 +25,12 @@ void AGOBeastCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AGOBeastCharacter::OnBaseSkill()
+{
+	Super::OnBaseSkill();
+	UE_LOG(LogTemp, Log, TEXT("Beast Base Skill is triggered."));
+}
+
 void AGOBeastCharacter::OnSkillQ()
 {
 	Super::OnSkillQ();
@@ -49,4 +55,3 @@ void AGOBeastCharacter::OnSkillR()
 	Super::OnSkillR();
 	UE_LOG(LogTemp, Log, TEXT("Beast Skill R is triggered."));
 }
-

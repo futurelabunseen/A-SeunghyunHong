@@ -24,6 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void OnBaseSkill() override;
 	virtual void OnSkillQ() override;
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;

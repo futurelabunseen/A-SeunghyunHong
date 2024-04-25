@@ -4,10 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Character/GOPlayerCharacter.h"
-#include "Skill/Rogers/GORogersSkill01.h"
-#include "Skill/Rogers/GORogersSkill02.h"
-#include "Skill/Rogers/GORogersSkill03.h"
-#include "Skill/Rogers/GORogersUltimateSkill.h"
 #include "GORogersCharacter.generated.h"
 
 UCLASS()
@@ -24,6 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void OnBaseSkill() override;
 	virtual void OnSkillQ() override;
 	virtual void OnSkillW() override;
 	virtual void OnSkillE() override;
@@ -33,11 +30,13 @@ public:
 protected:
 
 // ======== IPlaySkillAnimInterface ========
-	virtual UGOSkillCastComponent* GetSkillCastComponent()
-	{
-		return SkillCastComponent;
-	}
-
-	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill) override;
+//	virtual UGOSkillCastComponent* GetSkillCastComponent()
+//	{
+//		return SkillCastComponent;
+//	}
+//
+//	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill) override;
+//
+//
 
 };
