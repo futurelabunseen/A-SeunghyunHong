@@ -27,6 +27,8 @@
 #include "Animation/AnimMontage.h"
 #include "Physics/GOCollision.h"
 #include "Engine/DamageEvents.h"
+#include "GameData/GOGameSubsystem.h"
+#include <Kismet/GameplayStatics.h>
 
 AGOCharacterBase::AGOCharacterBase()
 {
@@ -58,6 +60,7 @@ AGOCharacterBase::AGOCharacterBase()
 	// Stat Component
 	Stat = CreateDefaultSubobject<UGOCharacterStatComponent>(TEXT("Stat"));
 
+	{
 	//// Widget Component : HP
 	//HpBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("HpBarWidget"));
 	//HpBar->SetupAttachment(GetMesh());
@@ -83,6 +86,7 @@ AGOCharacterBase::AGOCharacterBase()
 	//	ManaBar->SetDrawSize(FVector2D(130.0f, 15.0f));
 	//	ManaBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//}
+	}
 
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
@@ -95,12 +99,6 @@ AGOCharacterBase::AGOCharacterBase()
 		StatsBar->SetDrawSize(FVector2D(130.0f, 30.0f));
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	 }
-
-	ConstructorHelpers::FObjectFinder<UDataTable> CharacterDataObj(TEXT("DataTable'/Game/GameData/CharacterDataTable/GOCharacterDataTable.GOCharacterDataTable'"));
-	if (CharacterDataObj.Succeeded())
-	{
-		CharacterDataTable = CharacterDataObj.Object;
-	}	
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 }
@@ -129,34 +127,50 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 	// Character Data Lookup
 	static const FString ContextString(TEXT("Character Data Lookup"));
 
-	FGOCharacterData* CharacterDataRow = CharacterDataTable->FindRow<FGOCharacterData>(InCharacterName, ContextString, true);
-	if (CharacterDataRow)
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+
+	// Retrieve the subsystem from the game instance.
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	if (GOGameInstance)
 	{
-		CharacterData = *CharacterDataRow;
-
-		// SetCharacterStatData(InCharacterName);
-		if (Stat)
+		FGOCharacterData* CharacterDataRow = GOGameInstance->GetCharacterData(InCharacterName);
+		if (CharacterDataRow)
 		{
-			Stat->SetCharacterStat(InCharacterName);
+			CharacterData = *CharacterDataRow;
+
+			if (Stat)
+			{
+				Stat->SetCharacterStat(InCharacterName);
+			}
+
+			// 원 해 요
+			// CharacaterSkills->SetCharacterSkillsData(InCharacterName);
+			CharacaterSkills->SetSkills(CharacterData)
+
+			BaseSkillClass = CharacterData.BaseSkillClass;
+			SkillQClass = CharacterData.SkillQClass;
+			SkillWClass = CharacterData.SkillWClass;
+			SkillEClass = CharacterData.SkillEClass;
+			SkillRClass = CharacterData.SkillRClass;
+
+			// 스킬 데이터 테이블의 RowName
+			SetBaseSkillData(CharacterData.DefaultBaseSkillName);
+			SetSkillDataQ(CharacterData.DefaultSkillNameQ);
+			SetSkillDataW(CharacterData.DefaultSkillNameW);
+			SetSkillDataE(CharacterData.DefaultSkillNameE);
+			SetSkillDataR(CharacterData.DefaultSkillNameR);
+
+			GetMesh()->SetSkeletalMesh(CharacterData.SkeletalMesh);
+			GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
+
+			GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GOGameInstance is null."));
 
-		BaseSkillClass = CharacterData.BaseSkillClass;
-		SkillQClass = CharacterData.SkillQClass;
-		SkillWClass = CharacterData.SkillWClass;
-		SkillEClass = CharacterData.SkillEClass;
-		SkillRClass = CharacterData.SkillRClass;
-
-		// 스킬 데이터 테이블의 RowName
-		SetBaseSkillData(CharacterData.DefaultBaseSkillName);
-		SetSkillDataQ(CharacterData.DefaultSkillNameQ);
-		SetSkillDataW(CharacterData.DefaultSkillNameW);
-		SetSkillDataE(CharacterData.DefaultSkillNameE);
-		SetSkillDataR(CharacterData.DefaultSkillNameR);
-
-		GetMesh()->SetSkeletalMesh(CharacterData.SkeletalMesh);
-		GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
-
-		GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	}
 }
 
@@ -191,7 +205,7 @@ void AGOCharacterBase::SetBaseSkillData(FName InSkillName)
 			BaseSkillInstance->InitializeSkill(InSkillName);
 			BaseSkillInstance->SetSkillOwner(this);
 
-			SkillSlot.Add(BaseSkillInstance);
+			//SkillSlot.Add(BaseSkillInstance);
 		}
 	}
 }
@@ -206,7 +220,7 @@ void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
 			SkillQInstance->InitializeSkill(InSkillName);
 			SkillQInstance->SetSkillOwner(this);
 
-			SkillSlot.Add(SkillQInstance);
+			//SkillSlot.Add(SkillQInstance);
 		}
 	}
 }
@@ -221,7 +235,7 @@ void AGOCharacterBase::SetSkillDataW(FName InSkillName)
 			SkillWInstance->InitializeSkill(InSkillName);
 			SkillWInstance->SetSkillOwner(this);
 
-			SkillSlot.Add(SkillWInstance);
+			//SkillSlot.Add(SkillWInstance);
 		}
 	}
 }
@@ -236,7 +250,7 @@ void AGOCharacterBase::SetSkillDataE(FName InSkillName)
 			SkillEInstance->InitializeSkill(InSkillName);
 			SkillEInstance->SetSkillOwner(this);
 		
-			SkillSlot.Add(SkillEInstance);
+			//SkillSlot.Add(SkillEInstance);
 		}
 	}
 }
@@ -251,7 +265,7 @@ void AGOCharacterBase::SetSkillDataR(FName InSkillName)
 			SkillRInstance->InitializeSkill(InSkillName);
 			SkillRInstance->SetSkillOwner(this);
 
-			SkillSlot.Add(SkillRInstance);
+			//SkillSlot.Add(SkillRInstance);
 		}
 	}
 }
@@ -264,6 +278,7 @@ void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOChar
 
 void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 {
+	{
 	//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(InUserWidget);
 	//if (HpBarWidget)
 	//{
@@ -281,6 +296,7 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 	//	Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
 	//	// Stat->OnStatChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateStat);
 	//}
+	}
 
 	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
 	if (StatsBarWidget)

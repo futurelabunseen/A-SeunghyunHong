@@ -9,6 +9,7 @@
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
+#include "Skill/Slots/Skills.h"
 #include "GOCharacterBase.generated.h"
 
 class UGOCharacterStatComponent;
@@ -65,7 +66,11 @@ protected:
 
 	FGOCharacterStat CharacterStat;
 
-	// 스킬 클래스 정보
+	// Skills, SkillSlot
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")	
+	TObjectPtr<ASkills> CharacaterSkills;
+
+	//// NOT USE: 스킬 클래스 정보
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TSubclassOf<UGOSkillBase> BaseSkillClass;
 
@@ -81,7 +86,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TSubclassOf<UGOSkillBase> SkillRClass;
 
-	// 스킬 인스턴스
+	// NOT USE: 스킬 인스턴스
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TObjectPtr<UGOSkillBase> BaseSkillInstance;	
 	
@@ -97,11 +102,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TObjectPtr<UGOSkillBase> SkillRInstance;
 
-// Skill Slot Section
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SkillSlot)
-	TArray<UGOSkillBase*> SkillSlot;
-
-	const int32 SKILLSOT_CAPACITY{ 5 };
+//// NOT USE: Skill Slot Section
+//	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SkillSlot)
+//	TArray<UGOSkillBase*> SkillSlot; // 0: BaseSkill, 1:SkillQ, 2:SkillW, 3:SkillE, 4:SkillR
+//
+//	const int32 SKILLSOT_CAPACITY{ 5 };
 
 // Stat Section
 protected:

@@ -101,13 +101,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Data set")
 	void InitializeSkill(FName InSkillName);
 
-	// 스킬 데이터 테이블 참조입니다.
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
-	UDataTable* SkillDataTable;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Skill Data")
-	UDataTable* SkillStatDataTable;
-
 public:
 	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
 	float CoolDownTimer = 0; // SetCoolDownTime() 잊지말기!!!
@@ -120,6 +113,3 @@ public:
 	bool bIsCasting = false;
 
 };
-
-
-/**/

@@ -67,9 +67,6 @@ public:
 	FORCEINLINE float GetMaxBasicAttackRange() const { return BaseStat.MaxBasicAttackRange; }
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterStatDataTable;
-
 	// called when hp is changed
 	void SetHp(float NewHp);
 

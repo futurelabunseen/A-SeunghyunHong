@@ -9,17 +9,7 @@
 
 UGOSkillBase::UGOSkillBase()
 {
-	ConstructorHelpers::FObjectFinder<UDataTable> SkillDataObj(TEXT("DataTable'/Game/GameData/SkillDataTable/GOSkillDataTable.GOSkillDataTable'"));
-	if (SkillDataObj.Succeeded())
-	{
-		SkillDataTable = SkillDataObj.Object;
-	}
 
-	ConstructorHelpers::FObjectFinder<UDataTable> SkillStatDataObj(TEXT("DataTable'/Game/GameData/SkillStatDataTable/GOSkillStatDataTable.GOSkillStatDataTable'"));
-	if (SkillStatDataObj.Succeeded())
-	{
-		SkillStatDataTable = SkillStatDataObj.Object;
-	}
 }
 
 void UGOSkillBase::PostInitProperties()
@@ -39,27 +29,25 @@ void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
 
 void UGOSkillBase::InitializeSkill(FName InSkillName)
 {
-	if (!SkillDataTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("SkillDataTable is not set for this skill base class."));
-		return;
-	}
+	UE_LOG(LogTemp, Warning, TEXT("UGOSkillBase::InitializeSkill InSkillName: %s"), InSkillName);
 
-	FGOSkillData* SkillDataRow = SkillDataTable->FindRow<FGOSkillData>(InSkillName, TEXT(""), true);
-	if (SkillDataRow)
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+
+	// Retrieve the subsystem from the game instance.
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	if (GOGameInstance)
 	{
-		// 데이터 테이블에서 찾은 데이터로 멤버 변수를 설정합니다.
+		FGOSkillData* SkillDataRow = GOGameInstance->GetSkillData(InSkillName);
 		SkillData = *SkillDataRow;
 
-		// 스킬 스탯 설정
-		FGOSkillStat* SkillStatRow = SkillStatDataTable->FindRow<FGOSkillStat>(SkillDataRow->SkillStatName, TEXT(""), true);
+		FGOSkillStat* SkillStatRow = GOGameInstance->GetSkillStatData(SkillDataRow->SkillStatName);
+
 		if (SkillStatRow)
 		{
 			SkillStat = *SkillStatRow;
+			UE_LOG(LogTemp, Warning, TEXT("SkillStat = *SkillStatRow; is called."));
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill data not found for name: %s"), *InSkillName.ToString());
-	}
+	
 }
