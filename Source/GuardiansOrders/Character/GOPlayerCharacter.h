@@ -218,7 +218,7 @@ protected:
 
 	// 새로 만든: 스킬시스템용 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCAttackNew(float AttackStartTime);
+	void ServerRPCAttackNew(float AttackStartTime, ASkillSlot* InSkillSlot);
 
 	/**
 	* 
@@ -234,7 +234,7 @@ protected:
 	
 	// 새로 만든: 스킬시스템용 
 	UFUNCTION(Client, Reliable)
-	void ClientRPCPlaySkillAnimation(AGOPlayerCharacter* CharacterToPlay);
+	void ClientRPCPlaySkillAnimation(AGOPlayerCharacter* CharacterToPlay, ASkillSlot* InSkillSlot);
 	
 	/**
 	* 클라이언트가 무언가 액터에 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
@@ -393,7 +393,7 @@ public:
 	}
 
 
-	TObjectPtr<class UAnimMontage> SkillAnimMontage;
+	// TObjectPtr<class UAnimMontage> SkillAnimMontage;
 
 // ======== IGOPlaySkillAnimInterface ========
 
@@ -402,12 +402,13 @@ public:
 		return SkillCastComponent;
 	}
 
-	virtual void PlaySkillAnim();
+	virtual void PlaySkillAnim(ASkillSlot* InSkillSlot);
 	//{
 	//	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 1 called. This function is inherited from GOPlaySkillAnimInterface. "));
 	//	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
 	//	
 	//}
 
-	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
+	// virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
+	virtual void ActivateSkill(ASkillSlot* InCurrentSkillSlot);
 };

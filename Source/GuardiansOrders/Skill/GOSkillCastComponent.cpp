@@ -33,17 +33,19 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 }
 
-void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
+//void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
+void UGOSkillCastComponent::OnStartCast(ASkillSlot* InSkillSlot)
 {
+	
 	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillCastComponent OnStartCast() is Called."));
 
-	if (InSkillInstance == nullptr)
+	/*if (InSkillInstance == nullptr)
 	{
 		return;
 	}
 
 	ESkillTriggerType TriggerType = InSkillInstance->GetSkillTriggerType();
-	ESkillAffectType AffectType = InSkillInstance->GetSkillAffectType();
+	ESkillAffectType AffectType = InSkillInstance->GetSkillAffectType();*/
 
 	// 스킬 캐스팅 시작 로직
 	bIsOnCasting = true;
@@ -51,7 +53,9 @@ void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
-	CurrentSkill = InSkillInstance;
+	//CurrentSkill = InSkillInstance;
+	CurrentSkillSlot = InSkillSlot;
+	CurrentSkill = InSkillSlot->GetSkillInstance();
 	CurrentSkill->StartCast();
 }
 
@@ -79,15 +83,18 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	{
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
-			GOPlaySkillAnimInterface->PlaySkillAnim(CurrentSkill);
+			// GOPlaySkillAnimInterface->PlaySkillAnim(CurrentSkill);
+			
+			//GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
+			GOPlaySkillAnimInterface->ActivateSkill(CurrentSkillSlot);
+
 			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
-
 		}
 
-		if (IGOAnimationAttackInterface* GOAnimAttackInterfac = Cast<IGOAnimationAttackInterface>(Owner))
-		{
-			GOAnimAttackInterfac->AttackHitCheck();
-		}
+		//if (IGOAnimationAttackInterface* GOAnimAttackInterfac = Cast<IGOAnimationAttackInterface>(Owner))
+		//{
+		//	GOAnimAttackInterfac->AttackHitCheck();
+		//}
 	}
 
 	if (DeltaTime > CurrentSkill->GetCastingTime())
