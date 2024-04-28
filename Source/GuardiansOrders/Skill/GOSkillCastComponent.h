@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Skill/GOSkillBase.h"
+#include "Skill/Slots/SkillSlot.h"
 #include "GOSkillCastComponent.generated.h"
 
 
@@ -28,7 +29,8 @@ public:
 	/**
 	  * 스킬이 시작될 때 발생하는 이벤트를 처리합니다.
 	  */
-	void OnStartCast(UGOSkillBase* InSkillInstance);
+	// void OnStartCast(UGOSkillBase* InSkillInstance);
+	void OnStartCast(ASkillSlot* InSkillSlot);
 
 	/**
 	  * 스킬이 활성화되는 동안 계속해서 발생하는 이벤트를 처리합니다.
@@ -50,7 +52,7 @@ private:
 	bool bIsOnCasting = false;
 
 	TObjectPtr<UGOSkillBase> CurrentSkill;
-
+	TObjectPtr<ASkillSlot> CurrentSkillSlot;
 };
 
 /*
