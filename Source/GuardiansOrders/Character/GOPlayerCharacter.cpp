@@ -371,42 +371,27 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 void AGOPlayerCharacter::OnBaseSkill()
 {
-	if (SkillCastComponent && BaseSkillInstance)
-	{
-		SkillCastComponent->OnStartCast(BaseSkillInstance);
-	}
+	SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(0)->GetSkillInstance());
 }
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	if (SkillCastComponent && SkillQInstance)
-	{
-		SkillCastComponent->OnStartCast(SkillQInstance);
-	}
+	SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(1)->GetSkillInstance());
 }
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	if (SkillCastComponent && SkillWInstance)
-	{
-		SkillCastComponent->OnStartCast(SkillWInstance);
-	}
+	SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(2)->GetSkillInstance());
 }
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	if (SkillCastComponent && SkillEInstance)
-	{
-		SkillCastComponent->OnStartCast(SkillEInstance);
-	}
+	SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(3)->GetSkillInstance());
 }
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	if (SkillCastComponent && SkillRInstance)
-	{
-		SkillCastComponent->OnStartCast(SkillRInstance);
-	}
+	SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(4)->GetSkillInstance());
 }
 
 void AGOPlayerCharacter::OnSkillF()
@@ -517,6 +502,7 @@ void AGOPlayerCharacter::Attack()
 			UE_LOG(LogTemp, Log, TEXT("요기1: Attack() ")); // 클라는 요기1, 요기2 // 서버는 요기2, 요기3
 
 			PlayAttackAnimation(); //요기
+			
 		}
 
 		// 서버에게 서버시간과 함께 명령을 보냅니다.
@@ -524,6 +510,7 @@ void AGOPlayerCharacter::Attack()
 	}
 }
 
+// 원래 강의에서 몽타주 실행하는 코드
 void AGOPlayerCharacter::PlayAttackAnimation()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -531,6 +518,7 @@ void AGOPlayerCharacter::PlayAttackAnimation()
 	AnimInstance->Montage_Play(ComboActionMontage);
 }
 
+// 애니메이션이 재생되면 애니메이션의 노티파이가 !
 void AGOPlayerCharacter::AttackHitCheck()
 {
 	// 소유권을 가진 클라이언트가 공격 판정을 진행합니다.  
@@ -614,10 +602,29 @@ void AGOPlayerCharacter::ClientRPCPlayAnimation_Implementation(AGOPlayerCharacte
 	}
 }
 
+// 새로 만든: 스킬시스템용 
+void AGOPlayerCharacter::ClientRPCPlaySkillAnimation_Implementation(AGOPlayerCharacter* CharacterToPlay)
+{
+	//UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇ  "));
+	//if (CurrentSkill == nullptr) {
+	//	UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇ  null이다")); //  왜 여기로 들어오지
+	//}
+	if (CharacterToPlay)
+	{
+		// UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇCurrentSkill->GetTotalSkillData().SkillAnim: %s "), *CurrentSkill->GetTotalSkillData().SkillAnim.GetName());
+		CharacterToPlay->PlaySkillAnim();
+		UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 스킬 이름ㅇㅇㅇ  "));
+
+	}
+}
+
 bool AGOPlayerCharacter::ServerRPCNotifyHit_Validate(const FHitResult& HitResult, float HitChecktime)
 {
 	// return (HitChecktime - LastAttakStartTime) > AttackTime;
-	return (HitChecktime - LastAttakStartTime) >= AcceptMinCheckTime;
+
+	// 원래 이거
+	// return (HitChecktime - LastAttakStartTime) >= AcceptMinCheckTime;
+	return true;
 }
 
 void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& HitResult, float HitChecktime)
@@ -651,7 +658,9 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 
 bool AGOPlayerCharacter::ServerRPCNotifyMiss_Validate(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime)
 {
-	return (HitCheckTime - LastAttakStartTime) > AcceptMinCheckTime;
+	// Beast Skill E 오류가 나서 우선 true로 설정함
+	// return (HitCheckTime - LastAttakStartTime) > AcceptMinCheckTime;
+	return true;
 }
 
 void AGOPlayerCharacter::ServerRPCNotifyMiss_Implementation(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime)
@@ -779,7 +788,8 @@ bool AGOPlayerCharacter::ServerRPCAttack_Validate(float AttackStartTime)
 		return true;
 	}
 
-	return (AttackStartTime - LastAttakStartTime) > (AttackTime - 0.4f);
+	// return (AttackStartTime - LastAttakStartTime) > (AttackTime - 0.4f);
+	return true;
 }
 
 // (2) 서버가 실행하는 함수입니다.
@@ -809,6 +819,7 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 
 	LastAttakStartTime = AttackStartTime;
 	PlayAttackAnimation(); //요기
+
 	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
 
 	// MulticastRPCAttack();
@@ -831,6 +842,70 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 	}
 }
 
+// 새로 만든: 스킬시스템용 
+bool AGOPlayerCharacter::ServerRPCAttackNew_Validate(float AttackStartTime)
+{
+	//if (LastAttakStartTime == 0.0f)
+	//{
+	//	return true;
+	//}
+
+	//// return (AttackStartTime - LastAttakStartTime) > (AttackTime - 0.4f);
+	return true;
+}
+
+// 새로 만든: 스킬시스템용 
+void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime)
+{
+	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+	Stat->UseSkill(Stat->GetTotalStat().BaseDamage); // TODO: ManaCost
+
+	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
+	////OnRep_CanAttack();
+
+	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
+	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
+	AttackTimeDifference = FMath::Clamp(AttackTimeDifference, 0.0f, AttackTime - 0.01f);
+
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
+
+	//FTimerHandle Handle;
+	//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
+	//	{
+	//		bCanAttack = true;
+	//		OnRep_CanAttack();
+	//	}
+	//), AttackTime - AttackTimeDifference, false, -1.0f);
+
+	LastAttakStartTime = AttackStartTime;
+	
+	//PlayAttackAnimation(); //요기
+	PlaySkillAnim();
+
+	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
+
+	MulticastRPCAttackNew();
+	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
+	{
+		if (PlayerController && GetController() != PlayerController)
+		{
+			if (!PlayerController->IsLocalController())
+			{
+				// 이 조건문을 통과한 컨트롤러는 simulated proxy로 캐릭터를 재생하는 다른 플레이어 컨트롤러입니다.
+				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
+				if (OtherPlayer)
+				{
+					// OtherPlayer->ClientRPCPlayAnimation(this); //요기
+
+					OtherPlayer->ClientRPCPlaySkillAnimation(this);
+					UE_LOG(LogTemp, Log, TEXT("요기3: Attack() "));
+
+				}
+			}
+		}
+	}
+}
+
 //// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다.
 void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 {
@@ -842,8 +917,42 @@ void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 	}
 }
 
-void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
+void AGOPlayerCharacter::MulticastRPCAttackNew_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 2 called. This function is inherited from GOPlaySkillAnimInterface. "));
-	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+	if (!IsLocallyControlled())
+	{
+		// 현재 클라이언트는 이미 모션을 재생했으므로
+		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
+		PlaySkillAnim(); //요기
+	}
+}
+
+// ======== IGOPlaySkillAnimInterface ========
+
+void AGOPlayerCharacter::PlaySkillAnim()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(SkillAnimMontage);
+	UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 Montage_PlayㅇㅇㅇㅇooooSkillAnimMontage: %s "), *SkillAnimMontage.GetName());
+
+}
+
+void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
+{
+	if (CurrentSkill != nullptr) {
+		UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 ㅇㅇCurrentSkill->GetTotalSkillData().SkillAnim: %s "), *CurrentSkill->GetTotalSkillData().SkillAnim.GetName());
+		SkillAnimMontage = CurrentSkill->GetTotalSkillData().SkillAnim;
+	}
+
+	SkillAnimMontage = CurrentSkill->GetTotalSkillData().SkillAnim;
+	UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 ㅇㅇㅇㅇSkillAnimMontage: %s "), *SkillAnimMontage.GetName());
+
+	if (!HasAuthority())
+	{
+		PlaySkillAnim();
+	}
+
+	// 서버에게 서버시간과 함께 명령을 보냅니다.
+	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 }

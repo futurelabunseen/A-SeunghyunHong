@@ -101,6 +101,8 @@ AGOCharacterBase::AGOCharacterBase()
 	 }
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
+
+	CharacterSkills = CreateDefaultSubobject<ASkills>(TEXT("Skills"));
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -120,6 +122,7 @@ void AGOCharacterBase::Tick(float DeltaTime)
 void AGOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 void AGOCharacterBase::SetData(FName InCharacterName)
@@ -144,33 +147,29 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 				Stat->SetCharacterStat(InCharacterName);
 			}
 
-			// 원 해 요
-			// CharacaterSkills->SetCharacterSkillsData(InCharacterName);
-			CharacaterSkills->SetSkills(CharacterData)
-
-			BaseSkillClass = CharacterData.BaseSkillClass;
-			SkillQClass = CharacterData.SkillQClass;
-			SkillWClass = CharacterData.SkillWClass;
-			SkillEClass = CharacterData.SkillEClass;
-			SkillRClass = CharacterData.SkillRClass;
-
-			// 스킬 데이터 테이블의 RowName
-			SetBaseSkillData(CharacterData.DefaultBaseSkillName);
-			SetSkillDataQ(CharacterData.DefaultSkillNameQ);
-			SetSkillDataW(CharacterData.DefaultSkillNameW);
-			SetSkillDataE(CharacterData.DefaultSkillNameE);
-			SetSkillDataR(CharacterData.DefaultSkillNameR);
-
 			GetMesh()->SetSkeletalMesh(CharacterData.SkeletalMesh);
 			GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
-
 			GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("GOGameInstance is null."));
 
+			TArray<TSubclassOf<UGOSkillBase>> skillClasses = {
+				CharacterData.BaseSkillClass,
+				CharacterData.SkillQClass,
+				CharacterData.SkillWClass,
+				CharacterData.SkillEClass,
+				CharacterData.SkillRClass
+			};
+
+			TArray<FName> skillStatDataRow = {
+				CharacterData.DefaultBaseSkillName,
+				CharacterData.DefaultSkillNameQ,
+				CharacterData.DefaultSkillNameW,
+				CharacterData.DefaultSkillNameE,
+				CharacterData.DefaultSkillNameR
+			};
+
+			CharacterSkills->InitializeSkills(skillClasses, skillStatDataRow);
+
+		}
 	}
 }
 
@@ -192,81 +191,6 @@ void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
 
 		// StatComponent 처리
 		Stat->SetBaseStat(CharacterStat);
-	}
-}
-
-void AGOCharacterBase::SetBaseSkillData(FName InSkillName)
-{
-	if (BaseSkillClass != nullptr)
-	{
-		BaseSkillInstance = NewObject<UGOSkillBase>(this, BaseSkillClass);
-		if (BaseSkillInstance)
-		{
-			BaseSkillInstance->InitializeSkill(InSkillName);
-			BaseSkillInstance->SetSkillOwner(this);
-
-			//SkillSlot.Add(BaseSkillInstance);
-		}
-	}
-}
-
-void AGOCharacterBase::SetSkillDataQ(FName InSkillName)
-{
-	if (SkillQClass != nullptr)
-	{
-		SkillQInstance = NewObject<UGOSkillBase>(this, SkillQClass);
-		if (SkillQInstance)
-		{
-			SkillQInstance->InitializeSkill(InSkillName);
-			SkillQInstance->SetSkillOwner(this);
-
-			//SkillSlot.Add(SkillQInstance);
-		}
-	}
-}
-
-void AGOCharacterBase::SetSkillDataW(FName InSkillName)
-{
-	if (SkillWClass != nullptr)
-	{
-		SkillWInstance = NewObject<UGOSkillBase>(this, SkillWClass);
-		if (SkillWInstance)
-		{
-			SkillWInstance->InitializeSkill(InSkillName);
-			SkillWInstance->SetSkillOwner(this);
-
-			//SkillSlot.Add(SkillWInstance);
-		}
-	}
-}
-
-void AGOCharacterBase::SetSkillDataE(FName InSkillName)
-{
-	if (SkillEClass != nullptr)
-	{
-		SkillEInstance = NewObject<UGOSkillBase>(this, SkillEClass);
-		if (SkillEInstance)
-		{
-			SkillEInstance->InitializeSkill(InSkillName);
-			SkillEInstance->SetSkillOwner(this);
-		
-			//SkillSlot.Add(SkillEInstance);
-		}
-	}
-}
-
-void AGOCharacterBase::SetSkillDataR(FName InSkillName)
-{
-	if (SkillRClass != nullptr)
-	{
-		SkillRInstance = NewObject<UGOSkillBase>(this, SkillRClass);
-		if (SkillRInstance)
-		{
-			SkillRInstance->InitializeSkill(InSkillName);
-			SkillRInstance->SetSkillOwner(this);
-
-			//SkillSlot.Add(SkillRInstance);
-		}
 	}
 }
 
