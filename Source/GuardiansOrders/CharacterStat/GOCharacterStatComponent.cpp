@@ -2,10 +2,10 @@
 
 
 #include "GOCharacterStatComponent.h"
-#include "GameData/GOGameSingleton.h"
 #include "GameData/GOGameSubsystem.h"
 #include "Net/UnrealNetwork.h"
 #include "GuardiansOrders/GuardiansOrders.h"
+#include <Kismet/GameplayStatics.h>
 
 UGOCharacterStatComponent::UGOCharacterStatComponent()
 {
@@ -15,12 +15,6 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 
 	// 액터 컴포넌트 리플리케이트
 	SetIsReplicated(true);
-
-	ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataObj(TEXT("DataTable'/Game/GameData/CharacterStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
-	if (CharacterStatDataObj.Succeeded())
-	{
-		CharacterStatDataTable = CharacterStatDataObj.Object;
-	}
 }
 
 void UGOCharacterStatComponent::InitializeComponent()
@@ -34,21 +28,24 @@ void UGOCharacterStatComponent::InitializeComponent()
 
 void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 {
-	static const FString ContextString(TEXT("Character Stat Data Lookup"));
-	if (!CharacterStatDataTable)
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+
+	// Retrieve the subsystem from the game instance.
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	if (GOGameInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterStatDataTable is not initialized."));
-		return;
+		FGOCharacterStat* CharacterStatDataRow = GOGameInstance->GetCharacterStatData(InCharacterName);
+		if (CharacterStatDataRow)
+		{
+			SetBaseStat(*CharacterStatDataRow);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
+		}
 	}
-	FGOCharacterStat* CharacterStatDataRow = CharacterStatDataTable->FindRow<FGOCharacterStat>(InCharacterName, ContextString);
-	if (CharacterStatDataRow)
-	{
-		SetBaseStat(*CharacterStatDataRow);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
-	}
+
 	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
 	//SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
 
