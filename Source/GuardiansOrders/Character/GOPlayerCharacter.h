@@ -227,7 +227,7 @@ protected:
 	void MulticastRPCAttack();	
 	
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttackNew();
+	void MulticastRPCAttackNew(ASkillSlot* InSkillSlot);
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
@@ -394,6 +394,8 @@ public:
 
 
 	// TObjectPtr<class UAnimMontage> SkillAnimMontage;
+
+	void CheckActorNetworkStatus(AActor* ActorToCheck);
 
 // ======== IGOPlaySkillAnimInterface ========
 

@@ -24,5 +24,8 @@ class GUARDIANSORDERS_API IGOPlaySkillAnimInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual UGOSkillCastComponent* GetSkillCastComponent() = 0;
-	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill) = 0;
+	// virtual void PlaySkillAnim() = 0;
+	virtual void PlaySkillAnim(ASkillSlot* CurrentSkillSlot) = 0;
+	//virtual void ActivateSkill(UGOSkillBase* CurrentSkill) = 0;
+	virtual void ActivateSkill(ASkillSlot* CurrentSkillSlot) = 0;
 };

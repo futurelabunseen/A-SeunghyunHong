@@ -615,16 +615,26 @@ void AGOPlayerCharacter::ClientRPCPlayAnimation_Implementation(AGOPlayerCharacte
 // 새로 만든: 스킬시스템용 
 void AGOPlayerCharacter::ClientRPCPlaySkillAnimation_Implementation(AGOPlayerCharacter* CharacterToPlay, ASkillSlot* InSkillSlot)
 {
-	//UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇ  "));
-	//if (CurrentSkill == nullptr) {
-	//	UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇ  null이다")); //  왜 여기로 들어오지
-	//}
+
+
 	if (CharacterToPlay)
 	{
-		// UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 ㅇㅇㅇCurrentSkill->GetTotalSkillData().SkillAnim: %s "), *CurrentSkill->GetTotalSkillData().SkillAnim.GetName());
-		CharacterToPlay->PlaySkillAnim(InSkillSlot);
-		UE_LOG(LogTemp, Log, TEXT("ClientRPCPlaySkillAnimation_Implementation요기 스킬 이름ㅇㅇㅇ  ")); //오류
+		if (InSkillSlot == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[ClientRPCPlaySkillAnimation_Implementation] InSkillSlot is null."));
+			return;
+		}
 
+		// UE_LOG(LogTemp, Log, TEXT("[ClientRPCPlaySkillAnimation_Implementation] InSkillSlot name: %s "), *InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim->GetName());
+		// Checking if the actor has a network owner
+		bool bHasOwner = InSkillSlot->HasNetOwner();
+		UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ClientRPCPlaySkillAnimation] Actor %s has a net owner: %s"), *InSkillSlot->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
+
+		// Checking if the actor is a network startup actor
+		bool bIsStartupActor = InSkillSlot->IsNetStartupActor();
+		UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ClientRPCPlaySkillAnimation] Actor %s is a startup actor: %s"), *InSkillSlot->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
+
+		CharacterToPlay->PlaySkillAnim(InSkillSlot);
 	}
 }
 
@@ -894,7 +904,7 @@ void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime
 
 	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
 
-	// MulticastRPCAttackNew();
+	// MulticastRPCAttackNew(InSkillSlot);
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
 		if (PlayerController && GetController() != PlayerController)
@@ -905,19 +915,15 @@ void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime
 				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
 				if (OtherPlayer)
 				{
-					// OtherPlayer->ClientRPCPlayAnimation(this); //요기
-
-					UE_LOG(LogTemp, Log, TEXT("InSkillSlot: %s "), *InSkillSlot->GetSkillInstance()->GetName());
-					// OtherPlayer->ClientRPCPlaySkillAnimation(this, InSkillSlot);
-					UE_LOG(LogTemp, Log, TEXT("요기3: Attack() "));
-
+					UE_LOG(LogTemp, Log, TEXT("InSkillSlot 1: %s "), *InSkillSlot->GetSkillInstance()->GetName());
+					OtherPlayer->ClientRPCPlaySkillAnimation(this, InSkillSlot); // 여기가 안됨
 				}
 			}
 		}
 	}
 }
 
-//// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다.
+//// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다. 지금 코드에서는 사용하고 있지 않습니다.
 void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 {
 	if (!IsLocallyControlled())
@@ -928,63 +934,150 @@ void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 	}
 }
 
-void AGOPlayerCharacter::MulticastRPCAttackNew_Implementation()
+// 지금 코드에서는 사용하고 있지 않습니다.
+void AGOPlayerCharacter::MulticastRPCAttackNew_Implementation(ASkillSlot* InSkillSlot)
 {
 	if (!IsLocallyControlled())
 	{
+		if (InSkillSlot == nullptr)
+		{
+			//  왜 NULL 이지?
+			UE_LOG(LogTemp, Log, TEXT("InSkillSlot 0 null"));
+		}
+
+		//UE_LOG(LogTemp, Log, TEXT("InSkillSlot 0: %s "), *InSkillSlot->GetSkillInstance()->GetName());
+
 		// 현재 클라이언트는 이미 모션을 재생했으므로
 		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-		// PlaySkillAnim(); //요기
+		PlaySkillAnim(InSkillSlot); //요기
 	}
 }
+
+
+
+void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
+{
+	if (!ActorToCheck)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CheckActorNetworkStatus: The actor to check is null."));
+		return;
+	}
+
+	// Checking if the actor has a network owner
+	bool bHasOwner = ActorToCheck->HasNetOwner();
+	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s has a net owner: %s"), *ActorToCheck->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
+
+	// Checking if the actor is a network startup actor
+	bool bIsStartupActor = ActorToCheck->IsNetStartupActor();
+	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s is a startup actor: %s"), *ActorToCheck->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
+}
+
+
 
 // ======== IGOPlaySkillAnimInterface ========
 
+//void AGOPlayerCharacter::PlaySkillAnim(ASkillSlot* InSkillSlot)
+//{
+//	if (InSkillSlot == nullptr)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] InSkillSlot is null."));
+//		return;
+//	}
+//
+//	// Checking if the actor has a network owner
+//	bool bHasOwner = InSkillSlot->HasNetOwner();
+//	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus PlaySkillAnim] Actor %s has a net owner: %s"), *InSkillSlot->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
+//
+//	// Checking if the actor is a network startup actor
+//	bool bIsStartupActor = InSkillSlot->IsNetStartupActor();
+//	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus PlaySkillAnim] Actor %s is a startup actor: %s"), *InSkillSlot->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
+//
+//
+//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+//	if (AnimInstance)  // AnimInstance가 유효한지 확인
+//	{
+//		AnimInstance->StopAllMontages(0.0f);
+//		AnimInstance->Montage_Play(InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim); //오류
+//		UE_LOG(LogTemp, Log, TEXT("InSkillSlot 20: %s "), *InSkillSlot->GetSkillInstance()->GetName());
+//		UE_LOG(LogTemp, Log, TEXT("[PlaySkillAnim] InSkillSlot name: %s "), *InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim->GetName());
+//
+//	}
+//	else
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
+//	}
+//}
 void AGOPlayerCharacter::PlaySkillAnim(ASkillSlot* InSkillSlot)
 {
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance)  // AnimInstance가 유효한지 확인
+	if (!InSkillSlot)
 	{
-		AnimInstance->StopAllMontages(0.0f);
-		AnimInstance->Montage_Play(InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim); //오류
+		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] InSkillSlot is null."));
+		return;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AnimInstance is null."));
-	}
-	// UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 Montage_PlayㅇㅇㅇㅇooooSkillAnimMontage: %s "), *SkillAnimMontage.GetName());
 
+	if (!InSkillSlot->GetSkillInstance())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] SkillInstance is null."));
+		return;
+	}
+
+	if (!InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] SkillAnim is null."));
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
+		return;
+	}
+
+	AnimInstance->Montage_Play(InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim);
+	UE_LOG(LogTemp, Log, TEXT("[PlaySkillAnim] Playing animation: %s"), *InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim->GetName());
 }
 
-//void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
-//{
-//	if (CurrentSkill != nullptr) {
-//		UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 ㅇㅇCurrentSkill->GetTotalSkillData().SkillAnim: %s "), *CurrentSkill->GetTotalSkillData().SkillAnim.GetName());
-//		SkillAnimMontage = CurrentSkill->GetTotalSkillData().SkillAnim;
-//	}
-//
-//	SkillAnimMontage = CurrentSkill->GetTotalSkillData().SkillAnim;
-//	UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 ㅇㅇㅇㅇSkillAnimMontage: %s "), *SkillAnimMontage.GetName());
-//
-//	if (!HasAuthority())
-//	{
-//		PlaySkillAnim();
-//	}
-//
-//	// 서버에게 서버시간과 함께 명령을 보냅니다.
-//	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
-//}
 
 void AGOPlayerCharacter::ActivateSkill(ASkillSlot* InCurrentSkillSlot)
 {
-	/*SkillAnimMontage = CurrentSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim;
-	UE_LOG(LogTemp, Log, TEXT("ActivateSkill요기 ㅇㅇㅇㅇSkillAnimMontage: %s "), *SkillAnimMontage.GetName());*/
-
 	if (!HasAuthority())
 	{
 		PlaySkillAnim(InCurrentSkillSlot);
 	}
 
-	// 서버에게 서버시간과 함께 명령을 보냅니다.
+	// 서버에게 명령을 보냅니다.
 	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), InCurrentSkillSlot);
+	// UE_LOG(LogTemp, Log, TEXT("InCurrentSkillSlot GetOwner Name: %s "), *InCurrentSkillSlot->GetOwner()->GetName()); // Skills
+	
+	// Checking if the actor has a network owner
+	bool bHasOwner = InCurrentSkillSlot->HasNetOwner();
+	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ActivateSkill] Actor %s has a net owner: %s"), *InCurrentSkillSlot->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
+
+	// Checking if the actor is a network startup actor
+	bool bIsStartupActor = InCurrentSkillSlot->IsNetStartupActor();
+	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ActivateSkill] Actor %s is a startup actor: %s"), *InCurrentSkillSlot->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
+
+
+
+	//for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
+	//{
+	//	if (PlayerController && GetController() != PlayerController)
+	//	{
+	//		if (!PlayerController->IsLocalController())
+	//		{
+	//			// 이 조건문을 통과한 컨트롤러는 simulated proxy로 캐릭터를 재생하는 다른 플레이어 컨트롤러입니다.
+	//			AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
+	//			if (OtherPlayer)
+	//			{
+	//				// OtherPlayer->ClientRPCPlayAnimation(this); //요기
+
+	//				UE_LOG(LogTemp, Log, TEXT("InSkillSlot 00: %s "), *InCurrentSkillSlot->GetSkillInstance()->GetName());
+	//				OtherPlayer->ClientRPCPlaySkillAnimation(this, InCurrentSkillSlot);
+	//			}
+	//		}
+	//	}
+	//}
 }
+
+

@@ -25,6 +25,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// 스킬 초기화 함수
 	void InitializeSkills(TArray<TSubclassOf<UGOSkillBase>> SkillClasses, TArray<FName> SkillStatDataRowName);
@@ -42,6 +43,6 @@ public:
 	}
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills", Replicated)
 	TArray<TObjectPtr<ASkillSlot>> Skills;
 };

@@ -103,6 +103,7 @@ AGOCharacterBase::AGOCharacterBase()
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 
 	CharacterSkills = CreateDefaultSubobject<ASkills>(TEXT("Skills"));
+	CharacterSkills->SetOwner(this);
 }
 
 void AGOCharacterBase::PostInitializeComponents()

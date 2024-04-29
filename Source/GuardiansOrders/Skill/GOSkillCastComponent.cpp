@@ -69,7 +69,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	/*
 	CastComponent는 OnUpdateCast에서 공격 판정과 상관없이 캐릭터가 해야하는 일을 하도록 시킨다.
 	- 스킬 유효 범위 시각화하세요
-	- 마나 소모하세요
+	- 마나 소모하세요 (굳이 여기서 하지 않아도 됨)
 	- 스킬 애니메이션 재생하세요
 	- RPC 하세요
 	- 이펙트 재생하세요
@@ -83,18 +83,10 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	{
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
-			// GOPlaySkillAnimInterface->PlaySkillAnim(CurrentSkill);
-			
-			//GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
 			GOPlaySkillAnimInterface->ActivateSkill(CurrentSkillSlot);
 
 			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 		}
-
-		//if (IGOAnimationAttackInterface* GOAnimAttackInterfac = Cast<IGOAnimationAttackInterface>(Owner))
-		//{
-		//	GOAnimAttackInterfac->AttackHitCheck();
-		//}
 	}
 
 	if (DeltaTime > CurrentSkill->GetCastingTime())
@@ -117,9 +109,7 @@ void UGOSkillCastComponent::OnFinishCast()
 
 }
 
-// Tick에서 확인해야겠지? 스킬 취소
-// 애초에 스킬이 언제 취소되는지 확인해주기-> 상태 체크? 
-// PlayerActionState 말고 어떤 상태를 또 만들어줘야 하나? Cast에 대한 상태..? 으악
+// 스킬 취소 및 상태 체크
 void UGOSkillCastComponent::OnInterruptCast()
 {
 	if (CurrentSkill == nullptr)
