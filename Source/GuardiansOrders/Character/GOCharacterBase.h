@@ -10,6 +10,7 @@
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
 #include "Skill/Slots/Skills.h"
+#include "Skill/Slots/GOSkills.h"
 #include "GOCharacterBase.generated.h"
 
 class UGOCharacterStatComponent;
@@ -50,13 +51,21 @@ protected:
 
 	FGOCharacterStat CharacterStat;
 
-	// Skills, SkillSlot
+	// Skills, SkillSlot (Actor Ver. No Use)
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TSubclassOf<ASkills> CharacterSkillsClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")	
 	TObjectPtr<ASkills> CharacterSkills;
 
+	// Skills, SkillSlot 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TObjectPtr<UGOSkills> SkillsUClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TObjectPtr<UGOSkills> Skills;
+
+	
 // Stat Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess="true"))
@@ -90,7 +99,7 @@ protected:
 	UGOSkillCastComponent* SkillCastComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> ComboActionMontage;
+	TObjectPtr<class UAnimMontage> ComboActionMontage;	
 
 	void ProcessComboCommand();
 

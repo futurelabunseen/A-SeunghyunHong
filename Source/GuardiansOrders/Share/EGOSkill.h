@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 ////////////////////////////////////////////////////////////////
-// EGOSkillCategory
+// ECharacterSkills 
 // 스킬의 활성화 방식입니다. (입력 구분)
 ////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 	* BuffSkill:				(TODO) 버프 스킬			숫자키
 */
 UENUM(BlueprintType)
-enum class EGOSkillCategory : uint8
+enum class ECharacterSkills : uint8
 {
 	None UMETA(Hidden),
 

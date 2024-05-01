@@ -33,8 +33,8 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 }
 
-//void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
-void UGOSkillCastComponent::OnStartCast(ASkillSlot* InSkillSlot)
+void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
+//void UGOSkillCastComponent::OnStartCast(ASkillSlot* InSkillSlot)
 {
 	
 	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillCastComponent OnStartCast() is Called."));
@@ -53,9 +53,9 @@ void UGOSkillCastComponent::OnStartCast(ASkillSlot* InSkillSlot)
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
-	//CurrentSkill = InSkillInstance;
-	CurrentSkillSlot = InSkillSlot;
-	CurrentSkill = InSkillSlot->GetSkillInstance();
+	CurrentSkill = InSkillInstance;
+	//CurrentSkillSlot = InSkillSlot;
+	//CurrentSkill = InSkillSlot->GetSkillInstance();
 	CurrentSkill->StartCast();
 }
 
@@ -83,7 +83,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	{
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
-			GOPlaySkillAnimInterface->ActivateSkill(CurrentSkillSlot);
+			GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
 
 			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 		}

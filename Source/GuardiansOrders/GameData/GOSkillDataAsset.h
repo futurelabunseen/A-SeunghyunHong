@@ -22,7 +22,7 @@ public:
 	EHeroType HeroType; // 우선 넣어보았습니다
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill)
-	EGOSkillCategory Category;
+	ECharacterSkills SkillType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Skill)
 	FString Name;

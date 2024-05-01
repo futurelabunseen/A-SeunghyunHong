@@ -101,9 +101,10 @@ AGOCharacterBase::AGOCharacterBase()
 	 }
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
+	Skills = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
 
-	CharacterSkills = CreateDefaultSubobject<ASkills>(TEXT("Skills"));
-	CharacterSkills->SetOwner(this);
+	//CharacterSkills = CreateDefaultSubobject<ASkills>(TEXT("Skills"));
+	//CharacterSkills->SetOwner(this);
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -152,26 +153,29 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
 			GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 
-			TArray<TSubclassOf<UGOSkillBase>> skillClasses = {
-				CharacterData.BaseSkillClass,
-				CharacterData.SkillQClass,
-				CharacterData.SkillWClass,
-				CharacterData.SkillEClass,
-				CharacterData.SkillRClass
-			};
+			//TArray<TSubclassOf<UGOSkillBase>> skillClasses = {
+			//	CharacterData.BaseSkillClass,
+			//	CharacterData.SkillQClass,
+			//	CharacterData.SkillWClass,
+			//	CharacterData.SkillEClass,
+			//	CharacterData.SkillRClass
+			//};
 
-			TArray<FName> skillStatDataRow = {
-				CharacterData.DefaultBaseSkillName,
-				CharacterData.DefaultSkillNameQ,
-				CharacterData.DefaultSkillNameW,
-				CharacterData.DefaultSkillNameE,
-				CharacterData.DefaultSkillNameR
-			};
+			//TArray<FName> skillStatDataRow = {
+			//	CharacterData.DefaultBaseSkillName,
+			//	CharacterData.DefaultSkillNameQ,
+			//	CharacterData.DefaultSkillNameW,
+			//	CharacterData.DefaultSkillNameE,
+			//	CharacterData.DefaultSkillNameR
+			//};
 
-			CharacterSkills->InitializeSkills(skillClasses, skillStatDataRow);
-
+			//CharacterSkills->InitializeSkills(skillClasses, skillStatDataRow);
+			
+			Skills->InitializeSkills(InCharacterName);
 		}
 	}
+
+	// ComboActionMontage = 
 }
 
 void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
