@@ -218,7 +218,11 @@ protected:
 
 	// 새로 만든: 스킬시스템용 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCAttackNew(float AttackStartTime, UGOSkillBase* CurrentSkill);
+	void ServerRPCAttackNew(float AttackStartTime, UGOSkillBase* CurrentSkill);	
+	
+	// 새로 만든: 스킬시스템용 구조체
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCActivateSkill(float AttackStartTime, FHeroSkillKey Key);
 
 	/**
 	* 
@@ -227,7 +231,11 @@ protected:
 	void MulticastRPCAttack();	
 	
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttackNew(UGOSkillBase* CurrentSkill);
+	void MulticastRPCAttackNew(UGOSkillBase* CurrentSkill);	
+	
+	// 새로 만든: 스킬시스템용 구조체
+	//UFUNCTION(NetMulticast, Unreliable)
+	//void MulticastRPCActivateSkil(FHeroSkillKey Key);
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
@@ -235,6 +243,10 @@ protected:
 	// 새로 만든: 스킬시스템용 
 	UFUNCTION(Client, Reliable)
 	void ClientRPCPlaySkillAnimation(AGOPlayerCharacter* CharacterToPlay, UGOSkillBase* CurrentSkill);
+	//
+	// 새로 만든: 스킬시스템용 구조체
+	UFUNCTION(Client, Reliable)
+	void ClientRPCActivateSkill(AGOPlayerCharacter* CharacterToPlay, FHeroSkillKey Key);
 	
 	/**
 	* 클라이언트가 무언가 액터에 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
@@ -397,6 +409,18 @@ public:
 
 	void CheckActorNetworkStatus(AActor* ActorToCheck);
 
+	FName GetHeroTypeFName(EHeroType HeroType)
+	{
+		switch (HeroType)
+		{
+		case EHeroType::Rogers: return FName(TEXT("Rogers"));
+		case EHeroType::Katniss: return FName(TEXT("Katniss"));
+		case EHeroType::Beast: return FName(TEXT("Beast"));
+		case EHeroType::Bride: return FName(TEXT("Bride"));
+		default: return FName(TEXT("None"));
+		}
+	}
+
 // ======== IGOPlaySkillAnimInterface ========
 
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
@@ -405,12 +429,15 @@ public:
 	}
 
 	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill);
+	virtual void PlaySkillAnimByKey(FHeroSkillKey Key);
 	//{
 	//	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 1 called. This function is inherited from GOPlaySkillAnimInterface. "));
 	//	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
 	//	
 	//}
 
-	// virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
+	// 새로 만든: 스킬시스템용 구조체
+	virtual void ActivateSkillByKey(FHeroSkillKey Key);
+
 	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
 };

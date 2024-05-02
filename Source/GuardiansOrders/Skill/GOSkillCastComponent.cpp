@@ -4,6 +4,8 @@
 #include "Skill/GOSkillCastComponent.h"
 #include "Character/GOCharacterBase.h"
 #include <Interface/GOPlaySkillAnimInterface.h>
+#include "GameData/GOGameSubsystem.h"
+#include <Kismet/GameplayStatics.h>
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
@@ -33,8 +35,8 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 }
 
-void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
-//void UGOSkillCastComponent::OnStartCast(ASkillSlot* InSkillSlot)
+// void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
+void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 {
 	
 	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillCastComponent OnStartCast() is Called."));
@@ -53,9 +55,14 @@ void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
-	CurrentSkill = InSkillInstance;
-	//CurrentSkillSlot = InSkillSlot;
-	//CurrentSkill = InSkillSlot->GetSkillInstance();
+	//CurrentSkill = InSkillInstance;
+
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	
+	SkillKey = Key;
+	CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
 	CurrentSkill->StartCast();
 }
 
@@ -83,7 +90,8 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	{
 		if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 		{
-			GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
+			// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
+			GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
 
 			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 		}

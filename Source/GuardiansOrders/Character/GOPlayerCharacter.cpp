@@ -372,29 +372,34 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 void AGOPlayerCharacter::OnBaseSkill()
 {
-	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill));
+	//SkillCastComponent->OnStartCast(
+	//	CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill)
+	//);	
+	
+	SkillCastComponent->OnStartCast(
+		FHeroSkillKey(EHeroType::Beast, ECharacterSkills::BaseSkill));
 }
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill01));
+	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill01));
 }
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill02));
+	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill02));
 
 }
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill03));
+	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill03));
 
 }
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill));
+	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill));
 
 }
 
@@ -618,6 +623,15 @@ void AGOPlayerCharacter::ClientRPCPlaySkillAnimation_Implementation(AGOPlayerCha
 		}
 
 		CharacterToPlay->PlaySkillAnim(CurrentSkill);
+	}
+}
+
+// 새로 만든: 구조체
+void AGOPlayerCharacter::ClientRPCActivateSkill_Implementation(AGOPlayerCharacter* CharacterToPlay, FHeroSkillKey Key)
+{
+	if (CharacterToPlay)
+	{
+		CharacterToPlay->PlaySkillAnimByKey(Key);
 	}
 }
 
@@ -908,6 +922,63 @@ void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime
 	}
 }
 
+// 새로 구조체
+bool AGOPlayerCharacter::ServerRPCActivateSkill_Validate(float AttackStartTime, FHeroSkillKey Key)
+{
+	return true;
+}
+
+void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStartTime, FHeroSkillKey Key)
+{
+	Stat->UseSkill(Stat->GetTotalStat().BaseDamage); // TODO: ManaCost
+
+	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
+	////OnRep_CanAttack();
+
+	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
+	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
+	AttackTimeDifference = FMath::Clamp(AttackTimeDifference, 0.0f, AttackTime - 0.01f);
+
+	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
+
+	//FTimerHandle Handle;
+	//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
+	//	{
+	//		bCanAttack = true;
+	//		OnRep_CanAttack();
+	//	}
+	//), AttackTime - AttackTimeDifference, false, -1.0f);
+
+	LastAttakStartTime = AttackStartTime;
+
+	// PlayAttackAnimation(); //요기
+
+	//UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ServerRPCAttackNew] Actor %s is "), *CurrentSkill->GetName());
+
+	//PlaySkillAnim(CurrentSkill); // 여기서도 null...
+	PlaySkillAnimByKey(Key);
+
+	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
+
+	// MulticastRPCAttackNew(InSkillSlot);
+	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
+	{
+		if (PlayerController && GetController() != PlayerController)
+		{
+			if (!PlayerController->IsLocalController())
+			{
+				// 이 조건문을 통과한 컨트롤러는 simulated proxy로 캐릭터를 재생하는 다른 플레이어 컨트롤러입니다.
+				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
+				if (OtherPlayer)
+				{
+					OtherPlayer->ClientRPCActivateSkill(this, Key); // 여기가 안됨
+				}
+			}
+		}
+	}
+}
+
+
 //// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다. 지금 코드에서는 사용하고 있지 않습니다.
 void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 {
@@ -978,6 +1049,34 @@ void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 	AnimInstance->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
 }
 
+// 새로 구조체
+void AGOPlayerCharacter::PlaySkillAnimByKey(FHeroSkillKey Key)
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+
+	UGOSkillBase* CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+	
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
+		return;
+	}
+
+	AnimInstance->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
+}
+
+// 새로 구조체
+void AGOPlayerCharacter::ActivateSkillByKey(FHeroSkillKey Key)
+{
+	if (!HasAuthority())
+	{
+		PlaySkillAnimByKey(Key);
+	}
+	ServerRPCActivateSkill(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Key);
+}
 
 void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 {

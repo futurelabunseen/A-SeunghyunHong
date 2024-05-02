@@ -126,6 +126,7 @@ public:
         }
     }
 
+
 protected:
     TArray<FGOCharacterStat> CharacterStatTable;
     //TArray<FGOSkillStat> SkillStatTable;

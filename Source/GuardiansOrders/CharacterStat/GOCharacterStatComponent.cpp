@@ -45,26 +45,6 @@ void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 			UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
 		}
 	}
-
-	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
-	//SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
-
-	//UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
-	//if (!GameSubsystem)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("GameSubsystem이 유효하지 않습니다."));
-	//	return;
-	//}
-	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, GameSubsystem->CharacterMaxCnt);
-	//SetBaseStat(GameSubsystem->GetCharacterStat(CurrentCharacterType));
-	//if (!(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f))
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("Character stats for type %d are not initialized properly."), CurrentCharacterType);
-	//	// Set default or fallback values
-	//	BaseStat.MaxHp = 100.0f;  // Default value if not set
-	//	BaseStat.MaxMana = 100.0f;  // Default value if not set
-	//}
-	//check(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f);
 }
 
 float UGOCharacterStatComponent::ApplyDamage(float InDamage)
