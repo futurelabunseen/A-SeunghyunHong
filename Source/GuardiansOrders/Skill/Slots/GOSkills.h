@@ -8,23 +8,6 @@
 #include "Skill/GOSkillBase.h"
 #include "GOSkills.generated.h"
 
-/**
- * 
- */
-USTRUCT(BlueprintType)
-struct FSkillInfo
-{
-    GENERATED_BODY()
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<UGOSkillBase> SkillClass;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FName SkillStatName;
-
-    FSkillInfo() : SkillClass(nullptr), SkillStatName(NAME_None) {}
-    FSkillInfo(TSubclassOf<UGOSkillBase> InSkillClass, FName InSkillStatName) : SkillClass(InSkillClass), SkillStatName(InSkillStatName) {}
-};
 
 UCLASS()
 class GUARDIANSORDERS_API UGOSkills : public UObject
@@ -40,9 +23,27 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Skills")
     UGOSkillBase* GetSkill(ECharacterSkills SkillType);
 
+    EHeroType ConvertFNameToHeroType(const FName& InCharacterName)
+    {
+        FString NameString = InCharacterName.ToString();
+
+        // Optionally, convert to lowercase or perform other normalizations
+        NameString = NameString.ToLower();
+
+        if (NameString == TEXT("rogers"))
+            return EHeroType::Rogers;
+        else if (NameString == TEXT("katniss"))
+            return EHeroType::Katniss;
+        else if (NameString == TEXT("beast"))
+            return EHeroType::Beast;
+        else if (NameString == TEXT("bride"))
+            return EHeroType::Bride;
+        else
+            return EHeroType::None; // Default case
+    }
 private:
-    UPROPERTY()
-    TMap<ECharacterSkills, FSkillInfo> SkillClassTypeData;
+   /* UPROPERTY()
+    TMap<ECharacterSkills, FSkillInfo> SkillClassTypeData;*/
 
     UPROPERTY(VisibleAnywhere, Category = "Skills")
     TMap<ECharacterSkills, UGOSkillBase*> Skills;

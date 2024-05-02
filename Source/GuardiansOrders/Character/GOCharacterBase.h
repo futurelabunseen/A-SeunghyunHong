@@ -51,21 +51,10 @@ protected:
 
 	FGOCharacterStat CharacterStat;
 
-	// Skills, SkillSlot (Actor Ver. No Use)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<ASkills> CharacterSkillsClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")	
-	TObjectPtr<ASkills> CharacterSkills;
-
 	// Skills, SkillSlot 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkills> SkillsUClass;
+	TObjectPtr<UGOSkills> CharacterSkillSet;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkills> Skills;
-
-	
 // Stat Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess="true"))

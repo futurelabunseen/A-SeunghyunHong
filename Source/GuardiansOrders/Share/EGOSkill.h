@@ -14,10 +14,10 @@
 	* PotionSkill:				포션 스킬				F키
 	* BuffSkill:				(TODO) 버프 스킬			숫자키
 */
-UENUM(BlueprintType)
-enum class ECharacterSkills : uint8
+UENUM()
+enum class ECharacterSkills : uint32
 {
-	None UMETA(Hidden),
+	None = 0 UMETA(Hidden),
 
 	BaseSkill UMETA(DisplayName = "BaseSkill"),
 	Skill01 UMETA(DisplayName = "Skill01"),

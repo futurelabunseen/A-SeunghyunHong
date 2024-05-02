@@ -32,6 +32,7 @@
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
 #include "Interface/GOBattleInterface.h"
+#include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 #include "Components/DecalComponent.h"
 
@@ -371,32 +372,29 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 
 void AGOPlayerCharacter::OnBaseSkill()
 {
-	//SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(0));
-	SkillCastComponent->OnStartCast(Skills->GetSkill(ECharacterSkills::BaseSkill));
-
-	// SkillCastComponent->OnStartCast(CharacterSkills->GetSkillAt(0)->GetSkillInstance());
+	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill));
 }
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	SkillCastComponent->OnStartCast(Skills->GetSkill(ECharacterSkills::Skill01));
+	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill01));
 }
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	SkillCastComponent->OnStartCast(Skills->GetSkill(ECharacterSkills::Skill02));
+	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill02));
 
 }
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	SkillCastComponent->OnStartCast(Skills->GetSkill(ECharacterSkills::Skill03));
+	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill03));
 
 }
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	SkillCastComponent->OnStartCast(Skills->GetSkill(ECharacterSkills::UltimateSkill));
+	SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill));
 
 }
 
@@ -962,38 +960,6 @@ void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
 
 
 // ======== IGOPlaySkillAnimInterface ========
-
-//void AGOPlayerCharacter::PlaySkillAnim(ASkillSlot* InSkillSlot)
-//{
-//	if (InSkillSlot == nullptr)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] InSkillSlot is null."));
-//		return;
-//	}
-//
-//	// Checking if the actor has a network owner
-//	bool bHasOwner = InSkillSlot->HasNetOwner();
-//	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus PlaySkillAnim] Actor %s has a net owner: %s"), *InSkillSlot->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
-//
-//	// Checking if the actor is a network startup actor
-//	bool bIsStartupActor = InSkillSlot->IsNetStartupActor();
-//	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus PlaySkillAnim] Actor %s is a startup actor: %s"), *InSkillSlot->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
-//
-//
-//	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-//	if (AnimInstance)  // AnimInstance가 유효한지 확인
-//	{
-//		AnimInstance->StopAllMontages(0.0f);
-//		AnimInstance->Montage_Play(InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim); //오류
-//		UE_LOG(LogTemp, Log, TEXT("InSkillSlot 20: %s "), *InSkillSlot->GetSkillInstance()->GetName());
-//		UE_LOG(LogTemp, Log, TEXT("[PlaySkillAnim] InSkillSlot name: %s "), *InSkillSlot->GetSkillInstance()->GetTotalSkillData().SkillAnim->GetName());
-//
-//	}
-//	else
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
-//	}
-//}
 void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 {
 	if (!CurrentSkill)
@@ -1023,5 +989,3 @@ void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 	// 서버에게 명령을 보냅니다.
 	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), CurrentSkill);
 }
-
-

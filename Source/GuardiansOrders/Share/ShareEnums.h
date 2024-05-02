@@ -15,8 +15,8 @@
  * Beast : 브루저/근거리/파이터
  * Bride : 힐러/원거리/서포터
  */
-UENUM(BlueprintType)
-enum class EHeroType : uint8
+UENUM()
+enum class EHeroType : int32
 {
     None UMETA(Hidden),
 
@@ -24,8 +24,21 @@ enum class EHeroType : uint8
     Katniss UMETA(DisplayName = "Katniss"),
     Beast UMETA(DisplayName = "Beast"),
     Bride UMETA(DisplayName = "Bride"),
+    Max UMETA(Hidden)
+
 };
 
+//FName GetHeroTypeFName(EHeroType HeroType)
+//{
+//    switch (HeroType)
+//    {
+//        case EHeroType::Rogers: return FName(TEXT("Rogers"));
+//        case EHeroType::Katniss: return FName(TEXT("Katniss"));
+//        case EHeroType::Beast: return FName(TEXT("Beast"));
+//        case EHeroType::Bride: return FName(TEXT("Bride"));
+//        default: return FName(TEXT("None"));
+//    }
+//}
 
 /////////////////////////////////////////////////////////////////
 // 캐릭터 관련 정보 : 데이터 애셋에서 지정합니다. 

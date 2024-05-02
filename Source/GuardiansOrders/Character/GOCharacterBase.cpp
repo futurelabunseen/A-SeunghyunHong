@@ -101,15 +101,13 @@ AGOCharacterBase::AGOCharacterBase()
 	 }
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-	Skills = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
-
-	//CharacterSkills = CreateDefaultSubobject<ASkills>(TEXT("Skills"));
-	//CharacterSkills->SetOwner(this);
+	CharacterSkillSet = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
 }
 
 void AGOCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+	
 	// GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	Stat->OnHpZero.AddUObject(this, &AGOCharacterBase::SetDead);
 	Stat->OnStatChanged.AddUObject(this, &AGOCharacterBase::ApplyStat);
@@ -129,16 +127,12 @@ void AGOCharacterBase::BeginPlay()
 
 void AGOCharacterBase::SetData(FName InCharacterName)
 {
-	// Character Data Lookup
-	static const FString ContextString(TEXT("Character Data Lookup"));
-
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;
-
-	// Retrieve the subsystem from the game instance.
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 	if (GOGameInstance)
 	{
+		static const FString ContextString(TEXT("Character Data Lookup"));
 		FGOCharacterData* CharacterDataRow = GOGameInstance->GetCharacterData(InCharacterName);
 		if (CharacterDataRow)
 		{
@@ -153,29 +147,9 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			GetMesh()->SetAnimInstanceClass(CharacterData.AnimBlueprint);
 			GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 
-			//TArray<TSubclassOf<UGOSkillBase>> skillClasses = {
-			//	CharacterData.BaseSkillClass,
-			//	CharacterData.SkillQClass,
-			//	CharacterData.SkillWClass,
-			//	CharacterData.SkillEClass,
-			//	CharacterData.SkillRClass
-			//};
-
-			//TArray<FName> skillStatDataRow = {
-			//	CharacterData.DefaultBaseSkillName,
-			//	CharacterData.DefaultSkillNameQ,
-			//	CharacterData.DefaultSkillNameW,
-			//	CharacterData.DefaultSkillNameE,
-			//	CharacterData.DefaultSkillNameR
-			//};
-
-			//CharacterSkills->InitializeSkills(skillClasses, skillStatDataRow);
-			
-			Skills->InitializeSkills(InCharacterName);
+			CharacterSkillSet->InitializeSkills(InCharacterName);
 		}
 	}
-
-	// ComboActionMontage = 
 }
 
 void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)

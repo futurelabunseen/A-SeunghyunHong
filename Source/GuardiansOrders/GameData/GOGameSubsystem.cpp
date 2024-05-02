@@ -2,6 +2,7 @@
 
 
 #include "GameData/GOGameSubsystem.h"
+#include <Kismet/GameplayStatics.h>
 
 UGOGameSubsystem::UGOGameSubsystem()
 {
@@ -28,60 +29,36 @@ UGOGameSubsystem::UGOGameSubsystem()
 	{
 		SkillStatDataTable = SkillStatDataObj.Object;
 	}
-
-	//CharacterMaxCnt = 0;
-	//SkillMaxCnt = 0;
-
-	// Character stat
-	//static ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataTableRef(TEXT("/Script/Engine.DataTable'/Game/GameData/HeroStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
-	//if (nullptr != CharacterStatDataTableRef.Object)
-	//{
-	//	const UDataTable* DataTable = CharacterStatDataTableRef.Object;
-	//	check(DataTable->GetRowMap().Num() > 0);
-
-	//	TArray<uint8*> ValueArray;
-	//	DataTable->GetRowMap().GenerateValueArray(ValueArray);
-	//	Algo::Transform(ValueArray, CharacterStatTable,
-	//		[](uint8* Value)
-	//		{
-	//			return *reinterpret_cast<FGOCharacterStat*>(Value);
-	//		}
-	//	);
-	//}
-
-	//CharacterMaxCnt = CharacterStatTable.Num();
-	//ensure(CharacterMaxCnt > 0);
-
-	// Skill stat
-	//static ConstructorHelpers::FObjectFinder<UDataTable> SkillStatDataTableRef(TEXT("/Script/Engine.DataTable'/Game/GameData/SkillStatDataTable/GOSkillStatDataTable.GOSkillStatDataTable'"));
-	//if (nullptr != SkillStatDataTableRef.Object)
-	//{
-	//	const UDataTable* DataTable = SkillStatDataTableRef.Object;
-	//	check(DataTable->GetRowMap().Num() > 0);
-
-	//	TArray<uint8*> ValueArray;
-	//	DataTable->GetRowMap().GenerateValueArray(ValueArray);
-	//	Algo::Transform(ValueArray, SkillStatTable,
-	//		[](uint8* Value)
-	//		{
-	//			return *reinterpret_cast<FGOSkillStat*>(Value);
-	//		}
-	//	);
-	//}
-
-	//SkillMaxCnt = SkillStatTable.Num();
-	//ensure(SkillMaxCnt > 0);
 }
 
 void UGOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
+	SetAllCharacterClassSkill();
 }
 
 void UGOGameSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
+}
+
+UGOGameSubsystem* UGOGameSubsystem::GetGOGameSubsystem()
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameInstance is not available."));
+		return nullptr;
+	}
+
+	UGOGameSubsystem* GOGameSubsystem = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	if (!ensure(GOGameSubsystem))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UGOGameSubsystem is not available."));
+		return nullptr;
+	}
+
+	return GOGameSubsystem;
 }
 
 FGOCharacterData* UGOGameSubsystem::GetCharacterData(FName InCharacterName)
@@ -114,4 +91,79 @@ FGOSkillStat* UGOGameSubsystem::GetSkillStatData(FName InSkillStatName)
 	FGOSkillStat* SkillStatDataRow = SkillStatDataTable->FindRow<FGOSkillStat>(InSkillStatName, ContextString, true);
 	UE_LOG(LogTemp, Warning, TEXT("GOGameInstance GetSkillStatData is called."));
 	return SkillStatDataRow;
+}
+
+void UGOGameSubsystem::SetAllCharacterClassSkill()
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+
+	for (int32 HeroType = static_cast<int32>(EHeroType::None) + 1; HeroType<static_cast<int32>(EHeroType::Max); ++HeroType)
+	{
+		FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
+		FGOCharacterData* CharacterData = GOGameInstance->GetCharacterData(HeroName);
+
+		if (CharacterData != nullptr)
+		{
+			TMap<ECharacterSkills, FSkillInfo> SkillMap =
+			{
+				{ECharacterSkills::BaseSkill, FSkillInfo(CharacterData->BaseSkillClass, CharacterData->DefaultBaseSkillName)},
+				{ECharacterSkills::Skill01, FSkillInfo(CharacterData->SkillQClass, CharacterData->DefaultSkillNameQ)},
+				{ECharacterSkills::Skill02, FSkillInfo(CharacterData->SkillWClass, CharacterData->DefaultSkillNameW)},
+				{ECharacterSkills::Skill03, FSkillInfo(CharacterData->SkillEClass, CharacterData->DefaultSkillNameE)},
+				{ECharacterSkills::UltimateSkill, FSkillInfo(CharacterData->SkillRClass, CharacterData->DefaultSkillNameR)}
+			};
+
+			for (const auto& Skill : SkillMap)
+			{
+				UGOSkillBase* SkillInstance = NewObject<UGOSkillBase>(this, Skill.Value.SkillClass);
+				if (SkillInstance)
+				{
+					SkillInstance->InitializeSkill(Skill.Value.SkillStatName);
+					AllPlayersSkill.Add(FHeroSkillKey(static_cast<EHeroType>(HeroType), Skill.Key), SkillInstance);
+				}
+			}
+		}
+	}
+
+	// 로그로 출력 (확인용)
+	for (const auto& Pair : AllPlayersSkill)
+	{
+		const FString HeroName = UEnum::GetValueAsString<EHeroType>(Pair.Key.HeroType);
+		const FString SkillName = GetSkillNameFromEnum(Pair.Key.SkillType); // 적절한 함수를 호출하여 Enum을 문자열로 변환
+		UE_LOG(LogTemp, Warning, TEXT("[Subsystem] HeroType: %s, SkillType: %s"), *HeroName, *SkillName);
+	}
+}
+
+TMap<ECharacterSkills, UGOSkillBase*> UGOGameSubsystem::GetCharacterSkillSet(EHeroType HeroType)
+{
+	TMap<ECharacterSkills, UGOSkillBase*> Result;
+
+	// Iterate through all skills and add the ones matching the given HeroType.
+	for (const auto& Pair : AllPlayersSkill)
+	{
+		if (Pair.Key.HeroType == HeroType)
+		{
+			Result.Add(Pair.Key.SkillType, Pair.Value);
+		}
+	}
+
+	return Result;
+}
+
+UGOSkillBase* UGOGameSubsystem::GetSkillByHeroSkillKey(const FHeroSkillKey& Key)
+{
+	TObjectPtr<UGOSkillBase>* SkillInstancePtr = AllPlayersSkill.Find(Key);
+	if (SkillInstancePtr != nullptr)
+	{
+		return SkillInstancePtr->Get();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No skill found for HeroType: %s, SkillType: %s"),
+			*UEnum::GetValueAsString<EHeroType>(Key.HeroType),
+			*GetSkillNameFromEnum(Key.SkillType));
+		return nullptr;
+	}
 }

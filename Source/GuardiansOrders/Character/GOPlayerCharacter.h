@@ -49,13 +49,13 @@ protected:
 
 // Data Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
-	UGOCharacterDataAsset* HeroDataAsset;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
+	//UGOCharacterDataAsset* HeroDataAsset;
 
-	EHeroType HeroType;
-	ERoleType RoleType;
-	EAttackRange AttackRange;
-	EArchetype Archetype;
+	//EHeroType HeroType;
+	//ERoleType RoleType;
+	//EAttackRange AttackRange;
+	//EArchetype Archetype;
 
 // Camera Section
 protected:
