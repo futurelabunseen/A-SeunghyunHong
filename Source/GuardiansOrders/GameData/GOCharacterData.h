@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" 
 #include "GOCharacterStat.h"
+#include "Share/ShareEnums.h"
 #include "GOCharacterData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -12,6 +13,7 @@ struct FGOCharacterData : public FTableRowBase
 
 public:
 	FGOCharacterData() :
+		HeroType(EHeroType::None),
 		BaseSkillClass(nullptr),
 		SkillQClass(nullptr),
 		SkillWClass(nullptr),
@@ -25,6 +27,9 @@ public:
 		SkeletalMesh(nullptr),
 		AnimBlueprint(nullptr)
 	{}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	EHeroType HeroType;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TSubclassOf<class UGOSkillBase> BaseSkillClass;
 

@@ -15,8 +15,8 @@
  * Beast : 브루저/근거리/파이터
  * Bride : 힐러/원거리/서포터
  */
-UENUM()
-enum class EHeroType : int32
+UENUM(BlueprintType)
+enum class EHeroType : uint8
 {
     None UMETA(Hidden),
 

@@ -377,30 +377,48 @@ void AGOPlayerCharacter::OnBaseSkill()
 	//);	
 	
 	SkillCastComponent->OnStartCast(
-		FHeroSkillKey(EHeroType::Beast, ECharacterSkills::BaseSkill));
+		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::BaseSkill));
 }
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill01));
+	//SkillCastComponent->OnStartCast(
+	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill01)
+	// );
+
+	SkillCastComponent->OnStartCast(
+		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill01));
 }
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill02));
+	//SkillCastComponent->OnStartCast(
+	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill02)
+	// );
+
+	SkillCastComponent->OnStartCast(
+		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill02));
 
 }
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::Skill03));
+	//SkillCastComponent->OnStartCast(
+	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill03)
+	// );
 
+	SkillCastComponent->OnStartCast(
+		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill03));
 }
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	//SkillCastComponent->OnStartCast(CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill));
+	//SkillCastComponent->OnStartCast(
+	// CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill)
+	// );
 
+	SkillCastComponent->OnStartCast(
+		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::UltimateSkill));
 }
 
 void AGOPlayerCharacter::OnSkillF()

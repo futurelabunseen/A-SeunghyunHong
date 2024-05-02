@@ -38,7 +38,6 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 // void UGOSkillCastComponent::OnStartCast(UGOSkillBase* InSkillInstance)
 void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 {
-	
 	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillCastComponent OnStartCast() is Called."));
 
 	/*if (InSkillInstance == nullptr)

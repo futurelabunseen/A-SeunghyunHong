@@ -46,9 +46,9 @@ struct FHeroSkillKey
     FHeroSkillKey(EHeroType InHeroType, ECharacterSkills InSkillType)
         : HeroType(InHeroType), SkillType(InSkillType) {}
 
-    friend uint32 GetTypeHash(const FHeroSkillKey& Key)
+    friend uint8 GetTypeHash(const FHeroSkillKey& Key)
     {
-        uint32 HashCode = 0;
+        uint8 HashCode = 0;
         HashCode = HashCombine(HashCode, GetTypeHash(Key.HeroType));
         HashCode = HashCombine(HashCode, GetTypeHash(Key.SkillType));
         return HashCode;

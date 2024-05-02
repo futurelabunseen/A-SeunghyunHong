@@ -99,7 +99,7 @@ void UGOGameSubsystem::SetAllCharacterClassSkill()
 	if (!ensure(GameInstance)) return;
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
-	for (int32 HeroType = static_cast<int32>(EHeroType::None) + 1; HeroType<static_cast<int32>(EHeroType::Max); ++HeroType)
+	for (uint8 HeroType = static_cast<uint8>(EHeroType::None) + 1; HeroType<static_cast<uint8>(EHeroType::Max); ++HeroType)
 	{
 		FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
 		FGOCharacterData* CharacterData = GOGameInstance->GetCharacterData(HeroName);
@@ -131,7 +131,7 @@ void UGOGameSubsystem::SetAllCharacterClassSkill()
 	for (const auto& Pair : AllPlayersSkill)
 	{
 		const FString HeroName = UEnum::GetValueAsString<EHeroType>(Pair.Key.HeroType);
-		const FString SkillName = GetSkillNameFromEnum(Pair.Key.SkillType); // 적절한 함수를 호출하여 Enum을 문자열로 변환
+		const FString SkillName = GetSkillNameFromEnum(Pair.Key.SkillType);
 		UE_LOG(LogTemp, Warning, TEXT("[Subsystem] HeroType: %s, SkillType: %s"), *HeroName, *SkillName);
 	}
 }
