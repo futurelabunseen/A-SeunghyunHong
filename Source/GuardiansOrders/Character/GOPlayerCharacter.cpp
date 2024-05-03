@@ -946,10 +946,20 @@ bool AGOPlayerCharacter::ServerRPCActivateSkill_Validate(float AttackStartTime, 
 	return true;
 }
 
+// 새로 구조체
 void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStartTime, FHeroSkillKey Key)
 {
-	Stat->UseSkill(Stat->GetTotalStat().BaseDamage); // TODO: ManaCost
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
+	if (Key.SkillType != ECharacterSkills::BaseSkill)
+	{		
+		// ManaCost
+		Stat->UseSkill(GOGameInstance->GetSkillByHeroSkillKey(Key)->GetTotalSkillStat().ManaCost);
+
+	}
+	
 	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
 	////OnRep_CanAttack();
 

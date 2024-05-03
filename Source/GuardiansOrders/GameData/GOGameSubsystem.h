@@ -149,7 +149,7 @@ protected:
 
     //UPROPERTY(VisibleAnywhere, Category = "Skills")
     //TMap<EHeroType, TMap<ECharacterSkills, TObjectPtr<UGOSkillBase>>> AllPlayersSkill;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+    UPROPERTY(EditDefaultsOnly, Category = "Skills")
     TMap<FHeroSkillKey, TObjectPtr<UGOSkillBase>> AllPlayersSkill;
 
 public:
