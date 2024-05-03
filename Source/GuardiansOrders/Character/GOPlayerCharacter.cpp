@@ -7,6 +7,7 @@
 #include "UI/GOManaBarWidget.h"
 #include "UI/GOHUDWidget.h"
 #include "UI/GOSkillSetBarWidget.h"
+#include "UI/GOHeroInfoWidget.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Skill/GOSkillCastComponent.h"
 #include "Components/WidgetComponent.h"
@@ -508,15 +509,17 @@ void AGOPlayerCharacter::SetupHUDWidget(UGOHUDWidget* InHUDWidget)
 {
 	if (InHUDWidget)
 	{
+		// Stats
 		InHUDWidget->UpdateStat(Stat->GetBaseStat(), Stat->GetModifierStat());
 		InHUDWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 		InHUDWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 		Stat->OnStatChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateStat);
 		Stat->OnHpChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateHpBar);
 		Stat->OnManaChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateManaBar);
-
-		
+		// Skill
 		InHUDWidget->GetSkillSetBar()->InitializeSkillSlots(CharacterSkillSet);
+		// HeroInfo
+		InHUDWidget->GetHeroInfo()->BindHeroInfo(CharacterData);
 	}
 }
 

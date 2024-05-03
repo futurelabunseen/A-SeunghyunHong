@@ -12,6 +12,7 @@ class UGOHpBarWidget;
 class UGOManaBarWidget;
 class UGOCharacterStatWidget;
 class UGOSkillSetBarWidget;
+class UGOHeroInfoWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOHUDWidget : public UCommonUserWidget
@@ -29,6 +30,7 @@ public:
 	void UpdateHpBar(float NewCurrentHp, float NewMaxHp);
 	void UpdateManaBar(float NewCurrentMana, float NewMaxMana);
 	TObjectPtr<UGOSkillSetBarWidget> GetSkillSetBar() { return SkillSetBar; }
+	TObjectPtr<UGOHeroInfoWidget> GetHeroInfo() { return HeroInfo; }
 
 protected:
 	UPROPERTY()
@@ -45,4 +47,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGOSkillSetBarWidget> SkillSetBar;
+
+	UPROPERTY()
+	TObjectPtr<UGOHeroInfoWidget> HeroInfo;
 };

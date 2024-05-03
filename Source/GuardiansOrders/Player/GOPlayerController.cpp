@@ -74,8 +74,6 @@ void AGOPlayerController::BeginPlay()
             GOHUDWidget->AddToViewport();
         }
     }
-
-    SkillSetBarWidget = Cast<UGOSkillSetBarWidget>(GOHUDWidget->GetWidgetFromName("SkillSetBarWidget"));
 }
 
 void AGOPlayerController::OnPossess(APawn* InPawn)

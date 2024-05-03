@@ -152,27 +152,6 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 	}
 }
 
-void AGOCharacterBase::SetCharacterStatData(FName InCharacterName)
-{
-	// Character Stat Data Lookup
-	static const FString ContextString(TEXT("Character Stat Data Lookup"));
-
-	if (!CharacterStatDataTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterStatDataTable is not initialized."));
-		return;
-	}
-
-	FGOCharacterStat* CharacterStatDataRow = CharacterStatDataTable->FindRow<FGOCharacterStat>(InCharacterName, ContextString, true);
-	if (CharacterStatDataRow)
-	{
-		CharacterStat = *CharacterStatDataRow;
-
-		// StatComponent 처리
-		Stat->SetBaseStat(CharacterStat);
-	}
-}
-
 void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
 {
 	float MovementSpeed = (BaseStat + ModifierStat).MovementSpeed;

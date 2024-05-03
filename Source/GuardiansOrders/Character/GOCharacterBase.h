@@ -37,16 +37,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void SetData(FName InCharacterName);
 
-	UFUNCTION(BlueprintCallable, Category = "Character")
-	void SetCharacterStatData(FName InCharacterName);
-
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterDataTable;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterStatDataTable;
-
 	FGOCharacterData CharacterData;
 
 	FGOCharacterStat CharacterStat;

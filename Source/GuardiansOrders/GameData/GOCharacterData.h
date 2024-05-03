@@ -14,6 +14,7 @@ struct FGOCharacterData : public FTableRowBase
 public:
 	FGOCharacterData() :
 		HeroType(EHeroType::None),
+		HeroIcon(nullptr),
 		BaseSkillClass(nullptr),
 		SkillQClass(nullptr),
 		SkillWClass(nullptr),
@@ -30,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	EHeroType HeroType;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TObjectPtr<UTexture2D> HeroIcon;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TSubclassOf<class UGOSkillBase> BaseSkillClass;
 
