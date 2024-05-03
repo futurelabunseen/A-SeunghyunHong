@@ -20,6 +20,8 @@ class GUARDIANSORDERS_API UGOSkillSlotWidget : public UCommonUserWidget
 	GENERATED_BODY()
 	
 public:
+    virtual void NativeConstruct() override;
+
     UPROPERTY(meta = (BindWidget))
     UImage* SkillIconImage;
 
@@ -28,6 +30,8 @@ public:
 
     UPROPERTY(meta = (BindWidget))
     UCommonTextBlock* CooldownText;
+
+    UMaterialInstanceDynamic* MatInstance;
 
     void BindSkill(UGOSkillBase* Skill);
 };
