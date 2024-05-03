@@ -6,6 +6,7 @@
 #include "UI/GOHpBarWidget.h"
 #include "UI/GOManaBarWidget.h"
 #include "UI/GOHUDWidget.h"
+#include "UI/GOSkillSetBarWidget.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Skill/GOSkillCastComponent.h"
 #include "Components/WidgetComponent.h"
@@ -35,6 +36,7 @@
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 #include "Components/DecalComponent.h"
+#include "Player/GOPlayerController.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter()
 	: bIsDecalVisible(false)
@@ -455,6 +457,29 @@ void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
 	BasicAttackRangeDecal->SetVisibility(bIsDecalVisible);
 }
 
+void AGOPlayerCharacter::UpdateSkillBar()
+{
+	//auto Skills = CharacterSkillSet->GetSkills();
+	//UGOSkillSetBarWidget* SkillSetBar = Cast<UGOSkillSetBarWidget>(GetSkillBarWidget());
+	//if (!SkillSetBar || !CharacterSkillSet || Skills.Num() == 0)
+	//{
+	//	return;
+	//}
+
+	//// SkillSlots 배열의 크기를 스킬 개수에 맞게 조정
+	//for (int32 i = 0; i < SkillSetBar->SkillSlots.Num() && i < Skills.Num(); ++i)
+	//{
+	//	if (Skills[i].GOSkillData && SkillSetBar->SkillSlots[i])
+	//	{
+	//		UTexture2D* SkillIcon = CharacterSkillSet->GetSkills()[i].GOSkillData->SkillIcon;
+	//		if (SkillIcon)
+	//		{
+	//			SkillSetBar->SkillSlots[i]->SetBrushFromTexture(SkillIcon, true);
+	//		}
+	//	}
+	//}
+}
+
 void AGOPlayerCharacter::SelfMove()
 {
 	if (!bSelfMove) return;
@@ -489,6 +514,9 @@ void AGOPlayerCharacter::SetupHUDWidget(UGOHUDWidget* InHUDWidget)
 		Stat->OnStatChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateStat);
 		Stat->OnHpChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateHpBar);
 		Stat->OnManaChanged.AddUObject(InHUDWidget, &UGOHUDWidget::UpdateManaBar);
+
+		
+		InHUDWidget->GetSkillSetBar()->InitializeSkillSlots(CharacterSkillSet);
 	}
 }
 

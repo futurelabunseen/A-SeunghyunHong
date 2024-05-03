@@ -96,6 +96,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 		}
 	}
 
+	// TODO
 	if (DeltaTime > CurrentSkill->GetCastingTime())
 	{
 		OnFinishCast();

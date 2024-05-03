@@ -17,6 +17,8 @@ class GUARDIANSORDERS_API UGOSkills : public UObject
 public:
     UGOSkills();
 
+    FORCEINLINE TMap < ECharacterSkills, UGOSkillBase*> GetSkills() { return Skills; }
+
     UFUNCTION(BlueprintCallable, Category = "Skills")
     void InitializeSkills(FName CharacterName);
 

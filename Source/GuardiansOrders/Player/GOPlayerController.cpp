@@ -5,6 +5,7 @@
 #include "GuardiansOrders/GuardiansOrders.h"
 #include "UI/GOHUDWidget.h"
 #include "CommonActivatableWidget.h"
+#include "UI/GOSkillSetBarWidget.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -73,7 +74,8 @@ void AGOPlayerController::BeginPlay()
             GOHUDWidget->AddToViewport();
         }
     }
-    
+
+    SkillSetBarWidget = Cast<UGOSkillSetBarWidget>(GOHUDWidget->GetWidgetFromName("SkillSetBarWidget"));
 }
 
 void AGOPlayerController::OnPossess(APawn* InPawn)
@@ -84,3 +86,9 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
 
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
+
+void AGOPlayerController::InitializeSkills()
+{
+
+}
+

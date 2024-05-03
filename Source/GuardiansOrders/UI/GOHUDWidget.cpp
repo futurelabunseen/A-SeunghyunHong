@@ -7,6 +7,7 @@
 #include "GOHpBarWidget.h"
 #include "GOManaBarWidget.h"
 #include "GOCharacterStatWidget.h"
+#include "GOSkillSetBarWidget.h"
 
 UGOHUDWidget::UGOHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -35,6 +36,10 @@ void UGOHUDWidget::NativeConstruct()
 
 	CharacterStat = Cast<UGOCharacterStatWidget>(GetWidgetFromName(TEXT("WidgetCharacterStat")));
 	ensure(CharacterStat);
+
+	SkillSetBar = Cast<UGOSkillSetBarWidget>(GetWidgetFromName(TEXT("CUI_SkillSetBar")));
+	ensure(SkillSetBar);
+	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOHUDWidget] SkillSetBar: %s"), *SkillSetBar.GetName());
 
 	IGOCharacterHUDInterface* HUDPawn = Cast<IGOCharacterHUDInterface>(GetOwningPlayerPawn());
 	if (HUDPawn)

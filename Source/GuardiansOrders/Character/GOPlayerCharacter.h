@@ -125,6 +125,8 @@ protected:
 
 	// 최대 공격 사거리를 보여주는 콜백 함수입니다. 
 	void OnShowMaxBasicAttackRange();
+public:
+	void UpdateSkillBar();
 
 public:
 	// Time Threshold to know if it was a short press.
@@ -440,4 +442,5 @@ public:
 	virtual void ActivateSkillByKey(FHeroSkillKey Key);
 
 	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
+
 };

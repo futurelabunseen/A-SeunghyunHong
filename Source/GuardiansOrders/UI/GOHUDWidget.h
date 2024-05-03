@@ -11,6 +11,7 @@ class UGOStatsBarWidget;
 class UGOHpBarWidget;
 class UGOManaBarWidget;
 class UGOCharacterStatWidget;
+class UGOSkillSetBarWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOHUDWidget : public UCommonUserWidget
@@ -27,6 +28,7 @@ public:
 	void UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
 	void UpdateHpBar(float NewCurrentHp, float NewMaxHp);
 	void UpdateManaBar(float NewCurrentMana, float NewMaxMana);
+	TObjectPtr<UGOSkillSetBarWidget> GetSkillSetBar() { return SkillSetBar; }
 
 protected:
 	UPROPERTY()
@@ -41,5 +43,6 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UGOCharacterStatWidget> CharacterStat;
 
-
+	UPROPERTY()
+	TObjectPtr<UGOSkillSetBarWidget> SkillSetBar;
 };
