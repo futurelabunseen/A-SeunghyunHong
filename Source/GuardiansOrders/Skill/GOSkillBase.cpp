@@ -74,6 +74,8 @@ void UGOSkillBase::UpdateCast(float DeltaTime)
 			CoolDownTimer = 0.0f;
 			bIsCastable = true;
 		}
+		OnCooldownUpdated.Broadcast(CoolDownTimer);
+		UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::UpdateCast] is called. %d"), CoolDownTimer);
 	}
 }
 
@@ -85,14 +87,16 @@ void UGOSkillBase::Activate()
 
 void UGOSkillBase::FinishCast()
 {
-	bIsCasting = false;
+	// bIsCasting = false;
 	bIsCastable = false; // 쿨다운이 진행되므로 다시 캐스트할 수 없음
 	SetCoolDownTimer();  // 쿨다운 타이머 재설정
+	UE_LOG(LogTemp, Log, TEXT("[SkillBarUI UGOSkillBase::FinishCast()] is called "));
+
 }
 
 void UGOSkillBase::InterruptedCast()
 {
-	bIsCasting = false;
+	// bIsCasting = false;
 	// 필요한 경우 캐스팅 중단 처리, 예: 애니메이션 중단, 효과 제거 등
 	UE_LOG(LogTemp, Log, TEXT("Skill casting interrupted."));
 }

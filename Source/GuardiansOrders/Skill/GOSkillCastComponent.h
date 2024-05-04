@@ -53,6 +53,9 @@ private:
 
 	TObjectPtr<UGOSkillBase> CurrentSkill;
 	FHeroSkillKey SkillKey;
+
+	float CastCoolDownTimer = 0.f;
+	float CastDownTimer = 0.f;
 };
 
 /*

@@ -8,12 +8,15 @@
 #include "GameData/GOSkillDataAsset.h"
 #include "GameData/GOSkillStat.h"
 #include "GameData/GOSkillData.h"
+#include "Delegates/Delegate.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
 class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
 
  /*
    * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
@@ -25,14 +28,15 @@ class GUARDIANSORDERS_API UGOSkillBase : public UObject
 
 public:
 	UGOSkillBase();
+	FOnCooldownUpdated OnCooldownUpdated;
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
 
 	void SetSkillOwner(AActor* NewOwner);
 	FORCEINLINE AActor* GetSkillOwner() { return SkillOwnerCharacter; };
 
-	virtual bool IsCastable() const { return bIsCastable; };
-	virtual bool IsCasting() const { return bIsCasting; };
+	bool IsCastable() const { return bIsCastable; };
+	bool IsCasting() const { return bIsCasting; };
 	//virtual bool IsCastable() const { return CoolDownTimer <= 0; }
 	//bool IsCasting() const { return bIsOnCasting; }
 

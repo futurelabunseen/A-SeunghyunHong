@@ -15,32 +15,37 @@ void UGORogersUltimateSkill::PostInitProperties()
 
 void UGORogersUltimateSkill::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGORogersUltimateSkill::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
 }
 
 void UGORogersUltimateSkill::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGORogersUltimateSkill::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGORogersUltimateSkill::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGORogersUltimateSkill::IsCasting() const
-{
-	return false;
-}
-
-bool UGORogersUltimateSkill::IsCastable() const
-{
-	return false;
-}
+//bool UGORogersUltimateSkill::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGORogersUltimateSkill::IsCastable() const
+//{
+//	return false;
+//}

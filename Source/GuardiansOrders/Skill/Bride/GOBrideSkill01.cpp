@@ -15,32 +15,37 @@ void UGOBrideSkill01::PostInitProperties()
 
 void UGOBrideSkill01::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGOBrideSkill01::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
 }
 
 void UGOBrideSkill01::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGOBrideSkill01::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGOBrideSkill01::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGOBrideSkill01::IsCasting() const
-{
-	return false;
-}
-
-bool UGOBrideSkill01::IsCastable() const
-{
-	return false;
-}
+//bool UGOBrideSkill01::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGOBrideSkill01::IsCastable() const
+//{
+//	return false;
+//}

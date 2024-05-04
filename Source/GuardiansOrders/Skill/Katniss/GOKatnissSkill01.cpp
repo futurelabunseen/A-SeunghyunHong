@@ -15,32 +15,37 @@ void UGOKatnissSkill01::PostInitProperties()
 
 void UGOKatnissSkill01::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGOKatnissSkill01::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
 }
 
 void UGOKatnissSkill01::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGOKatnissSkill01::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGOKatnissSkill01::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGOKatnissSkill01::IsCasting() const
-{
-	return false;
-}
-
-bool UGOKatnissSkill01::IsCastable() const
-{
-	return false;
-}
+//bool UGOKatnissSkill01::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGOKatnissSkill01::IsCastable() const
+//{
+//	return false;
+//}
