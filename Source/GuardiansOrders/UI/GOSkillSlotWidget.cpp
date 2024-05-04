@@ -72,7 +72,11 @@ void UGOSkillSlotWidget::BindSkill(UGOSkillBase* Skill)
 
 void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
 {
-    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] is called."));
+    // UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] is called. %f"), DeltaTime);
+    if (testVal < DeltaTime)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI ???]"));
+    }
 
     CooldownImage->SetVisibility(ESlateVisibility::Visible);
     CooldownText->SetVisibility(ESlateVisibility::Visible);
@@ -87,11 +91,4 @@ void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
         float Percent = (CurrentSkill->GetCoolDownTime() - DeltaTime) / CurrentSkill->GetCoolDownTime();
         MatInstance->SetScalarParameterValue(FName("percent"), Percent);
     }
-    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] MatInstance is %s"), *MatInstance->GetName());
-
-    /*if (MatInstance)
-    {
-        float Percent = 1.0f - (CooldownRemaining / TotalCooldown);
-        MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
-    }*/
 }

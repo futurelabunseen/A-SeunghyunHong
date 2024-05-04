@@ -39,4 +39,5 @@ public:
 
     TObjectPtr<UGOSkillBase> CurrentSkill;
 
+    float testVal = 99990.f;
 };

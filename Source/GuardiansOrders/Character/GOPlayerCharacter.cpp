@@ -259,6 +259,7 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (EnhancedInputComponent != nullptr)
 	{
 		EnhancedInputComponent->BindAction(ActionGamePadMove, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::MoveGamePad);
+
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Started, this, &AGOPlayerCharacter::OnInputStarted);
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSetDestinationTriggered);
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Completed, this, &AGOPlayerCharacter::OnSetDestinationReleased);

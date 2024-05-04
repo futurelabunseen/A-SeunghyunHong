@@ -3,6 +3,9 @@
 
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
+#include "GOCharacterData.h"
+#include "GOCharacterStat.h"
+#include "Skill/GOSkillBase.h"
 
 UGOGameSubsystem::UGOGameSubsystem()
 {
@@ -165,5 +168,36 @@ UGOSkillBase* UGOGameSubsystem::GetSkillByHeroSkillKey(const FHeroSkillKey& Key)
 			*UEnum::GetValueAsString<EHeroType>(Key.HeroType),
 			*GetSkillNameFromEnum(Key.SkillType));
 		return nullptr;
+	}
+}
+
+FString UGOGameSubsystem::GetSkillNameFromEnum(ECharacterSkills SkillType) const
+{
+	switch (SkillType)
+	{
+	case ECharacterSkills::BaseSkill:
+		return TEXT("BaseSkill");
+	case ECharacterSkills::Skill01:
+		return TEXT("Skill01");
+	case ECharacterSkills::Skill02:
+		return TEXT("Skill02");
+	case ECharacterSkills::Skill03:
+		return TEXT("Skill03");
+	case ECharacterSkills::UltimateSkill:
+		return TEXT("UltimateSkill");
+	default:
+		return TEXT("Unknown");
+	}
+}
+
+FName UGOGameSubsystem::GetHeroTypeFName(EHeroType HeroType)
+{
+	switch (HeroType)
+	{
+	case EHeroType::Rogers: return FName(TEXT("Rogers"));
+	case EHeroType::Katniss: return FName(TEXT("Katniss"));
+	case EHeroType::Beast: return FName(TEXT("Beast"));
+	case EHeroType::Bride: return FName(TEXT("Bride"));
+	default: return FName(TEXT("None"));
 	}
 }

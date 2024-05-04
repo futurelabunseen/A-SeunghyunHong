@@ -30,7 +30,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 
-protected:
+public:
 	virtual void BeginPlay() override;
 
 // Data Section

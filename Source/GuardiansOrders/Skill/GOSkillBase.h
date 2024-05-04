@@ -28,6 +28,8 @@ class GUARDIANSORDERS_API UGOSkillBase : public UObject
 
 public:
 	UGOSkillBase();
+
+
 	FOnCooldownUpdated OnCooldownUpdated;
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
@@ -72,6 +74,8 @@ public:
 	  */
 	virtual void ActivateEffect();
 
+
+
 // Stat & Data Section
 public:
 	FORCEINLINE void SetSkillStat(const FGOSkillStat& InSkillStat) { SkillStat = InSkillStat; }
@@ -86,6 +90,9 @@ public:
 
 	FORCEINLINE ESkillTriggerType GetSkillTriggerType() const { return GetTotalSkillData().SkillTriggerType; }
 	FORCEINLINE ESkillAffectType GetSkillAffectType() const { return GetTotalSkillData().SkillAffectType; }
+
+	void CheckCooldownTick();
+	void EndCooldown();
 
 protected:
 
@@ -108,7 +115,7 @@ public:
 
 public:
 	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
-	float CoolDownTimer = 0; // SetCoolDownTime() 잊지말기!!!
+	float CoolDownTimer = 0.0f; // SetCoolDownTime() 잊지말기!!!
 
 public:
 	// 스킬 시전 가능한지의 여부
@@ -116,5 +123,5 @@ public:
 
 	// 스킬이 현재 캐스팅 중인지의 여부
 	bool bIsCasting = false;
-
+	FTimerHandle CoolDownTickTimerHandle;
 };

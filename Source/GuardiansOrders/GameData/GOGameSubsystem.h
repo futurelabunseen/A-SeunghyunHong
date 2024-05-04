@@ -80,14 +80,14 @@ public:
     UGOGameSubsystem* GetGOGameSubsystem();
 
     // 기능 접근 메서드
-    FORCEINLINE FGOCharacterStat GetCharacterStat(int32 InCType) const { return CharacterStatTable.IsValidIndex(InCType - 1) ? CharacterStatTable[InCType - 1] : FGOCharacterStat(); }
+     FGOCharacterStat GetCharacterStat(int32 InCType) const { return CharacterStatTable.IsValidIndex(InCType - 1) ? CharacterStatTable[InCType - 1] : FGOCharacterStat(); }
     //FORCEINLINE FGOSkillStat GetSkillStat(int32 InSType) const { return SkillStatTable.IsValidIndex(InSType - 1) ? SkillStatTable[InSType - 1] : FGOSkillStat(); }
     
     // For Newer Game data Setting System
-    FORCEINLINE FGOCharacterData* GetCharacterData(FName InCharacterName);
-    FORCEINLINE FGOCharacterStat* GetCharacterStatData(FName InCharacterName);    
-    FORCEINLINE FGOSkillData* GetSkillData(FName InSkillName);
-    FORCEINLINE FGOSkillStat* GetSkillStatData(FName InSkillStatName);
+     FGOCharacterData* GetCharacterData(FName InCharacterName);
+     FGOCharacterStat* GetCharacterStatData(FName InCharacterName);    
+     FGOSkillData* GetSkillData(FName InSkillName);
+     FGOSkillStat* GetSkillStatData(FName InSkillStatName);
 
     void SetAllCharacterClassSkill();
     
@@ -95,36 +95,9 @@ public:
     
     UGOSkillBase* GetSkillByHeroSkillKey(const FHeroSkillKey& Key);
 
-    FString GetSkillNameFromEnum(ECharacterSkills SkillType) const
-    {
-        switch (SkillType)
-        {
-        case ECharacterSkills::BaseSkill:
-            return TEXT("BaseSkill");
-        case ECharacterSkills::Skill01:
-            return TEXT("Skill01");
-        case ECharacterSkills::Skill02:
-            return TEXT("Skill02");
-        case ECharacterSkills::Skill03:
-            return TEXT("Skill03");
-        case ECharacterSkills::UltimateSkill:
-            return TEXT("UltimateSkill");
-        default:
-            return TEXT("Unknown");
-        }
-    }
+    FString GetSkillNameFromEnum(ECharacterSkills SkillType) const;
 
-    FName GetHeroTypeFName(EHeroType HeroType)
-    {
-        switch (HeroType)
-        {
-        case EHeroType::Rogers: return FName(TEXT("Rogers"));
-        case EHeroType::Katniss: return FName(TEXT("Katniss"));
-        case EHeroType::Beast: return FName(TEXT("Beast"));
-        case EHeroType::Bride: return FName(TEXT("Bride"));
-        default: return FName(TEXT("None"));
-        }
-    }
+    FName GetHeroTypeFName(EHeroType HeroType);
 
 
 protected:

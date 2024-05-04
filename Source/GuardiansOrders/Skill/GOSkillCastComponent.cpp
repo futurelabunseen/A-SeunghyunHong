@@ -53,6 +53,13 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 
 	SkillKey = Key;
 	CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+
+	// If there is an active skill with a running cooldown, end it safely
+	//if (CurrentSkill && CurrentSkill->IsCasting())
+	//{
+	//	CurrentSkill->EndCooldown();
+	//}
+
 	CurrentSkill->StartCast();
 }
 
@@ -63,7 +70,6 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 		return;
 	}
 	CastDownTimer += DeltaTime;
-	CastCoolDownTimer += DeltaTime;
 
 	// 스킬 캐스팅 중 업데이트 로직
 	CurrentSkill->UpdateCast(DeltaTime);
@@ -100,7 +106,7 @@ void UGOSkillCastComponent::OnFinishCast()
 	CurrentSkill->FinishCast();  // 스킬의 완료 로직 실행
 	CurrentSkill = nullptr;
 	bIsOnCasting = false;
-	CastCoolDownTimer = 0.f;
+	CastDownTimer = 0.f;
 	//GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast 상태 비활성화
 
 }
@@ -116,7 +122,10 @@ void UGOSkillCastComponent::OnInterruptCast()
 	CurrentSkill->InterruptedCast();  // 스킬 중단 로직 실행
 	CurrentSkill = nullptr;
 	bIsOnCasting = false;
-	CastCoolDownTimer = 0.f;
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast 상태 비활성화
+}
+
+void UGOSkillCastComponent::UpdateCoolDownTime(float DeltaTime)
+{
 }
 

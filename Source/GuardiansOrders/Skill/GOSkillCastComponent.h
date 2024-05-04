@@ -29,7 +29,6 @@ public:
 	/**
 	  * 스킬이 시작될 때 발생하는 이벤트를 처리합니다.
 	  */
-	// void OnStartCast(UGOSkillBase* InSkillInstance);
 	void OnStartCast(FHeroSkillKey Key);
 	
 	/**
@@ -47,14 +46,14 @@ public:
 	  */
 	void OnInterruptCast();
 
+	void UpdateCoolDownTime(float DeltaTime);
+
 private:
 	//  현재 캐스팅 중인지의 여부 
 	bool bIsOnCasting = false;
 
 	TObjectPtr<UGOSkillBase> CurrentSkill;
 	FHeroSkillKey SkillKey;
-
-	float CastCoolDownTimer = 0.f;
 	float CastDownTimer = 0.f;
 };
 

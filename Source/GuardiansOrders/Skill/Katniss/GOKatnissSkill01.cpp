@@ -17,7 +17,26 @@ void UGOKatnissSkill01::StartCast()
 {
 	//SetCoolDownTimer();
 	//bIsCasting = true;
+	
+	
 	Super::StartCast();
+
+	//if (IsCastable() == false)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Skill is not castable due to cooldown or other conditions."));
+	//	return;
+	//}
+	//UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillBase::StartCast() is Called."));
+
+	//bIsCasting = true;
+	//SetCoolDownTimer();
+	//OnCooldownUpdated.Broadcast(CoolDownTimer);  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
+	//{
+	//	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
+	//}
+	//GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
 }
 
 void UGOKatnissSkill01::UpdateCast(float DeltaTime)

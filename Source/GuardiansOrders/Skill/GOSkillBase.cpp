@@ -6,11 +6,14 @@
 #include "GameData/GOGameSubsystem.h"
 #include "Subsystems/SubsystemCollection.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameData/GOCharacterData.h"
+#include "GameData/GOCharacterStat.h"
 
 UGOSkillBase::UGOSkillBase()
 {
 
 }
+
 
 void UGOSkillBase::PostInitProperties()
 {
@@ -59,24 +62,32 @@ void UGOSkillBase::StartCast()
 		UE_LOG(LogTemp, Warning, TEXT("Skill is not castable due to cooldown or other conditions."));
 		return;
 	}
+	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillBase::StartCast() is Called."));
 
 	bIsCasting = true;
 	SetCoolDownTimer();
+	OnCooldownUpdated.Broadcast(CoolDownTimer);  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
+	}
+	GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
 }
 
 void UGOSkillBase::UpdateCast(float DeltaTime)
 {
-	if (CoolDownTimer > 0.0f)
-	{
-		CoolDownTimer -= DeltaTime;
-		if (CoolDownTimer <= 0.0f)
-		{
-			CoolDownTimer = 0.0f;
-			bIsCastable = true;
-		}
-		OnCooldownUpdated.Broadcast(CoolDownTimer);
-		UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::UpdateCast] is called. %d"), CoolDownTimer);
-	}
+	//if (CoolDownTimer > 0.0f)
+	//{
+	//	CoolDownTimer -= DeltaTime;
+	//	if (CoolDownTimer <= 0.0f)
+	//	{
+	//		CoolDownTimer = 0.0f;
+	//		bIsCastable = true;
+	//	}
+	//	OnCooldownUpdated.Broadcast(CoolDownTimer);
+	//	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::UpdateCast] is called. %d"), CoolDownTimer);
+	//}
 }
 
 void UGOSkillBase::Activate()
@@ -104,4 +115,25 @@ void UGOSkillBase::InterruptedCast()
 void UGOSkillBase::ActivateEffect()
 {
 
+}
+
+void UGOSkillBase::CheckCooldownTick()
+{
+	if (CoolDownTimer > 0.0f)
+	{
+		CoolDownTimer -= 0.1f;
+		OnCooldownUpdated.Broadcast(CoolDownTimer);  // UI 업데이트를 위해 델리게이트 호출
+		if (CoolDownTimer <= 0.0f)
+		{
+			EndCooldown();
+		}
+	}
+}
+
+void UGOSkillBase::EndCooldown()
+{
+	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
+	CoolDownTimer = 0.0f;
+	bIsCastable = true;
+	OnCooldownUpdated.Broadcast(CoolDownTimer);  // 최종적으로 쿨다운 완료 알림
 }
