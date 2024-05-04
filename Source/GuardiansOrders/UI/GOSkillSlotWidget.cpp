@@ -1,7 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/GOSkillSlotWidget.h"
+#include "CommonTextBlock.h"
+#include "Skill/GOSkillBase.h"
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -9,12 +11,45 @@ void UGOSkillSlotWidget::NativeConstruct()
 
     if (CooldownImage)
     {
-        UMaterialInterface* BaseMaterial = CooldownImage->GetBrush().GetResourceObject()->GetClass()->GetDefaultObject<UMaterialInterface>();
-        if (BaseMaterial)
+        UE_LOG(LogTemp, Warning, TEXT("[CoolDown] CoolDownImage is not null"));
+
+        UObject* ResourceObject = CooldownImage->GetBrush().GetResourceObject();
+        if (ResourceObject)
         {
-            MatInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this);
-            CooldownImage->SetBrushFromMaterial(MatInstance);
+            UE_LOG(LogTemp, Warning, TEXT("[CoolDown] ResourceObject is %s"), *ResourceObject->GetName()); // M_ClockScan
+
+            UMaterialInterface* BaseMaterial = Cast<UMaterialInterface>(ResourceObject);
+            if (BaseMaterial)
+            {
+                MatInstance = UMaterialInstanceDynamic::Create(BaseMaterial, this); // ë‚´ê°€ ì„¤ì •í•œ ë§¤í„°ë¦¬ì–¼ì— ëŒ€í•œ ë™ì  ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±
+                if (MatInstance)
+                {
+                    CooldownImage->SetBrushFromMaterial(MatInstance);
+                    CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("Failed to create Material Instance Dynamic from BaseMaterial."));
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Failed to cast ResourceObject to UMaterialInterface."));
+            }
         }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("ResourceObject is nullptr."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("CooldownImage is nullptr."));
+    }
+
+    if (CooldownText)
+    {
+        CooldownText->SetVisibility(ESlateVisibility::Hidden);
     }
 }
 
@@ -24,11 +59,39 @@ void UGOSkillSlotWidget::BindSkill(UGOSkillBase* Skill)
     {
         return;
     }
+    CurrentSkill = Skill;
         
-    SkillIconImage->SetBrushFromTexture(Skill->GetTotalSkillData().SkillIcon); // ½ºÅ³ ¾ÆÀÌÄÜ ¼³Á¤
-    // CooldownText
-    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI BindSkill] SkillIconImage is %s"), *Skill->GetTotalSkillData().SkillIcon.GetName());
+    CurrentSkill->OnCooldownUpdated.AddUObject(this, &UGOSkillSlotWidget::UpdateCooldownUI);
 
-    // Skill->OnCooldownUpdated.AddDynamic(this, &UGOSkillSlotWidget::UpdateCooldownDisplay); // Äð´Ù¿î ¾÷µ¥ÀÌÆ® ÀÌº¥Æ® ¹ÙÀÎµù
+    SkillIconImage->SetBrushFromTexture(Skill->GetTotalSkillData().SkillIcon); // ìŠ¤í‚¬ ì•„ì´ì½˜ ì„¤ì •
     
+    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI BindSkill] SkillIconImage is %s"), *CurrentSkill->GetTotalSkillData().SkillIcon.GetName());
+    UE_LOG(LogTemp, Warning, TEXT("Skill bound and delegate bound for cooldown updates."));
+
+}
+
+void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
+{
+    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] is called."));
+
+    CooldownImage->SetVisibility(ESlateVisibility::Visible);
+    CooldownText->SetVisibility(ESlateVisibility::Visible);
+
+    if (CooldownText)
+    {
+        FString FormattedTime = FString::Printf(TEXT("%.1f"), DeltaTime);
+        CooldownText->SetText(FText::FromString(FormattedTime));
+    }
+    if (MatInstance)
+    {
+        float Percent = (CurrentSkill->GetCoolDownTime() - DeltaTime) / CurrentSkill->GetCoolDownTime();
+        MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+    }
+    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] MatInstance is %s"), *MatInstance->GetName());
+
+    /*if (MatInstance)
+    {
+        float Percent = 1.0f - (CooldownRemaining / TotalCooldown);
+        MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+    }*/
 }
