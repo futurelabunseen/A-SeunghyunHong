@@ -265,8 +265,8 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionClickSetDestination, ETriggerEvent::Canceled, this, &AGOPlayerCharacter::OnSetDestinationReleased);
 
 		EnhancedInputComponent->BindAction(ActionBaseSkill, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnBaseSkill);
-		// EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillQ);
-		EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
+		EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillQ);
+		//EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
