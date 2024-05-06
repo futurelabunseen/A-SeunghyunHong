@@ -12,6 +12,7 @@ class UGOHpBarWidget;
 class UGOManaBarWidget;
 class UGOCharacterStatWidget;
 class UGOSkillSetBarWidget;
+class UGOSpellSetBarWidget;
 class UGOHeroInfoWidget;
 
 UCLASS()
@@ -30,6 +31,7 @@ public:
 	void UpdateHpBar(float NewCurrentHp, float NewMaxHp);
 	void UpdateManaBar(float NewCurrentMana, float NewMaxMana);
 	TObjectPtr<UGOSkillSetBarWidget> GetSkillSetBar() { return SkillSetBar; }
+	TObjectPtr<UGOSpellSetBarWidget> GetSpellSetBar() { return SpellSetBar; }
 	TObjectPtr<UGOHeroInfoWidget> GetHeroInfo() { return HeroInfo; }
 
 protected:
@@ -47,6 +49,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGOSkillSetBarWidget> SkillSetBar;
+
+	UPROPERTY()
+	TObjectPtr<UGOSpellSetBarWidget> SpellSetBar;
 
 	UPROPERTY()
 	TObjectPtr<UGOHeroInfoWidget> HeroInfo;

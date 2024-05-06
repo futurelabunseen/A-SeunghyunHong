@@ -6,7 +6,7 @@
 #include <Interface/GOPlaySkillAnimInterface.h>
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
-#include <UI/GOSkillSlotWidget.h>
+#include "UI/SkillWidget/GOSkillSlotWidget.h"
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)

@@ -26,8 +26,13 @@ public:
 		DefaultSkillNameE(NAME_None),
 		DefaultSkillNameR(NAME_None),
 		SkeletalMesh(nullptr),
-		AnimBlueprint(nullptr)
+		AnimBlueprint(nullptr),
+		Spell01Class(nullptr),
+		Spell02Class(nullptr),
+		DefaultSpellName01(NAME_None),
+		DefaultSpellName02(NAME_None)
 	{}
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	EHeroType HeroType;
 	
@@ -69,5 +74,17 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = CharacterData)
 	TSubclassOf<class UAnimInstance> AnimBlueprint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TSubclassOf<class UGOSpellBase> Spell01Class;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TSubclassOf<UGOSpellBase> Spell02Class;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	FName DefaultSpellName01;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	FName DefaultSpellName02;
 };
 

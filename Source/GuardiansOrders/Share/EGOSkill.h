@@ -30,6 +30,38 @@ enum class ECharacterSkills : uint32
 	Max UMETA(Hidden)
 };
 
+////////////////////////////////////////////////////////////////
+// ECharacterSpells 
+// 스펠의 활성화 방식입니다. (입력 구분)
+////////////////////////////////////////////////////////////////
+
+/**
+	* Spell01:					스펠 1: Ghost				D키
+	* Spell02:					스펠 2: Heal					F키
+*/
+
+UENUM()
+enum class ECharacterSpells : uint8
+{
+	None = 0 UMETA(Hidden),
+
+	Spell01 UMETA(DisplayName = "Spell01"),
+	Spell02 UMETA(DisplayName = "Spell02"),
+
+	Max UMETA(Hidden)
+};
+
+
+UENUM()
+enum class ESpellType : uint8
+{
+	None = 0 UMETA(Hidden),
+
+	GOSpell_Ghost UMETA(DisplayName = "GOSpell_Ghost"),
+	GOSpell_Heal UMETA(DisplayName = "GOSpell_Heal"),
+
+	Max UMETA(Hidden)
+};
 
 
 ///////////////////////////////////////////////////////////////////
@@ -99,4 +131,21 @@ enum class EAutoDetectionType : uint8
 	None = 0,
 	Radius = 1,
 	RadiusDegree = 2,
+};
+
+
+////////////////////////////////////////////////////////////////////////
+// ESkillState
+////////////////////////////////////////////////////////////////////////
+
+UENUM(BlueprintType)
+enum class ESkillState : uint8
+{
+	None UMETA(DisplayName = "None"),
+	ReadyToCast UMETA(DisplayName = "Ready to Cast"),
+	Casting UMETA(DisplayName = "Casting"),
+	CastCancelled UMETA(DisplayName = "Cast Cancelled"),
+	OnCooldown UMETA(DisplayName = "On Cooldown"),
+	NoMana UMETA(DisplayName = "No Mana"),
+	Max UMETA(Hidden)
 };

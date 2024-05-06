@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/GOSkillSlotWidget.h"
+#include "UI/SkillWidget/GOSkillSlotWidget.h"
 #include "CommonTextBlock.h"
 #include "Skill/GOSkillBase.h"
 #include "CharacterStat/GOCharacterStatComponent.h"

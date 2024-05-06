@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 #include "Components/Image.h"
-#include "UI/GOSkillSlotWidget.h"
+#include "UI/SkillWidget/GOSkillSlotWidget.h"
 #include "Skill/Slots/GOSkills.h"
 #include "GOSkillSetBarWidget.generated.h"
 

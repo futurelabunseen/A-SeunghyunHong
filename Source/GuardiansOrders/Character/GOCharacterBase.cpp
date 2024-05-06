@@ -102,6 +102,7 @@ AGOCharacterBase::AGOCharacterBase()
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
 	CharacterSkillSet = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
+	CharacterSpellSet = CreateDefaultSubobject<UGOSpells>(TEXT("Spells"));
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -148,6 +149,7 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 			GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 
 			CharacterSkillSet->InitializeSkills(InCharacterName);
+			CharacterSpellSet->InitializeSpells(InCharacterName);
 		}
 	}
 }

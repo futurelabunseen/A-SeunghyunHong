@@ -9,7 +9,7 @@
 #include "GameData/GOSkillStat.h"
 #include "GameData/GOSkillData.h"
 #include "Delegates/Delegate.h"
-#include "UI/GOSkillSlotWidget.h"
+#include "UI/SkillWidget/GOSkillSlotWidget.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -125,6 +125,8 @@ public:
 	float CoolDownTimer = 0.0f; // SetCoolDownTime() 잊지말기!!!
 
 public:
+	ESkillState CurrentState;
+
 	// 스킬 시전 가능한지의 여부
 	bool bIsCastable = true;
 

@@ -9,8 +9,8 @@
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 #include "Skill/GOSkillBase.h"
-#include "Skill/Slots/Skills.h"
 #include "Skill/Slots/GOSkills.h"
+#include "Skill/Slots/GOSpells.h"
 #include "GOCharacterBase.generated.h"
 
 class UGOCharacterStatComponent;
@@ -46,6 +46,9 @@ protected:
 	// Skills, SkillSlot 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
 	TObjectPtr<UGOSkills> CharacterSkillSet;
+	// Spells
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
+	TObjectPtr<UGOSpells> CharacterSpellSet;
 
 // Stat Section
 protected:

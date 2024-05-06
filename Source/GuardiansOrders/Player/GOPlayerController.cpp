@@ -5,7 +5,7 @@
 #include "GuardiansOrders/GuardiansOrders.h"
 #include "UI/GOHUDWidget.h"
 #include "CommonActivatableWidget.h"
-#include "UI/GOSkillSetBarWidget.h"
+#include "UI/SkillWidget/GOSkillSetBarWidget.h"
 
 AGOPlayerController::AGOPlayerController()
 {

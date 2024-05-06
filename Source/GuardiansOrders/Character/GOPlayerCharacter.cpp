@@ -6,7 +6,8 @@
 #include "UI/GOHpBarWidget.h"
 #include "UI/GOManaBarWidget.h"
 #include "UI/GOHUDWidget.h"
-#include "UI/GOSkillSetBarWidget.h"
+#include "UI/SkillWidget/GOSkillSetBarWidget.h"
+#include "UI/SpellWidget/GOSpellSetBarWidget.h"
 #include "UI/GOHeroInfoWidget.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Skill/GOSkillCastComponent.h"
@@ -521,6 +522,8 @@ void AGOPlayerCharacter::SetupHUDWidget(UGOHUDWidget* InHUDWidget)
 		InHUDWidget->GetSkillSetBar()->InitializeSkillSlots(CharacterSkillSet);
 		// HeroInfo
 		InHUDWidget->GetHeroInfo()->BindHeroInfo(CharacterData);
+		// Spell
+		InHUDWidget->GetSpellSetBar()->InitializeSpellSlots(CharacterSpellSet);
 	}
 }
 

@@ -7,7 +7,8 @@
 #include "GOHpBarWidget.h"
 #include "GOManaBarWidget.h"
 #include "GOCharacterStatWidget.h"
-#include "GOSkillSetBarWidget.h"
+#include "SkillWidget/GOSkillSetBarWidget.h"
+#include "SpellWidget/GOSpellSetBarWidget.h"
 #include "GOHeroInfoWidget.h"
 
 UGOHUDWidget::UGOHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -41,6 +42,9 @@ void UGOHUDWidget::NativeConstruct()
 	SkillSetBar = Cast<UGOSkillSetBarWidget>(GetWidgetFromName(TEXT("CUI_SkillSetBar")));
 	ensure(SkillSetBar);
 	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOHUDWidget] SkillSetBar: %s"), *SkillSetBar.GetName());
+
+	SpellSetBar = Cast<UGOSpellSetBarWidget>(GetWidgetFromName(TEXT("CUI_SpellSetBar")));
+	ensure(SpellSetBar);
 
 	HeroInfo = Cast<UGOHeroInfoWidget>(GetWidgetFromName(TEXT("CUI_CharacterInfo")));
 
