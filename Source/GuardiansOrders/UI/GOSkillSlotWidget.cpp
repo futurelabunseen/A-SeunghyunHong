@@ -169,7 +169,7 @@ void UGOSkillSlotWidget::HandleManaChange(float CurrentMana)
     if (CurrentSkill && CurrentMana < CurrentSkill->GetManaCost())
     {
         NoManaImage->SetVisibility(ESlateVisibility::Visible);
-        CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+        // CooldownImage->SetVisibility(ESlateVisibility::Hidden);
     }
     else
     {
