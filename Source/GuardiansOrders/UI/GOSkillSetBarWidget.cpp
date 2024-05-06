@@ -2,6 +2,8 @@
 
 
 #include "UI/GOSkillSetBarWidget.h"
+#include "Character/GOCharacterBase.h"
+#include "CharacterStat/GOCharacterStatComponent.h"
 
 void UGOSkillSetBarWidget::NativeConstruct()
 {
@@ -36,10 +38,16 @@ void UGOSkillSetBarWidget::InitializeSkillSlots(UGOSkills* SkillSet)
     for (const auto& Skill : Skills)
     {
         UGOSkillSlotWidget** SlotWidget = SkillSlotLookup.Find(SkillKeyToName(Skill.Key));
+        
+        AGOCharacterBase* OwnerCharacter = Cast<AGOCharacterBase>(GetOwningPlayerPawn()); // 위젯을 소유하고 있는 캐릭터를 가져옴
+        if (!OwnerCharacter) return;
+
+        UGOCharacterStatComponent* CharacterStatComp = OwnerCharacter->GetStatComponent(); // 캐릭터의 스탯 컴포넌트를 가져옴
+
         if (SlotWidget && *SlotWidget)
         {
             (*SlotWidget)->BindSkill(Skill.Value);
-
+            (*SlotWidget)->BindCharacterComponent(CharacterStatComp);
         }
     }
 }

@@ -36,6 +36,7 @@ public:
 // Data Section
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void SetData(FName InCharacterName);
+	TObjectPtr<UGOCharacterStatComponent> GetStatComponent() { return Stat; }
 
 protected:
 	FGOCharacterData CharacterData;
@@ -52,6 +53,7 @@ protected:
 	TObjectPtr<UGOCharacterStatComponent> Stat;
 
 	void ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
+
 
 // UI Widget Section
 protected:

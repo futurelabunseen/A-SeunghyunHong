@@ -97,6 +97,7 @@ public:
 	FORCEINLINE bool GetIsOnCoolTime() { return bIsOnCoolTime; }
 	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }
 
+	FORCEINLINE float GetManaCost() { return SkillStat.ManaCost; }
 	void CheckCooldownTick();
 	void EndCooldown();
 

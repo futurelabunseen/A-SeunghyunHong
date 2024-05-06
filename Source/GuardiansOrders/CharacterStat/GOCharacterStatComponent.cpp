@@ -79,6 +79,11 @@ void UGOCharacterStatComponent::SetMana(float NewMana)
 {
 	CurrentMana = FMath::Clamp<float>(NewMana, 0.0f, MaxMana);
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+
+	// for Skill Slot Widget
+	UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
+	UE_LOG(LogTemp, Warning, TEXT("[UGOCharacterStatComponent::SetMana] CurrentMana is  %f"), CurrentMana);
+
 }
 
 void UGOCharacterStatComponent::SetHp(float NewHp)
@@ -149,6 +154,7 @@ void UGOCharacterStatComponent::RegenerateMana()
 	{
 		CurrentMana = FMath::Min(CurrentMana + BaseStat.ManaRegenerationRate, MaxMana);
 		OnManaChanged.Broadcast(CurrentMana, MaxMana);
+		UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
 	}
 }
 

@@ -4,7 +4,8 @@
 #include "UI/GOSkillSlotWidget.h"
 #include "CommonTextBlock.h"
 #include "Skill/GOSkillBase.h"
-#include <Kismet/GameplayStatics.h>
+#include "CharacterStat/GOCharacterStatComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -52,33 +53,16 @@ void UGOSkillSlotWidget::NativeConstruct()
     {
         CooldownText->SetVisibility(ESlateVisibility::Hidden);
     }
+
+    if (NoManaImage)
+    {
+        NoManaImage->SetVisibility(ESlateVisibility::Hidden);
+    }
 }
 
 void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
 {
     Super::NativeTick(Geometry, DeltaSeconds);
-
-    //if (!bIsCooldownActive || !CurrentSkill)
-    //    return;  // 쿨다운이 활성화되어 있지 않거나 스킬 정보가 없으면 리턴
-    //CooldownStartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
-
-    //float CurrentTime = UGameplayStatics::GetTimeSeconds(GetWorld());  // 현재 게임 시간
-    //float TimeElapsed = CurrentTime - CooldownStartTime;
-    //float CooldownDuration = CurrentSkill->GetCoolDownTime();
-    //float RemainingTime = CooldownDuration - TimeElapsed;
-
-    //UpdateCooldownUI(RemainingTime);
-
-    //if (RemainingTime <= 0.f)
-    //{
-    //    bIsCooldownActive = false;  // 쿨다운 종료
-    //    CooldownImage->SetVisibility(ESlateVisibility::Hidden);
-    //    CooldownText->SetVisibility(ESlateVisibility::Hidden);
-    //    CooldownStartTime = 0.f;
-    //    SetCooldownActive(false);
-    //}
-
-
 
     if (bIsCooldownActive && CurrentSkill)
     {
@@ -167,5 +151,28 @@ void UGOSkillSlotWidget::OnCooldownChanged(bool bIsActive)
     {
         CooldownImage->SetVisibility(ESlateVisibility::Hidden);
         CooldownText->SetVisibility(ESlateVisibility::Hidden);
+    }
+}
+
+void UGOSkillSlotWidget::BindCharacterComponent(UGOCharacterStatComponent* CharacterStatComp)
+{
+    if (CharacterStatComp)
+    {
+        CharacterStatComp->UGOCharacterStatComponentOnManaChangedDelegate.AddUObject(this, &UGOSkillSlotWidget::HandleManaChange);
+    }
+}
+
+void UGOSkillSlotWidget::HandleManaChange(float CurrentMana)
+{
+    UE_LOG(LogTemp, Warning, TEXT("[UGOSkillSlotWidget::HandleManaChange] CurrentMana is  %f"), CurrentMana);
+
+    if (CurrentSkill && CurrentMana < CurrentSkill->GetManaCost())
+    {
+        NoManaImage->SetVisibility(ESlateVisibility::Visible);
+        CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+    }
+    else
+    {
+        NoManaImage->SetVisibility(ESlateVisibility::Hidden);
     }
 }

@@ -10,6 +10,7 @@
 
 class UCommonTextBlock;
 class UGOSkillBase;
+class UGOCharacterStatComponent;
 
 /**
  * 
@@ -29,6 +30,9 @@ public:
     UImage* CooldownImage;
 
     UPROPERTY(meta = (BindWidget))
+    UImage* NoManaImage;
+
+    UPROPERTY(meta = (BindWidget))
     UCommonTextBlock* CooldownText;
 
     UMaterialInstanceDynamic* MatInstance;
@@ -45,4 +49,7 @@ public:
     FORCEINLINE void SetCooldownActive(bool InBool) { bIsCooldownActive = InBool; }
     void OnCooldownChanged(bool bIsActive);
 
-};
+public:
+    void BindCharacterComponent(UGOCharacterStatComponent* CharacterStatComp);
+    void HandleManaChange(float CurrentMana);
+}; 

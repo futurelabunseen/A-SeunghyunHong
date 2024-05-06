@@ -5,7 +5,7 @@
 #include "GOSkillStat.generated.h"
 
 USTRUCT(BlueprintType)
-struct FGOSkillStat : public FTableRowBase
+struct FGOSkillStat : public FTableRowBase // Row 이름을 뒤에 만들고... 커스텀 구조체를 보통FGOSkillStat 이런식으로 
 {
 	GENERATED_BODY()
 

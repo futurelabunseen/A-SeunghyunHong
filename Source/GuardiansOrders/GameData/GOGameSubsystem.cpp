@@ -100,7 +100,7 @@ void UGOGameSubsystem::SetAllCharacterClassSkill()
 {
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;
-	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>(); // 자기가 자기를 불러옴... this...
 
 	for (uint8 HeroType = static_cast<uint8>(EHeroType::None) + 1; HeroType<static_cast<uint8>(EHeroType::Max); ++HeroType)
 	{

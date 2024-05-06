@@ -17,6 +17,9 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnManaChangedDelegate, float /*CurrnetMana
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatChangedDelegate, const FGOCharacterStat& /*BaseStat*/, const FGOCharacterStat& /*ModifierStat*/);
 
+// For Skill Slot Widget
+DECLARE_MULTICAST_DELEGATE_OneParam(FUGOCharacterStatComponentOnManaChangedDelegate, float /*CurrnetMana*/);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOCharacterStatComponent : public UActorComponent
 {
@@ -24,6 +27,7 @@ class GUARDIANSORDERS_API UGOCharacterStatComponent : public UActorComponent
 
 public:	
 	UGOCharacterStatComponent();
+	FUGOCharacterStatComponentOnManaChangedDelegate UGOCharacterStatComponentOnManaChangedDelegate;
 
 protected:
 	virtual void InitializeComponent() override;
