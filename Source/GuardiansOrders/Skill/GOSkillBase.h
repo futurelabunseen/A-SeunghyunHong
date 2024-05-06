@@ -9,6 +9,7 @@
 #include "GameData/GOSkillStat.h"
 #include "GameData/GOSkillData.h"
 #include "Delegates/Delegate.h"
+#include "UI/GOSkillSlotWidget.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -16,8 +17,8 @@ class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
-
+// DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(UGOSkillBaseFIsOnCooldown, bool);
  /*
    * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
    */
@@ -30,7 +31,9 @@ public:
 	UGOSkillBase();
 
 
-	FOnCooldownUpdated OnCooldownUpdated;
+	// FOnCooldownUpdated OnCooldownUpdated;
+	UGOSkillBaseFIsOnCooldown UGOSkillBaseFIsOnCooldown;
+
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
 
@@ -91,6 +94,9 @@ public:
 	FORCEINLINE ESkillTriggerType GetSkillTriggerType() const { return GetTotalSkillData().SkillTriggerType; }
 	FORCEINLINE ESkillAffectType GetSkillAffectType() const { return GetTotalSkillData().SkillAffectType; }
 
+	FORCEINLINE bool GetIsOnCoolTime() { return bIsOnCoolTime; }
+	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }
+
 	void CheckCooldownTick();
 	void EndCooldown();
 
@@ -124,4 +130,6 @@ public:
 	// 스킬이 현재 캐스팅 중인지의 여부
 	bool bIsCasting = false;
 	FTimerHandle CoolDownTickTimerHandle;
+
+	bool bIsOnCoolTime = false;
 };

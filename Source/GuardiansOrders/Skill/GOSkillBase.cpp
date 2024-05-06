@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Skill/GOSkillBase.h"
@@ -42,17 +42,18 @@ void UGOSkillBase::InitializeSkill(FName InSkillName)
 	if (GOGameInstance)
 	{
 		FGOSkillData* SkillDataRow = GOGameInstance->GetSkillData(InSkillName);
-		SkillData = *SkillDataRow;
-
+		SkillData = *SkillDataRow; 
+		// ì´ê²Œ í…Œì´ë¸”ì„ ì§ì ‘ ì°¸ì¡°í•˜ëŠ” ê²ƒì´ë‹¤..! ë‚´ê°€ ì“¸ êµ¬ì¡°ì²´ë¡œ ë§Œë“¤ì–´ì„œ ë³µì‚¬í•´ì„œ ì¨ì•¼ í•œë‹¤.
+		// ì´ í´ë˜ìŠ¤ ì¸ìŠ¤í„´ìŠ¤ì—ì„œ ì „ìš©ìœ¼ë¡œ ì“¸ êµ¬ì¡°ì²´ë¥¼ ë§Œë“¤ì–´ì„œ ì¨ì•¼ í•œë‹¤!!
+		// ì•ˆê·¸ëŸ¬ë©´ í…Œì´ë¸” ê°’ì´ ë°”ë€” ìˆ˜ ìˆë‹¤. 
 		FGOSkillStat* SkillStatRow = GOGameInstance->GetSkillStatData(SkillDataRow->SkillStatName);
 
 		if (SkillStatRow)
 		{
-			SkillStat = *SkillStatRow;
+			SkillStat = *SkillStatRow; // ì´ê²Œ í…Œì´ë¸”ì„ ì§ì ‘ ì°¸ì¡°í•˜ëŠ” ê²ƒì´ë‹¤..!
 			UE_LOG(LogTemp, Warning, TEXT("SkillStat = *SkillStatRow; is called."));
 		}
-	}
-	
+	}	
 }
 
 void UGOSkillBase::StartCast()
@@ -65,14 +66,18 @@ void UGOSkillBase::StartCast()
 	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillBase::StartCast() is Called."));
 
 	bIsCasting = true;
-	SetCoolDownTimer();
-	OnCooldownUpdated.Broadcast(CoolDownTimer);  // Äğ´Ù¿î ½ÃÀÛ ½Ã Áï½Ã UI ¾÷µ¥ÀÌÆ®
+	SetIsOnCoolTime(true);
 
-	if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
-	{
-		GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
-	}
-	GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
+	SetCoolDownTimer();
+	// ë¸ë¦¬ê²Œì´íŠ¸ë¡œ ì•Œë ¤ì£¼ì¥
+	UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // ì¿¨ë‹¤ìš´ ì‹œì‘ ì‹œ ì¦‰ì‹œ UI ì—…ë°ì´íŠ¸
+	UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillBase::StartCast] Broadcast"));
+
+	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
+	//{
+	//	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
+	//}
+	//GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
 }
 
 void UGOSkillBase::UpdateCast(float DeltaTime)
@@ -92,23 +97,24 @@ void UGOSkillBase::UpdateCast(float DeltaTime)
 
 void UGOSkillBase::Activate()
 {
-	// ½ºÅ³ È¿°ú ¹ßµ¿ ·ÎÁ÷, ¿¹: ´ë¹ÌÁö Ã³¸®, »óÅÂ È¿°ú Àû¿ë µî
+	// ìŠ¤í‚¬ íš¨ê³¼ ë°œë™ ë¡œì§, ì˜ˆ: ëŒ€ë¯¸ì§€ ì²˜ë¦¬, ìƒíƒœ íš¨ê³¼ ì ìš© ë“±
 	UE_LOG(LogTemp, Log, TEXT("[UGOSkillBase::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
 void UGOSkillBase::FinishCast()
 {
 	// bIsCasting = false;
-	bIsCastable = false; // Äğ´Ù¿îÀÌ ÁøÇàµÇ¹Ç·Î ´Ù½Ã Ä³½ºÆ®ÇÒ ¼ö ¾øÀ½
-	SetCoolDownTimer();  // Äğ´Ù¿î Å¸ÀÌ¸Ó Àç¼³Á¤
+	// bIsCastable = false; // ì¿¨ë‹¤ìš´ì´ ì§„í–‰ë˜ë¯€ë¡œ ë‹¤ì‹œ ìºìŠ¤íŠ¸í•  ìˆ˜ ì—†ìŒ
+	SetCoolDownTimer();  // ì¿¨ë‹¤ìš´ íƒ€ì´ë¨¸ ì¬ì„¤ì • ã… ã… ....
 	UE_LOG(LogTemp, Log, TEXT("[SkillBarUI UGOSkillBase::FinishCast()] is called "));
+	SetIsOnCoolTime(false);
 
 }
 
 void UGOSkillBase::InterruptedCast()
 {
 	// bIsCasting = false;
-	// ÇÊ¿äÇÑ °æ¿ì Ä³½ºÆÃ Áß´Ü Ã³¸®, ¿¹: ¾Ö´Ï¸ŞÀÌ¼Ç Áß´Ü, È¿°ú Á¦°Å µî
+	// í•„ìš”í•œ ê²½ìš° ìºìŠ¤íŒ… ì¤‘ë‹¨ ì²˜ë¦¬, ì˜ˆ: ì• ë‹ˆë©”ì´ì…˜ ì¤‘ë‹¨, íš¨ê³¼ ì œê±° ë“±
 	UE_LOG(LogTemp, Log, TEXT("Skill casting interrupted."));
 }
 
@@ -122,11 +128,12 @@ void UGOSkillBase::CheckCooldownTick()
 	if (CoolDownTimer > 0.0f)
 	{
 		CoolDownTimer -= 0.1f;
-		OnCooldownUpdated.Broadcast(CoolDownTimer);  // UI ¾÷µ¥ÀÌÆ®¸¦ À§ÇØ µ¨¸®°ÔÀÌÆ® È£Ãâ
-		if (CoolDownTimer <= 0.0f)
-		{
-			EndCooldown();
-		}
+		UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::CheckCooldownTick()] CoolDownTimer : %f "), CoolDownTimer);
+		//OnCooldownUpdated.Broadcast(CoolDownTimer);  // UI ì—…ë°ì´íŠ¸ë¥¼ ìœ„í•´ ë¸ë¦¬ê²Œì´íŠ¸ í˜¸ì¶œ
+		//if (CoolDownTimer <= 0.0f)
+		//{
+		//	EndCooldown();
+		//}
 	}
 }
 
@@ -134,6 +141,6 @@ void UGOSkillBase::EndCooldown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
 	CoolDownTimer = 0.0f;
-	bIsCastable = true;
-	OnCooldownUpdated.Broadcast(CoolDownTimer);  // ÃÖÁ¾ÀûÀ¸·Î Äğ´Ù¿î ¿Ï·á ¾Ë¸²
+	// bIsCastable = true;
+	//OnCooldownUpdated.Broadcast(CoolDownTimer);  // ìµœì¢…ì ìœ¼ë¡œ ì¿¨ë‹¤ìš´ ì™„ë£Œ ì•Œë¦¼
 }

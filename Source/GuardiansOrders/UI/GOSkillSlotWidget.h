@@ -21,7 +21,7 @@ class GUARDIANSORDERS_API UGOSkillSlotWidget : public UCommonUserWidget
 	
 public:
     virtual void NativeConstruct() override;
-
+    virtual void NativeTick(const FGeometry& Geometry, float DeltaSeconds) override;
     UPROPERTY(meta = (BindWidget))
     UImage* SkillIconImage;
 
@@ -39,5 +39,10 @@ public:
 
     TObjectPtr<UGOSkillBase> CurrentSkill;
 
-    float testVal = 99990.f;
+    bool bIsCooldownActive = false;  // 쿨다운이 활성화되어 있는지 확인
+    float CooldownStartTime = 0.f;  // 쿨다운 시작 시간
+
+    FORCEINLINE void SetCooldownActive(bool InBool) { bIsCooldownActive = InBool; }
+    void OnCooldownChanged(bool bIsActive);
+
 };

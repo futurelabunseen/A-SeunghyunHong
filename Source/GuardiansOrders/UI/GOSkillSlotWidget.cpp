@@ -4,6 +4,7 @@
 #include "UI/GOSkillSlotWidget.h"
 #include "CommonTextBlock.h"
 #include "Skill/GOSkillBase.h"
+#include <Kismet/GameplayStatics.h>
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -53,6 +54,62 @@ void UGOSkillSlotWidget::NativeConstruct()
     }
 }
 
+void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
+{
+    Super::NativeTick(Geometry, DeltaSeconds);
+
+    //if (!bIsCooldownActive || !CurrentSkill)
+    //    return;  // 쿨다운이 활성화되어 있지 않거나 스킬 정보가 없으면 리턴
+    //CooldownStartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+
+    //float CurrentTime = UGameplayStatics::GetTimeSeconds(GetWorld());  // 현재 게임 시간
+    //float TimeElapsed = CurrentTime - CooldownStartTime;
+    //float CooldownDuration = CurrentSkill->GetCoolDownTime();
+    //float RemainingTime = CooldownDuration - TimeElapsed;
+
+    //UpdateCooldownUI(RemainingTime);
+
+    //if (RemainingTime <= 0.f)
+    //{
+    //    bIsCooldownActive = false;  // 쿨다운 종료
+    //    CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+    //    CooldownText->SetVisibility(ESlateVisibility::Hidden);
+    //    CooldownStartTime = 0.f;
+    //    SetCooldownActive(false);
+    //}
+
+
+
+    if (bIsCooldownActive && CurrentSkill)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillSlotWidget::NativeTick] CurrentSkill %s"), *CurrentSkill.GetName());
+
+        float CurrentTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+        float TimeElapsed = CurrentTime - CooldownStartTime;
+        float CooldownDuration = CurrentSkill->GetCoolDownTime();
+        float RemainingTime = CooldownDuration - TimeElapsed;
+
+        if (RemainingTime <= 0)
+        {
+            bIsCooldownActive = false;
+            CurrentSkill->SetIsOnCoolTime(false);
+            OnCooldownChanged(false);
+        }
+        else
+        {
+            // 쿨다운 시간 업데이트
+            FString FormattedTime = FString::Printf(TEXT("%.1f"), RemainingTime);
+            CooldownText->SetText(FText::FromString(FormattedTime));
+
+            if (MatInstance)
+            {
+                float Percent = 1.0f - (RemainingTime / CooldownDuration);
+                MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+            }
+        }
+    }
+}
+
 void UGOSkillSlotWidget::BindSkill(UGOSkillBase* Skill)
 {
     if (!Skill)
@@ -61,22 +118,24 @@ void UGOSkillSlotWidget::BindSkill(UGOSkillBase* Skill)
     }
     CurrentSkill = Skill;
         
-    CurrentSkill->OnCooldownUpdated.AddUObject(this, &UGOSkillSlotWidget::UpdateCooldownUI);
-
+    //CurrentSkill->OnCooldownUpdated.AddUObject(this, &UGOSkillSlotWidget::UpdateCooldownUI);
+    CurrentSkill->UGOSkillBaseFIsOnCooldown.AddUObject(this, &UGOSkillSlotWidget::OnCooldownChanged);
     SkillIconImage->SetBrushFromTexture(Skill->GetTotalSkillData().SkillIcon); // 스킬 아이콘 설정
     
     UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI BindSkill] SkillIconImage is %s"), *CurrentSkill->GetTotalSkillData().SkillIcon.GetName());
     UE_LOG(LogTemp, Warning, TEXT("Skill bound and delegate bound for cooldown updates."));
 
+    // bIsCooldownActive = true;  // 쿨다운 시작
+
 }
 
 void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
 {
-    // UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] is called. %f"), DeltaTime);
-    if (testVal < DeltaTime)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI ???]"));
-    }
+    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UpdateCooldownUI] is called. %f"), DeltaTime);
+    //if (testVal < DeltaTime)
+    //{
+    //    UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI ???]")); // 버그
+    //}
 
     CooldownImage->SetVisibility(ESlateVisibility::Visible);
     CooldownText->SetVisibility(ESlateVisibility::Visible);
@@ -90,5 +149,23 @@ void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
     {
         float Percent = (CurrentSkill->GetCoolDownTime() - DeltaTime) / CurrentSkill->GetCoolDownTime();
         MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+    }
+}
+
+void UGOSkillSlotWidget::OnCooldownChanged(bool bIsActive)
+{
+    bIsCooldownActive = bIsActive;
+    UE_LOG(LogTemp, Warning, TEXT("[UGOSkillSlotWidget::OnCooldownChanged] is called. %d"), bIsCooldownActive);
+
+    if (bIsActive)
+    {
+        CooldownStartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+        CooldownImage->SetVisibility(ESlateVisibility::Visible);
+        CooldownText->SetVisibility(ESlateVisibility::Visible);
+    }
+    else
+    {
+        CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+        CooldownText->SetVisibility(ESlateVisibility::Hidden);
     }
 }
