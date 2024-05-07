@@ -3,8 +3,10 @@
 
 #include "GOKatnissCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
+#include "GOCharacterMovementComponent.h"
 
-AGOKatnissCharacter::AGOKatnissCharacter()
+AGOKatnissCharacter::AGOKatnissCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bReplicates = true;
 }

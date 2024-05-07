@@ -3,8 +3,10 @@
 
 #include "GOBrideCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
+#include "GOCharacterMovementComponent.h"
 
-AGOBrideCharacter::AGOBrideCharacter()
+AGOBrideCharacter::AGOBrideCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bReplicates = true;
 }

@@ -40,9 +40,11 @@
 #include <Kismet/GameplayStatics.h>
 #include "Components/DecalComponent.h"
 #include "Player/GOPlayerController.h"
+#include "GOCharacterMovementComponent.h"
 
-AGOPlayerCharacter::AGOPlayerCharacter()
-	: bIsDecalVisible(false)
+AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)), 
+	  bIsDecalVisible(false)
 {
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -445,8 +447,14 @@ void AGOPlayerCharacter::OnSkillR()
 // Flash Spell : 마우스 커서가 있는 쪽으로 짧은 순간이동이 가능합니다.
 void AGOPlayerCharacter::OnSpellD()
 {
-	SpellCastComponent->OnStartCast(
-		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell01));
+	//SpellCastComponent->OnStartCast(
+	//	FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell01));
+
+	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
+	if (GOMovement)
+	{
+		GOMovement->SetFlashCommand();
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Common Spell D is triggered. FLASH "));
 }
@@ -462,6 +470,7 @@ void AGOPlayerCharacter::OnSpellF()
 	UE_LOG(LogTemp, Log, TEXT("Common Spell F is triggered. HEAL : Up to 20 percent of HP recovers. "));
 }
 
+// Ghost Spell
 void AGOPlayerCharacter::OnSpellG()
 {
 	SpellCastComponent->OnStartCast(

@@ -31,7 +31,8 @@
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 
-AGOCharacterBase::AGOCharacterBase()
+AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;

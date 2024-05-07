@@ -31,7 +31,7 @@ class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public I
 	GENERATED_BODY()
 	
 public:
-	AGOPlayerCharacter();
+	AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 

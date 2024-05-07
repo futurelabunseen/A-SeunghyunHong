@@ -3,8 +3,10 @@
 
 #include "GOBeastCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
+#include "GOCharacterMovementComponent.h"
 
-AGOBeastCharacter::AGOBeastCharacter()
+AGOBeastCharacter::AGOBeastCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bReplicates = true;
 }

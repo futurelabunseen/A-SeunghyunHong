@@ -27,7 +27,7 @@ class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimat
 	GENERATED_BODY()
 	
 public:
-	AGOCharacterBase();
+	AGOCharacterBase(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 

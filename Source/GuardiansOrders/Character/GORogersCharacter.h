@@ -12,7 +12,7 @@ class GUARDIANSORDERS_API AGORogersCharacter : public AGOPlayerCharacter
 	GENERATED_BODY()
 
 public:
-	AGORogersCharacter();
+	AGORogersCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 

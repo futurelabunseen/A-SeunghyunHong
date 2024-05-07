@@ -6,7 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Physics/GOCollision.h"
 
-AGONonPlayerCharacter::AGONonPlayerCharacter()
+AGONonPlayerCharacter::AGONonPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 
 }

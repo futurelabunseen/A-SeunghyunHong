@@ -16,7 +16,7 @@ class GUARDIANSORDERS_API AGOBrideCharacter : public AGOPlayerCharacter
 	GENERATED_BODY()
 	
 public:
-	AGOBrideCharacter();
+	AGOBrideCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 
