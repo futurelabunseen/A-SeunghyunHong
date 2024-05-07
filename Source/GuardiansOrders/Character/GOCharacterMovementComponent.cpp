@@ -13,9 +13,19 @@ UGOCharacterMovementComponent::UGOCharacterMovementComponent()
 	FlashCoolTime = 3.0f; // 3 Seconds
 }
 
-void UGOCharacterMovementComponent::SetFlashCommand()
+void UGOCharacterMovementComponent::SetFlashSpellCommand()
 {
 	bPressedFlashSpell = true;
+}
+
+FNetworkPredictionData_Client* UGOCharacterMovementComponent::GetPredictionData_Client() const
+{
+	if (ClientPredictionData == nullptr)
+	{
+		UGOCharacterMovementComponent* MutableThis = const_cast<UGOCharacterMovementComponent*>(this);
+		MutableThis->ClientPredictionData = new FGONetworkPredictionData_Client_Character(*this);
+	}
+	return ClientPredictionData;
 }
 
 void UGOCharacterMovementComponent::GOFlash()
@@ -56,4 +66,73 @@ void UGOCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const 
 		bPressedFlashSpell = false;
 
 	}
+}
+
+void UGOCharacterMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
+{
+	Super::UpdateFromCompressedFlags(Flags);
+
+	// 디코딩
+	bPressedFlashSpell = (Flags & FSavedMove_Character::FLAG_Custom_0) != 0;
+	bDidFlash = (Flags & FSavedMove_Character::FLAG_Custom_1) != 0;
+
+	if (CharacterOwner && CharacterOwner->GetLocalRole() == ROLE_Authority)
+	{
+		if (bPressedFlashSpell && !bDidFlash)
+		{
+			GOFlash();
+		}
+	}
+}
+
+// ============== FGONetworkPredictionData_Client_Character ==============
+
+FGONetworkPredictionData_Client_Character::FGONetworkPredictionData_Client_Character(const UCharacterMovementComponent& ClientMovement)
+	: Super(ClientMovement)
+{
+}
+
+FSavedMovePtr FGONetworkPredictionData_Client_Character::AllocateNewMove()
+{
+	return FSavedMovePtr(new FGOSavedMove_Character);
+}
+
+// ============== FGOSavedMove_Character ==============
+
+void FGOSavedMove_Character::Clear()
+{
+	Super::Clear();
+
+	bPressedFlashSpell = false;
+	bDidFlash = false;
+}
+
+void FGOSavedMove_Character::SetInitialPosition(ACharacter* Character)
+{
+	Super::SetInitialPosition(Character);
+
+	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(Character->GetCharacterMovement());
+	if (GOMovement)
+	{
+		bPressedFlashSpell = GOMovement->bPressedFlashSpell;
+		bDidFlash = GOMovement->bDidFlash;
+	}
+}
+
+uint8 FGOSavedMove_Character::GetCompressedFlags() const
+{
+	uint8 Result = Super::GetCompressedFlags();
+
+	// 인코딩
+	if (bPressedFlashSpell)
+	{
+		Result |= FLAG_Custom_0;
+	}
+
+	if (bDidFlash)
+	{
+		Result |= FLAG_Custom_1;
+	}
+
+	return Result;
 }

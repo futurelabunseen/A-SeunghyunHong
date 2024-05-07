@@ -6,6 +6,32 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GOCharacterMovementComponent.generated.h"
 
+
+class FGOSavedMove_Character : public FSavedMove_Character
+{
+	typedef FSavedMove_Character Super;
+
+public:
+	virtual void Clear() override;
+	virtual void SetInitialPosition(ACharacter* Character) override;
+	virtual uint8 GetCompressedFlags() const override;
+
+	uint8 bPressedFlashSpell : 1;
+	uint8 bDidFlash : 1;
+};
+
+
+
+// 클라이언트 캐릭터 데이터를 관리할 클래스입니다.
+class FGONetworkPredictionData_Client_Character : public FNetworkPredictionData_Client_Character
+{
+	typedef FNetworkPredictionData_Client_Character Super;
+
+public:
+	FGONetworkPredictionData_Client_Character(const UCharacterMovementComponent& ClientMovement);
+	virtual FSavedMovePtr AllocateNewMove() override;
+};
+
 /**
  * 
  */
@@ -17,15 +43,19 @@ class GUARDIANSORDERS_API UGOCharacterMovementComponent : public UCharacterMovem
 public:
 	UGOCharacterMovementComponent();
 
-	void SetFlashCommand();
+	void SetFlashSpellCommand();
 
 protected:
+	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
+
 	/**
 	 * 실제로 점멸을 진행하는 함수
 	 */
 	virtual void GOFlash();
 
 	virtual void OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity) override;
+
+	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
 public:
 	uint8 bPressedFlashSpell : 1; // 입력이 들어오면 참으로 변경 예정

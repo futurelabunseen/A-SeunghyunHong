@@ -453,7 +453,7 @@ void AGOPlayerCharacter::OnSpellD()
 	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
 	if (GOMovement)
 	{
-		GOMovement->SetFlashCommand();
+		GOMovement->SetFlashSpellCommand();
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Common Spell D is triggered. FLASH "));
