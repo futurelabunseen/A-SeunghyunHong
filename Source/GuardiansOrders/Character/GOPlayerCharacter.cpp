@@ -1201,19 +1201,50 @@ void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 }
 
 // ======== IGOSpellFlashInterface ========
-
+// no use
 void AGOPlayerCharacter::ActivateSpellFlash()
 {
 	//FVector TargetLocation =
 	//	GetActorLocation()
 	//	+ GetActorForwardVector() * FlashMovementOffset;
 	
-	FVector TargetLocation =
-		GetActorLocation()
-		+ GetActorForwardVector() * CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
+	//FVector TargetLocation =
+	//	GetActorLocation()
+	//	+ GetActorForwardVector() * CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
 
-	TeleportTo(TargetLocation,
-		GetActorRotation(),
-		false, // 테스트?
-		true); // 장애물 체크?
+	//TeleportTo(TargetLocation,
+	//	GetActorRotation(),
+	//	false, // 테스트?
+	//	true); // 장애물 체크?
+
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	FHitResult HitResult;
+	FVector CursorLocation;
+	if (PC->GetHitResultUnderCursor(ECC_Visibility, true, HitResult))
+	{
+		CursorLocation = HitResult.Location;
+	}
+
+	FVector CurrentLocation = GetActorLocation();
+	FVector Direction = (CursorLocation - CurrentLocation).GetSafeNormal();
+	FRotator NewRotation = Direction.Rotation();
+
+	// 현재 위치와 커서 위치의 거리
+	float MaxDistance = CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
+	FVector TargetLocation;
+	if (FVector::Dist(CurrentLocation, CursorLocation) <= MaxDistance)
+	{
+		TargetLocation = CursorLocation;
+	}
+	else
+	{
+		// 최대 이동 거리를 초과할 경우, 해당 방향으로 최대 거리만큼만 이동
+		TargetLocation = CurrentLocation + Direction * MaxDistance;
+	}
+
+	// 캐릭터를 회전시킨 후 순간이동
+	SetActorRotation(NewRotation);
+	TeleportTo(TargetLocation, NewRotation, false, true); 
 }
