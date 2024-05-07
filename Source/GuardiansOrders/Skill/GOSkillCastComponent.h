@@ -8,9 +8,6 @@
 #include "GameData/GOGameSubsystem.h"
 #include "GOSkillCastComponent.generated.h"
 
-
-class GOSkillCastComponent;
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOSkillCastComponent : public UActorComponent
 {

@@ -310,7 +310,9 @@ FString UGOGameSubsystem::GetSpellNameFromEnum(ECharacterSpells SpellType) const
 	case ECharacterSpells::Spell01:
 		return TEXT("Spell01");
 	case ECharacterSpells::Spell02:
-		return TEXT("Spell02");
+		return TEXT("Spell02");	
+	case ECharacterSpells::Spell03:
+		return TEXT("Spell03");
 	default:
 		return TEXT("Unknown");
 	}
@@ -332,8 +334,9 @@ FName UGOGameSubsystem::GetSpellTypeFName(ESpellType SpellType)
 {
 	switch (SpellType)
 	{
-	case ESpellType::GOSpell_Ghost: return FName(TEXT("GOSpell_Ghost"));
+	case ESpellType::GOSpell_Flash: return FName(TEXT("GOSpell_Flash"));
 	case ESpellType::GOSpell_Heal: return FName(TEXT("GOSpell_Heal"));
+	case ESpellType::GOSpell_Ghost: return FName(TEXT("GOSpell_Ghost"));
 	default: return FName(TEXT("None"));
 	}
 }

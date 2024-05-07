@@ -2,7 +2,6 @@
 
 
 #include "Skill/GOSkillCastComponent.h"
-#include "Character/GOCharacterBase.h"
 #include <Interface/GOPlaySkillAnimInterface.h>
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>

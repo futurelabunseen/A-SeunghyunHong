@@ -3,13 +3,14 @@
 
 #include "Character/GOCharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Interface/GOSpellFlashInterface.h"
 
 UGOCharacterMovementComponent::UGOCharacterMovementComponent()
 {
 	bPressedFlashSpell = false;
 	bDidFlash = false;
 
-	FlashMovementOffset = 600.0f; // 6M
+	// FlashMovementOffset = 600.0f; // 6M
 	FlashCoolTime = 3.0f; // 3 Seconds
 }
 
@@ -32,14 +33,25 @@ void UGOCharacterMovementComponent::GOFlash()
 {
 	if (CharacterOwner)
 	{
-		FVector TargetLocation =
-			CharacterOwner->GetActorLocation()
-			+ CharacterOwner->GetActorForwardVector() * FlashMovementOffset;
+		//FVector TargetLocation =
+		//	CharacterOwner->GetActorLocation()
+		//	+ CharacterOwner->GetActorForwardVector() * FlashMovementOffset;
 
-		CharacterOwner->TeleportTo(TargetLocation,
-			CharacterOwner->GetActorRotation(),
-			false, // 테스트?
-			true); // 장애물 체크?
+		//CharacterOwner->TeleportTo(TargetLocation,
+		//	CharacterOwner->GetActorRotation(),
+		//	false, // 테스트?
+		//	true); // 장애물 체크?
+
+		if (AActor* Owner = GetOwner())
+		{
+			if (IGOSpellFlashInterface* GOPlaySkillAnimInterface = Cast<IGOSpellFlashInterface>(Owner))
+			{
+				// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
+				GOPlaySkillAnimInterface->ActivateSpellFlash();
+				
+				UE_LOG(LogTemp, Warning, TEXT("[UGOCharacterMovementComponent::GOFlash] called."));
+			}
+		}
 
 		bDidFlash = true;
 
@@ -49,7 +61,7 @@ void UGOCharacterMovementComponent::GOFlash()
 				bDidFlash = false;
 				UE_LOG(LogTemp, Log, TEXT("[Spell Flash] ended."));
 			}
-		), FlashCoolTime, false, -1.0f);
+		), FlashCoolTime, false, -1.0f); // 어쩌지 ?!?!
 	}
 }
 

@@ -1188,6 +1188,7 @@ void AGOPlayerCharacter::ActivateSkillByKey(FHeroSkillKey Key)
 	ServerRPCActivateSkill(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Key);
 }
 
+// no use
 void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 {
 	if (!HasAuthority())
@@ -1197,4 +1198,22 @@ void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 
 	// 서버에게 명령을 보냅니다.
 	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), CurrentSkill);
+}
+
+// ======== IGOSpellFlashInterface ========
+
+void AGOPlayerCharacter::ActivateSpellFlash()
+{
+	//FVector TargetLocation =
+	//	GetActorLocation()
+	//	+ GetActorForwardVector() * FlashMovementOffset;
+	
+	FVector TargetLocation =
+		GetActorLocation()
+		+ GetActorForwardVector() * CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
+
+	TeleportTo(TargetLocation,
+		GetActorRotation(),
+		false, // 테스트?
+		true); // 장애물 체크?
 }
