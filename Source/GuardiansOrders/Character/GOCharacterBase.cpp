@@ -7,6 +7,7 @@
 #include "UI/GOHpBarWidget.h"
 #include "UI/GOManaBarWidget.h"
 #include "Skill/GOSkillCastComponent.h"
+#include "Skill/GOSpellCastComponent.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -101,6 +102,7 @@ AGOCharacterBase::AGOCharacterBase()
 	 }
 
 	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
+	SpellCastComponent = CreateDefaultSubobject<UGOSpellCastComponent>(TEXT("SpellCastComponent"));
 	CharacterSkillSet = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
 	CharacterSpellSet = CreateDefaultSubobject<UGOSpells>(TEXT("Spells"));
 }

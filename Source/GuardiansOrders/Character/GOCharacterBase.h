@@ -19,6 +19,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGOUserWidget;
 class UGOSkillCastComponent;
+class UGOSpellCastComponent;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
@@ -82,6 +83,7 @@ protected:
 // Skill Action Section
 protected:
 	UGOSkillCastComponent* SkillCastComponent;
+	UGOSpellCastComponent* SpellCastComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;	

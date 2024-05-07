@@ -190,7 +190,8 @@ void UGOGameSubsystem::SetAllClassSpell()
 			TMap<ECharacterSpells, FSpellInfo> SpellMap =
 			{
 				{ECharacterSpells::Spell01, FSpellInfo(CharacterData->Spell01Class, CharacterData->DefaultSpellName01)},
-				{ECharacterSpells::Spell02, FSpellInfo(CharacterData->Spell02Class, CharacterData->DefaultSpellName02)}
+				{ECharacterSpells::Spell02, FSpellInfo(CharacterData->Spell02Class, CharacterData->DefaultSpellName02)},
+				{ECharacterSpells::Spell03, FSpellInfo(CharacterData->Spell03Class, CharacterData->DefaultSpellName03)}
 			};
 
 			for (const auto& Spell : SpellMap)

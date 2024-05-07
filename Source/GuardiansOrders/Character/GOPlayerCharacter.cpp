@@ -11,6 +11,7 @@
 #include "UI/GOHeroInfoWidget.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Skill/GOSkillCastComponent.h"
+#include "Skill/GOSpellCastComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -131,11 +132,24 @@ AGOPlayerCharacter::AGOPlayerCharacter()
 		ActionSkillR = InputActionSkillRRef.Object;
 	}
 
-	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSkillFRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_SkillF.IA_SkillF'"));
-	if (nullptr != InputActionSkillFRef.Object)
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSpellDRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_SpellD_Flash.IA_SpellD_Flash'"));
+	if (nullptr != InputActionSpellDRef.Object)
 	{
-		ActionSkillF = InputActionSkillFRef.Object;
+		ActionSpellD = InputActionSpellDRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSpellFRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_SpellF_Heal.IA_SpellF_Heal'"));
+	if (nullptr != InputActionSpellFRef.Object)
+	{
+		ActionSpellF = InputActionSpellFRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionSpellGRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_SpellG_Ghost.IA_SpellG_Ghost'"));
+	if (nullptr != InputActionSpellGRef.Object)
+	{
+		ActionSpellG = InputActionSpellGRef.Object;
+	}
+
 
 	static ConstructorHelpers::FObjectFinder<UInputAction> InputActionDecalARef(TEXT("/Script/EnhancedInput.InputAction'/Game/Input/Actions/IA_MaxBasicAttackRange.IA_MaxBasicAttackRange'"));
 	if (nullptr != InputActionDecalARef.Object)
@@ -272,7 +286,9 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
-		EnhancedInputComponent->BindAction(ActionSkillF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillF);
+		EnhancedInputComponent->BindAction(ActionSpellD, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellD);
+		EnhancedInputComponent->BindAction(ActionSpellF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellF);
+		EnhancedInputComponent->BindAction(ActionSpellG, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellG);
 		
 		EnhancedInputComponent->BindAction(ActionShowMaxBasicAttackRange, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnShowMaxBasicAttackRange);
 	}
@@ -426,10 +442,32 @@ void AGOPlayerCharacter::OnSkillR()
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::UltimateSkill));
 }
 
-void AGOPlayerCharacter::OnSkillF()
+// Flash Spell : 마우스 커서가 있는 쪽으로 짧은 순간이동이 가능합니다.
+void AGOPlayerCharacter::OnSpellD()
+{
+	SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell01));
+
+	UE_LOG(LogTemp, Log, TEXT("Common Spell D is triggered. FLASH "));
+}
+
+// Heal Spell
+void AGOPlayerCharacter::OnSpellF()
 {
 	Stat->HealHp();
-	UE_LOG(LogTemp, Log, TEXT("Common Skill F is triggered. Up to 20 percent of HP recovers. "));
+	
+	SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell02));
+
+	UE_LOG(LogTemp, Log, TEXT("Common Spell F is triggered. HEAL : Up to 20 percent of HP recovers. "));
+}
+
+void AGOPlayerCharacter::OnSpellG()
+{
+	SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03));
+
+	UE_LOG(LogTemp, Log, TEXT("Common Spell G is triggered. GHOST :  "));
 }
 
 void AGOPlayerCharacter::OnShowMaxBasicAttackRange()

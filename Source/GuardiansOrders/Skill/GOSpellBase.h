@@ -35,6 +35,7 @@ public:
 public:
 	FORCEINLINE FGOSpellStat GetTotalSpellStat() const { return SpellStat; }
 	FORCEINLINE FGOSpellData GetTotalSpellData() const { return SpellData; }
+	FORCEINLINE float GetCastingTime() { return GetTotalSpellStat().CastingTime; }
 
 public:
 	/**
@@ -67,4 +68,6 @@ public:
 	  * 스킬의 VFX 효과를 재생합니다.
 	  */
 	virtual void ActivateEffect();
+
+	bool bIsCasting = false;
 };

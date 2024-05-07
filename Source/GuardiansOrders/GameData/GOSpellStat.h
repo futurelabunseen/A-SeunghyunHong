@@ -17,7 +17,8 @@ public:
 		DamageSpeed(0.0f),
 		CoolDownTime(0.f),
 		MoveSpeedMultiplier(0.0f),
-		HealAmount(0.0f)
+		HealAmount(0.0f),
+		CastingTime(0.0f)
 		{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SpellStat)
@@ -40,6 +41,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SpellStat)
 	float HealAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SpellStat)
+	float CastingTime;
 
 	//FGOSkillStat operator+(const FGOSkillStat& Other) const
 	//{

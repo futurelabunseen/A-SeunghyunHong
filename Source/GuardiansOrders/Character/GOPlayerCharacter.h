@@ -103,7 +103,13 @@ protected:
 	TObjectPtr<UInputAction> ActionSkillR;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ActionSkillF;	
+	TObjectPtr<UInputAction> ActionSpellD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionSpellF;	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionSpellG;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ActionShowMaxBasicAttackRange;
@@ -121,7 +127,13 @@ protected:
 	virtual void OnSkillW();
 	virtual void OnSkillE();
 	virtual void OnSkillR();
-	void OnSkillF();
+
+	/**
+	 * Flash Spell : 마우스 커서가 있는 쪽으로 짧은 순간이동이 가능합니다.
+	 */
+	void OnSpellD();
+	void OnSpellF();
+	void OnSpellG();	
 
 	// 최대 공격 사거리를 보여주는 콜백 함수입니다. 
 	void OnShowMaxBasicAttackRange();

@@ -47,6 +47,7 @@ enum class ECharacterSpells : uint8
 
 	Spell01 UMETA(DisplayName = "Spell01"),
 	Spell02 UMETA(DisplayName = "Spell02"),
+	Spell03 UMETA(DisplayName = "Spell03"),
 
 	Max UMETA(Hidden)
 };
@@ -57,8 +58,9 @@ enum class ESpellType : uint8
 {
 	None = 0 UMETA(Hidden),
 
-	GOSpell_Ghost UMETA(DisplayName = "GOSpell_Ghost"),
+	GOSpell_Flash UMETA(DisplayName = "GOSpell_Flash"),
 	GOSpell_Heal UMETA(DisplayName = "GOSpell_Heal"),
+	GOSpell_Ghost UMETA(DisplayName = "GOSpell_Ghost"),
 
 	Max UMETA(Hidden)
 };

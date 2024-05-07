@@ -10,9 +10,11 @@ void UGOSpellSetBarWidget::NativeConstruct()
 
     UGOSpellSlotWidget* Spell01Slot = Cast<UGOSpellSlotWidget>(GetWidgetFromName(TEXT("CUI_SpellSlot_Spell01")));
     UGOSpellSlotWidget* Spell02Slot = Cast<UGOSpellSlotWidget>(GetWidgetFromName(TEXT("CUI_SpellSlot_Spell02")));
+    UGOSpellSlotWidget* Spell03Slot = Cast<UGOSpellSlotWidget>(GetWidgetFromName(TEXT("CUI_SpellSlot_Spell03")));
 
     if (Spell01Slot) SpellSlotLookup.Add(TEXT("CUI_SpellSlot_Spell01"), Spell01Slot);
     if (Spell02Slot) SpellSlotLookup.Add(TEXT("CUI_SpellSlot_Spell02"), Spell02Slot);
+    if (Spell03Slot) SpellSlotLookup.Add(TEXT("CUI_SpellSlot_Spell03"), Spell03Slot);
 }
 
 void UGOSpellSetBarWidget::InitializeSpellSlots(UGOSpells* SpellSet)
@@ -54,6 +56,7 @@ FName UGOSpellSetBarWidget::SpellKeyToName(ECharacterSpells SpellType)
     {
     case ECharacterSpells::Spell01: return FName("CUI_SpellSlot_Spell01");
     case ECharacterSpells::Spell02: return FName("CUI_SpellSlot_Spell02");
+    case ECharacterSpells::Spell03: return FName("CUI_SpellSlot_Spell03");
     default: return FName();
     }
 }

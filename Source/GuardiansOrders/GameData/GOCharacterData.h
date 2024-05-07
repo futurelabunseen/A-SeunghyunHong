@@ -29,8 +29,10 @@ public:
 		AnimBlueprint(nullptr),
 		Spell01Class(nullptr),
 		Spell02Class(nullptr),
+		Spell03Class(nullptr),
 		DefaultSpellName01(NAME_None),
-		DefaultSpellName02(NAME_None)
+		DefaultSpellName02(NAME_None),
+		DefaultSpellName03(NAME_None)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
@@ -82,9 +84,15 @@ public:
 	TSubclassOf<UGOSpellBase> Spell02Class;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TSubclassOf<UGOSpellBase> Spell03Class;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName DefaultSpellName01;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName DefaultSpellName02;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	FName DefaultSpellName03;
 };
 
