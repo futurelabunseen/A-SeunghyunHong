@@ -53,6 +53,17 @@ void UGOCharacterStatComponent::HealHp()
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 }
 
+void UGOCharacterStatComponent::ServerHealHp_Implementation()
+{
+	HealHp();
+	UE_LOG(LogTemp, Log, TEXT("ServerHealHp_Implementation "));
+}
+
+bool UGOCharacterStatComponent::ServerHealHp_Validate()
+{
+	return true;  // 추가적인 유효성 검사 로직이 필요할 경우 이곳에 구현
+}
+
 float UGOCharacterStatComponent::ApplyDamage(float InDamage)
 {
 	const float PrevHp = CurrentHp;

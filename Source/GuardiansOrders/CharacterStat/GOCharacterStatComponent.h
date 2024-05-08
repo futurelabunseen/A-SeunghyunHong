@@ -59,6 +59,8 @@ public:
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
 
 	void HealHp();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerHealHp();
 
 	// 내 캐릭터가 대미지를 받으면 적용하는 함수입니다.
 	float ApplyDamage(float InDamage);

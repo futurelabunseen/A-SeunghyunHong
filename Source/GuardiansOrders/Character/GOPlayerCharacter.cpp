@@ -288,6 +288,7 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
+
 		EnhancedInputComponent->BindAction(ActionSpellD, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellD);
 		EnhancedInputComponent->BindAction(ActionSpellF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellF);
 		EnhancedInputComponent->BindAction(ActionSpellG, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellG);
@@ -462,7 +463,14 @@ void AGOPlayerCharacter::OnSpellD()
 // Heal Spell
 void AGOPlayerCharacter::OnSpellF()
 {
-	Stat->HealHp();
+	if (HasAuthority())
+	{
+		Stat->HealHp();
+	}
+	else
+	{
+		Stat->ServerHealHp();
+	}
 	
 	SpellCastComponent->OnStartCast(
 		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell02));
