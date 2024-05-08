@@ -57,7 +57,8 @@ public:
 	FORCEINLINE FGOCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
-	FORCEINLINE void HealHp() { CurrentHp = FMath::Clamp(CurrentHp + CurrentHp*0.2, 0, GetTotalStat().MaxHp); OnHpChanged.Broadcast(CurrentHp, MaxHp); }
+
+	void HealHp();
 
 	// 내 캐릭터가 대미지를 받으면 적용하는 함수입니다.
 	float ApplyDamage(float InDamage);

@@ -47,6 +47,12 @@ void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 	}
 }
 
+void UGOCharacterStatComponent::HealHp()
+{
+	CurrentHp = FMath::Clamp(CurrentHp + CurrentHp * 0.2, 0, GetTotalStat().MaxHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+}
+
 float UGOCharacterStatComponent::ApplyDamage(float InDamage)
 {
 	const float PrevHp = CurrentHp;
@@ -145,6 +151,7 @@ void UGOCharacterStatComponent::RegenerateHp()
 	{
 		CurrentHp = FMath::Min(CurrentHp + BaseStat.HpRegenerationRate, MaxHp);
 		OnHpChanged.Broadcast(CurrentHp, MaxHp);
+		UE_LOG(LogTemp, Warning, TEXT("[debuggung] RegenerateHp() called ended"));
 	}
 }
 
@@ -161,12 +168,15 @@ void UGOCharacterStatComponent::RegenerateMana()
 void UGOCharacterStatComponent::OnRep_CurrentHp()
 {
 	GO_SUBLOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+	UE_LOG(LogTemp, Warning, TEXT("[debuggung] OnRep_CurrentHP() called CurrentHp: %d"), CurrentHp);
 
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[debuggung] OnRep_CurrentHP() called ended CurrentHp: %d"), CurrentHp);
+
 }
 
 void UGOCharacterStatComponent::OnRep_MaxHp()
