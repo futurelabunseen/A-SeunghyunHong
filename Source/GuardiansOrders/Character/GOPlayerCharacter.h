@@ -436,6 +436,10 @@ public:
 		}
 	}
 
+// Camera Shake
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
+
 // ======== IGOPlaySkillAnimInterface ========
 
 	virtual UGOSkillCastComponent* GetSkillCastComponent()

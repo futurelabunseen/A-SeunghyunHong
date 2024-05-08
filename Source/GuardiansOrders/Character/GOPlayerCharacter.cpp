@@ -637,6 +637,9 @@ void AGOPlayerCharacter::AttackHitCheck()
 		FHitResult OutHitResult;
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
+		// TODO 스킬 스탯을 가져와야 하는데? 어떻게? 가져오지?
+		
+
 		const float DamageRange = Stat->GetTotalStat().DamageRange;
 		const float DamageRadius = Stat->GetTotalStat().DamageRadius;
 		const float DamageDamage = Stat->GetTotalStat().BaseDamage;
@@ -657,6 +660,14 @@ void AGOPlayerCharacter::AttackHitCheck()
 			if (HitDetected)
 			{
 				ServerRPCNotifyHit(OutHitResult, HitCheckTime);
+				
+				UE_LOG(LogTemp, Warning, TEXT("before HitCameraShakeClass"));
+
+				if (HitCameraShakeClass)
+				{
+					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+					UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
+				}
 			}
 			else
 			{
@@ -672,6 +683,12 @@ void AGOPlayerCharacter::AttackHitCheck()
 			if (HitDetected)
 			{
 				AttackHitConfirm(OutHitResult.GetActor());
+
+				if (HitCameraShakeClass)
+				{
+					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+					UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
+				}
 			}
 
 		}
@@ -756,6 +773,14 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 		{
 			// 대미지 전달
 			AttackHitConfirm(HitActor);
+			//UE_LOG(LogTemp, Warning, TEXT("before HitCameraShakeClass"));
+
+			//if (HitCameraShakeClass)
+			//{
+			//	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+			//	UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
+			//}
+
 		}
 		else
 		{
