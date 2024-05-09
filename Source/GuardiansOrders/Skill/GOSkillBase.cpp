@@ -148,7 +148,12 @@ void UGOSkillBase::EndCooldown()
 
 void UGOSkillBase::SetTarget(AGOCharacterBase* NewTarget)
 {
-	TargetCharacter = NewTarget;  // 대상 캐릭터 설정
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::SetTarget] TargetCharacter : %s "), *TargetCharacter.GetName());
+	TargetGOCharacter = NewTarget;  // 대상 캐릭터 설정
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::SetTarget] TargetCharacter : %s "), *TargetGOCharacter.GetName());
 
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillBase::GetTarget()
+{
+	return TargetGOCharacter;
 }

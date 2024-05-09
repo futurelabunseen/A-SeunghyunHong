@@ -109,6 +109,7 @@ public:
 	void EndCooldown();
 
 	void SetTarget(AGOCharacterBase* NewTarget);
+	TObjectPtr<AGOCharacterBase> GetTarget();
 
 protected:
 
@@ -158,5 +159,5 @@ protected:
 	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
 	//float DetectionDegree = 45;
 
-	TObjectPtr<AGOCharacterBase> TargetCharacter;
+	TObjectPtr<AGOCharacterBase> TargetGOCharacter;
 };

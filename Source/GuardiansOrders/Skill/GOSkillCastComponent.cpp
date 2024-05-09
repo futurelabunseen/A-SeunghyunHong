@@ -62,11 +62,9 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	//	CurrentSkill->EndCooldown();
 	//}
 
-	
-	
-	
 	//CurrentSkill->StartCast();
 
+	// Auto Targeting
 	if (CurrentSkill)
 	{
 		AGOCharacterBase* Target = nullptr;
@@ -109,6 +107,16 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	{
 		if (AActor* Owner = GetOwner())
 		{
+			if (CurrentSkill->GetTarget() != nullptr)
+			{
+				FVector TargetLocation = CurrentSkill->GetTarget()->GetActorLocation();
+				FVector Direction = TargetLocation - Owner->GetActorLocation();
+				Direction.Z = 0; // Ignore Z axis for rotation
+				FRotator NewRotation = Direction.Rotation();
+				Owner->SetActorRotation(NewRotation);
+				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. SetActorRotation To Target !!!! "));
+			}
+
 			if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 			{
 				// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
