@@ -181,6 +181,9 @@ void FGOSavedMove_Character::Clear()
 
 	bPressedFlashSpell = false;
 	bDidFlash = false;
+
+	bPressedGhostSpell = false;
+	bDidGhost = false;
 }
 
 void FGOSavedMove_Character::SetInitialPosition(ACharacter* Character)
@@ -192,6 +195,9 @@ void FGOSavedMove_Character::SetInitialPosition(ACharacter* Character)
 	{
 		bPressedFlashSpell = GOMovement->bPressedFlashSpell;
 		bDidFlash = GOMovement->bDidFlash;
+		
+		bPressedGhostSpell = GOMovement->bPressedGhostSpell;
+		bDidGhost = GOMovement->bDidGhost;
 	}
 }
 
