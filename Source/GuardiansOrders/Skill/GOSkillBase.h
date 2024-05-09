@@ -10,12 +10,14 @@
 #include "GameData/GOSkillData.h"
 #include "Delegates/Delegate.h"
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
+// #include "Character/GOCharacterBase.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
 class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
+class AGOCharacterBase;
 
 // DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
 DECLARE_MULTICAST_DELEGATE_OneParam(UGOSkillBaseFIsOnCooldown, bool);
@@ -98,8 +100,15 @@ public:
 	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }
 
 	FORCEINLINE float GetManaCost() { return SkillStat.ManaCost; }
+	
+	EAutoDetectionType GetAutoDetectionType() const { return GetTotalSkillStat().AutoDetectionType; }
+	float GetAutoDetectionRadius() const { return GetTotalSkillStat().DetectionRadius; }
+	float GetAutoDetectionDegree() const { return GetTotalSkillStat().DetectionDegree; }
+
 	void CheckCooldownTick();
 	void EndCooldown();
+
+	void SetTarget(AGOCharacterBase* NewTarget);
 
 protected:
 
@@ -135,4 +144,19 @@ public:
 	FTimerHandle CoolDownTickTimerHandle;
 
 	bool bIsOnCoolTime = false;
+
+protected:
+	/** 
+	 * 오토타겟팅 
+	 */
+	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
+	//EAutoDetectionType AutoDetectionType = EAutoDetectionType::None;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
+	//float DetectionRadius = 200;
+
+	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
+	//float DetectionDegree = 45;
+
+	TObjectPtr<AGOCharacterBase> TargetCharacter;
 };

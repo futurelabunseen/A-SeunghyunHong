@@ -8,7 +8,7 @@
 #include "Interface/GOCharacterWidgetInterface.h"
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
-#include "Skill/GOSkillBase.h"
+// #include "Skill/GOSkillBase.h"
 #include "Skill/Slots/GOSkills.h"
 #include "Skill/Slots/GOSpells.h"
 #include "GOCharacterBase.generated.h"

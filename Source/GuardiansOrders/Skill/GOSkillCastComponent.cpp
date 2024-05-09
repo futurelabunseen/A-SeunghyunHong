@@ -6,6 +6,8 @@
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
+#include "Character/GOCharacterBase.h"
+#include "DrawDebugHelpers.h"
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
@@ -60,7 +62,35 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	//	CurrentSkill->EndCooldown();
 	//}
 
-	CurrentSkill->StartCast();
+	
+	
+	
+	//CurrentSkill->StartCast();
+
+	if (CurrentSkill)
+	{
+		AGOCharacterBase* Target = nullptr;
+		FVector ForwardVector = GetOwner()->GetActorForwardVector();
+		FVector2D AttackDirection(ForwardVector.X, ForwardVector.Y); // Z 무시
+
+		switch (CurrentSkill->GetAutoDetectionType())
+		{
+		case EAutoDetectionType::Radius:
+			Target = DetectClosestTarget(CurrentSkill->GetAutoDetectionRadius());
+			break;
+		case EAutoDetectionType::RadiusDegree:
+			Target = DetectClosestTargetRadiusDegreeBase(AttackDirection, CurrentSkill->GetAutoDetectionRadius(), CurrentSkill->GetAutoDetectionDegree());
+			break;
+		case EAutoDetectionType::None:
+		default:
+			Target = nullptr;
+			break;
+		}
+
+		CurrentSkill->SetTarget(Target);  // UGOSkillBase에 추가한 SetTarget 메소드를 가정
+		CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
+	}
+
 }
 
 void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
@@ -127,5 +157,73 @@ void UGOSkillCastComponent::OnInterruptCast()
 
 void UGOSkillCastComponent::UpdateCoolDownTime(float DeltaTime)
 {
+}
+
+TObjectPtr<class AGOCharacterBase> UGOSkillCastComponent::DetectClosestTarget(float Radius)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());  // 자기 자신은 무시
+
+	FVector Location = GetOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);  // GOCharacterBase 타입으로 캐스트
+		if (GOCharacter && GOCharacter != GetOwner())
+		{
+			float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+			if (Distance < MinDistance)
+			{
+				MinDistance = Distance;
+				ClosestCharacter = GOCharacter;
+			}
+		}
+	}
+	DrawDebugSphere(GetWorld(), Location, Radius, 32, FColor::Red, false, 10.0f);
+
+	return ClosestCharacter;
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillCastComponent::DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetOwner());  // 자기 자신은 무시
+
+	FVector Location = GetOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);
+		if (GOCharacter && GOCharacter != GetOwner())
+		{
+			FVector2D HitDir = FVector2D(GOCharacter->GetActorLocation() - Location);
+			HitDir.Normalize();
+			float CosTheta = FMath::Cos(FMath::DegreesToRadians(Degree));
+			if (FVector2D::DotProduct(Dir, HitDir) >= CosTheta)
+			{
+				float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+				if (Distance < MinDistance)
+				{
+					MinDistance = Distance;
+					ClosestCharacter = GOCharacter;
+				}
+			}
+		}
+	}
+	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 32, FColor::Yellow, false, 10.0f);
+
+	return ClosestCharacter;
 }
 

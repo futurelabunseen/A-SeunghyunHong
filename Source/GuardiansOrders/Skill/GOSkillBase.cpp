@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameData/GOCharacterData.h"
 #include "GameData/GOCharacterStat.h"
+#include "Character/GOCharacterBase.h"
 
 UGOSkillBase::UGOSkillBase()
 {
@@ -143,4 +144,11 @@ void UGOSkillBase::EndCooldown()
 	CoolDownTimer = 0.0f;
 	// bIsCastable = true;
 	//OnCooldownUpdated.Broadcast(CoolDownTimer);  // 최종적으로 쿨다운 완료 알림
+}
+
+void UGOSkillBase::SetTarget(AGOCharacterBase* NewTarget)
+{
+	TargetCharacter = NewTarget;  // 대상 캐릭터 설정
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::SetTarget] TargetCharacter : %s "), *TargetCharacter.GetName());
+
 }
