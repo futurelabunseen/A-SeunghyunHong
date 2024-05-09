@@ -481,8 +481,14 @@ void AGOPlayerCharacter::OnSpellF()
 // Ghost Spell
 void AGOPlayerCharacter::OnSpellG()
 {
-	SpellCastComponent->OnStartCast(
-		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03));
+	/*SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03));*/
+
+	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
+	if (GOMovement)
+	{
+		GOMovement->SetGhostSpellCommand();
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Common Spell G is triggered. GHOST :  "));
 }

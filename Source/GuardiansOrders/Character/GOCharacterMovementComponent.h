@@ -18,6 +18,9 @@ public:
 
 	uint8 bPressedFlashSpell : 1;
 	uint8 bDidFlash : 1;
+
+	uint8 bPressedGhostSpell : 1;
+	uint8 bDidGhost : 1;
 };
 
 
@@ -45,6 +48,8 @@ public:
 
 	void SetFlashSpellCommand();
 
+	void SetGhostSpellCommand();
+
 protected:
 	virtual class FNetworkPredictionData_Client* GetPredictionData_Client() const override;
 
@@ -57,6 +62,11 @@ protected:
 
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
 
+	/**
+	 * 유체화 
+	 */
+	virtual void GOGhost();
+
 public:
 	uint8 bPressedFlashSpell : 1; // 입력이 들어오면 참으로 변경 예정
 
@@ -67,6 +77,9 @@ public:
 	 * 다시 점멸을 시작할 수 있을 때 False로 설정할 것입니다.
 	 */
 	uint8 bDidFlash : 1;
+
+	uint8 bPressedGhostSpell : 1;
+	uint8 bDidGhost : 1;
 
 protected:
 	/**
@@ -80,4 +93,16 @@ protected:
 	 */
 	UPROPERTY()
 	float FlashCoolTime;
+
+	/**
+	 * 유체화 계수
+	 */
+	UPROPERTY()
+	float GhostSpeedMultiplier;
+
+	/**
+	 * 유체화 쿨타임
+	 */
+	UPROPERTY()
+	float GhostCoolTime;
 };
