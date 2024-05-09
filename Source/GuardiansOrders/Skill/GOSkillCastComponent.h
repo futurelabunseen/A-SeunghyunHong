@@ -50,6 +50,11 @@ public:
 	TObjectPtr<class AGOCharacterBase> DetectClosestTarget(float Radius);
 	TObjectPtr<AGOCharacterBase> DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree);
 
+	// 현재 스킬 Get, Set
+	void SetCurrentSkillByKey(FHeroSkillKey Key);
+	TObjectPtr<UGOSkillBase> GetCurrentSkill();
+	FHeroSkillKey GetCurrentSkillKey();
+
 private:
 	//  현재 캐스팅 중인지의 여부 
 	bool bIsOnCasting = false;

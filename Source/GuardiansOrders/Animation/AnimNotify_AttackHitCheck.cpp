@@ -14,6 +14,7 @@ void UAnimNotify_AttackHitCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		if (AttackPawn)
 		{
 			AttackPawn->AttackHitCheck();
+			// AttackPawn->SkillAttackHitCheck();
 		}
 	}
 	FString ClassName = GetName();

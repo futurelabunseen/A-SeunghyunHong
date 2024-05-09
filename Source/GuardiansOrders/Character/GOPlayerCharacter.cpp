@@ -43,8 +43,8 @@
 #include "GOCharacterMovementComponent.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)), 
-	  bIsDecalVisible(false)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
+	bIsDecalVisible(false)
 {
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -224,7 +224,7 @@ void AGOPlayerCharacter::PossessedBy(AController* NewController)
 	}
 
 	Super::PossessedBy(NewController);
-	
+
 	OwnerActor = GetOwner();
 	if (OwnerActor)
 	{
@@ -292,7 +292,7 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(ActionSpellD, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellD);
 		EnhancedInputComponent->BindAction(ActionSpellF, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellF);
 		EnhancedInputComponent->BindAction(ActionSpellG, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSpellG);
-		
+
 		EnhancedInputComponent->BindAction(ActionShowMaxBasicAttackRange, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnShowMaxBasicAttackRange);
 	}
 }
@@ -399,7 +399,7 @@ void AGOPlayerCharacter::OnBaseSkill()
 	//SkillCastComponent->OnStartCast(
 	//	CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill)
 	//);	
-	
+
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::BaseSkill));
 }
@@ -471,7 +471,7 @@ void AGOPlayerCharacter::OnSpellF()
 	{
 		Stat->ServerHealHp();
 	}
-	
+
 	SpellCastComponent->OnStartCast(
 		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell02));
 
@@ -496,15 +496,15 @@ void AGOPlayerCharacter::OnSpellG()
 void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
 {
 	float MaxBasicAttackRange = Stat->GetMaxBasicAttackRange();
-	
+
 	if (!BasicAttackRangeDecal)
 	{
 		BasicAttackRangeDecal = NewObject<UDecalComponent>(this, UDecalComponent::StaticClass());
 		if (BasicAttackRangeDecal)
 		{
 			BasicAttackRangeDecal->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-			BasicAttackRangeDecal->SetWorldRotation(FRotator(90.0f, 0.0f, 0.0f)); 
-			BasicAttackRangeDecal->SetRelativeLocation(FVector(0.f, 0.f, -150.f)); 
+			BasicAttackRangeDecal->SetWorldRotation(FRotator(90.0f, 0.0f, 0.0f));
+			BasicAttackRangeDecal->SetRelativeLocation(FVector(0.f, 0.f, -150.f));
 			// BasicAttackRangeDecal->SetRelativeScale3D(FVector(1, 1, 1));
 			BasicAttackRangeDecal->SetDecalMaterial(LoadObject<UMaterialInterface>(nullptr, TEXT("Engine.Material'/Game/Material/M_MaxBasicAttackRangeDecal.M_MaxBasicAttackRangeDecal'")));
 			BasicAttackRangeDecal->RegisterComponent();
@@ -625,7 +625,7 @@ void AGOPlayerCharacter::Attack()
 			UE_LOG(LogTemp, Log, TEXT("요기1: Attack() ")); // 클라는 요기1, 요기2 // 서버는 요기2, 요기3
 
 			PlayAttackAnimation(); //요기
-			
+
 		}
 
 		// 서버에게 서버시간과 함께 명령을 보냅니다.
@@ -652,7 +652,6 @@ void AGOPlayerCharacter::AttackHitCheck()
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 		// TODO 스킬 스탯을 가져와야 하는데? 어떻게? 가져오지?
-		
 
 		const float DamageRange = Stat->GetTotalStat().DamageRange;
 		const float DamageRadius = Stat->GetTotalStat().DamageRadius;
@@ -674,7 +673,7 @@ void AGOPlayerCharacter::AttackHitCheck()
 			if (HitDetected)
 			{
 				ServerRPCNotifyHit(OutHitResult, HitCheckTime);
-				
+
 				UE_LOG(LogTemp, Warning, TEXT("before HitCameraShakeClass"));
 
 				if (HitCameraShakeClass)
@@ -697,6 +696,7 @@ void AGOPlayerCharacter::AttackHitCheck()
 			if (HitDetected)
 			{
 				AttackHitConfirm(OutHitResult.GetActor());
+				// AttackHitConfirm(OutHitResult.GetActor());
 
 				if (HitCameraShakeClass)
 				{
@@ -720,6 +720,50 @@ void AGOPlayerCharacter::AttackHitConfirm(AActor* HitActor)
 		HitActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this); //?
 	}
 }
+
+//void AGOPlayerCharacter::AttackHitConfirm(AActor* HitActor, float Damage)
+//{
+//	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+//
+//	if (HasAuthority())
+//	{
+//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
+//		FDamageEvent DamageEvent;
+//		HitActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this); //?
+//	}
+//}
+//
+//void AGOPlayerCharacter::AttackHitConfirm(const TArray<FHitResult>& HitResults, float Damage)
+//{
+//	if (HasAuthority())
+//	{
+//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
+//		FDamageEvent DamageEvent;
+//		for (const FHitResult& Hit : HitResults)
+//		{
+//			if (AActor* HitActor = Hit.GetActor())
+//			{
+//				HitActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this);
+//			}
+//		}
+//	}
+//}
+//
+//void AGOPlayerCharacter::AttackHitConfirm(const TArray<FOverlapResult>& OverlapResults, float Damage)
+//{
+//	if (HasAuthority())
+//	{
+//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
+//		FDamageEvent DamageEvent;
+//		for (const FOverlapResult& Overlap : OverlapResults)
+//		{
+//			if (AActor* OverlappedActor = Overlap.GetActor())
+//			{
+//				OverlappedActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this);
+//			}
+//		}
+//	}
+//}
 
 void AGOPlayerCharacter::DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward)
 {
@@ -785,8 +829,10 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 		const FVector ActorBoxCenter = (HitBox.Min + HitBox.Max) * 0.5f;
 		if (FVector::DistSquared(HitLocation, ActorBoxCenter) <= AcceptCheckDistance * AcceptCheckDistance)
 		{
+			UGOSkillBase* ActiveSkill = SkillCastComponent->GetCurrentSkill();
 			// 대미지 전달
 			AttackHitConfirm(HitActor);
+			//AttackHitConfirm(HitActor, (ActiveSkill->GetTotalSkillStat().DamageMultiplier) * (Stat->GetTotalStat().BaseDamage));
 			//UE_LOG(LogTemp, Warning, TEXT("before HitCameraShakeClass"));
 
 			//if (HitCameraShakeClass)
@@ -834,7 +880,7 @@ void AGOPlayerCharacter::OnRep_CanAttack()
 	else
 	{
 		// 공격할 수 있다면 움직일 수 있습니다.
-		 GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 	}
 }
 
@@ -1034,7 +1080,7 @@ void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime
 	//), AttackTime - AttackTimeDifference, false, -1.0f);
 
 	LastAttakStartTime = AttackStartTime;
-	
+
 	// PlayAttackAnimation(); //요기
 
 	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ServerRPCAttackNew] Actor %s is "), *CurrentSkill->GetName());
@@ -1075,12 +1121,12 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
 	if (Key.SkillType != ECharacterSkills::BaseSkill)
-	{		
+	{
 		// ManaCost
 		Stat->UseSkill(GOGameInstance->GetSkillByHeroSkillKey(Key)->GetTotalSkillStat().ManaCost);
 
 	}
-	
+
 	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
 	////OnRep_CanAttack();
 
@@ -1206,7 +1252,7 @@ void AGOPlayerCharacter::PlaySkillAnimByKey(FHeroSkillKey Key)
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
 	UGOSkillBase* CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
-	
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance)
 	{
@@ -1246,7 +1292,7 @@ void AGOPlayerCharacter::ActivateSpellFlash()
 	//FVector TargetLocation =
 	//	GetActorLocation()
 	//	+ GetActorForwardVector() * FlashMovementOffset;
-	
+
 	//FVector TargetLocation =
 	//	GetActorLocation()
 	//	+ GetActorForwardVector() * CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
@@ -1285,5 +1331,5 @@ void AGOPlayerCharacter::ActivateSpellFlash()
 
 	// 캐릭터를 회전시킨 후 순간이동
 	SetActorRotation(NewRotation);
-	TeleportTo(TargetLocation, NewRotation, false, true); 
+	TeleportTo(TargetLocation, NewRotation, false, true);
 }

@@ -62,7 +62,7 @@ public:
 	  * 구체적인 스킬 내용으로, UpdateCast 내에서 호출되지 않을까- 라고 생각 중
 	  * 스킬에 따라서, 즉발이거나 시간 차를 두고 공격이 될 수 있으므로?
 	  */
-	virtual void Activate();
+	virtual void ActivateSkill();
 
 	/**
 	  * 스킬 사용이 완료됐을 때 호출되는 함수로, 스킬의 결과를 처리하고 마무리하는 작업을 수행합니다.
@@ -110,6 +110,17 @@ public:
 
 	void SetTarget(AGOCharacterBase* NewTarget);
 	TObjectPtr<AGOCharacterBase> GetTarget();
+
+	ESkillCollisionType GetSkillCollisionType() const { return GetTotalSkillStat().SkillCollisionType; }
+
+	void ExecuteSkill(ESkillCollisionType SkillCollisionType);
+	void PerformLineTraceSingle(const FGOSkillStat& Stats);
+	void PerformLineTraceMulti(const FGOSkillStat& Stats);
+	void PerformSweepSingle(const FGOSkillStat& Stats);
+	void PerformSweepMulti(const FGOSkillStat& Stats);
+	void PerformOverlapMulti(const FGOSkillStat& Stats);
+
+	FORCEINLINE bool GetHitDetected() { return HitDetected; }
 
 protected:
 
@@ -160,4 +171,14 @@ protected:
 	//float DetectionDegree = 45;
 
 	TObjectPtr<AGOCharacterBase> TargetGOCharacter;
+
+	bool HitDetected = false;
+//	FHitResult* SkillHitResult;
+//	TArray<FHitResult>& SkillHitResults;
+//	TArray<FOverlapResult>& SkillOverlaps;
+//public:
+//	FHitResult GetSkillHitResult() { return *SkillHitResult; }
+//	TArray<FHitResult> GetSkillHitResults() { return SkillHitResults; }
+//	TArray<FOverlapResult> GetSkillOverlaps() { return SkillOverlaps; }
+
 };

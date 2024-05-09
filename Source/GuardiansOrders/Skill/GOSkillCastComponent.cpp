@@ -8,6 +8,7 @@
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
 #include "Character/GOCharacterBase.h"
 #include "DrawDebugHelpers.h"
+#include "Physics/GOCollision.h"
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
@@ -49,12 +50,8 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-	if (!ensure(GameInstance)) return;
-	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
-
 	SkillKey = Key;
-	CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+	SetCurrentSkillByKey(SkillKey);
 
 	// If there is an active skill with a running cooldown, end it safely
 	//if (CurrentSkill && CurrentSkill->IsCasting())
@@ -84,7 +81,7 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 			Target = nullptr;
 			break;
 		}
-
+		CurrentSkill->SetSkillOwner(GetOwner());
 		CurrentSkill->SetTarget(Target);  // UGOSkillBase에 추가한 SetTarget 메소드를 가정
 		CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
 	}
@@ -121,6 +118,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 			{
 				// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
 				GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
+				CurrentSkill->ActivateSkill();
 				bIsOnCasting = false;
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 			}
@@ -174,7 +172,7 @@ TObjectPtr<class AGOCharacterBase> UGOSkillCastComponent::DetectClosestTarget(fl
 	CollisionParams.AddIgnoredActor(GetOwner());  // 자기 자신은 무시
 
 	FVector Location = GetOwner()->GetActorLocation();
-	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Radius), CollisionParams);
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
 
 	AGOCharacterBase* ClosestCharacter = nullptr;
 	float MinDistance = FLT_MAX;
@@ -193,7 +191,7 @@ TObjectPtr<class AGOCharacterBase> UGOSkillCastComponent::DetectClosestTarget(fl
 			}
 		}
 	}
-	DrawDebugSphere(GetWorld(), Location, Radius, 32, FColor::Red, false, 10.0f);
+	DrawDebugSphere(GetWorld(), Location, Radius, 32, FColor::Yellow, false, 10.0f);
 
 	return ClosestCharacter;
 }
@@ -205,7 +203,7 @@ TObjectPtr<AGOCharacterBase> UGOSkillCastComponent::DetectClosestTargetRadiusDeg
 	CollisionParams.AddIgnoredActor(GetOwner());  // 자기 자신은 무시
 
 	FVector Location = GetOwner()->GetActorLocation();
-	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(Radius), CollisionParams);
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
 
 	AGOCharacterBase* ClosestCharacter = nullptr;
 	float MinDistance = FLT_MAX;
@@ -235,3 +233,21 @@ TObjectPtr<AGOCharacterBase> UGOSkillCastComponent::DetectClosestTargetRadiusDeg
 	return ClosestCharacter;
 }
 
+void UGOSkillCastComponent::SetCurrentSkillByKey(FHeroSkillKey Key)
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+
+	CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+}
+
+TObjectPtr<UGOSkillBase> UGOSkillCastComponent::GetCurrentSkill()
+{
+	return CurrentSkill;
+}
+
+FHeroSkillKey UGOSkillCastComponent::GetCurrentSkillKey()
+{
+	return FHeroSkillKey();
+}

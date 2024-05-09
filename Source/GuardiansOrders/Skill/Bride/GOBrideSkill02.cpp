@@ -25,6 +25,12 @@ void UGOBrideSkill02::UpdateCast(float DeltaTime)
 	Super::UpdateCast(DeltaTime);
 }
 
+void UGOBrideSkill02::ActivateSkill()
+{
+	Super::ActivateSkill();
+
+}
+
 void UGOBrideSkill02::FinishCast()
 {
 	Super::FinishCast();

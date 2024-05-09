@@ -9,6 +9,8 @@
 #include "GameData/GOCharacterData.h"
 #include "GameData/GOCharacterStat.h"
 #include "Character/GOCharacterBase.h"
+#include "Components/CapsuleComponent.h"
+#include "Physics/GOCollision.h"
 
 UGOSkillBase::UGOSkillBase()
 {
@@ -96,9 +98,10 @@ void UGOSkillBase::UpdateCast(float DeltaTime)
 	//}
 }
 
-void UGOSkillBase::Activate()
+void UGOSkillBase::ActivateSkill()
 {
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
+	ExecuteSkill(GetSkillCollisionType());
 	UE_LOG(LogTemp, Log, TEXT("[UGOSkillBase::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
@@ -156,4 +159,171 @@ void UGOSkillBase::SetTarget(AGOCharacterBase* NewTarget)
 TObjectPtr<AGOCharacterBase> UGOSkillBase::GetTarget()
 {
 	return TargetGOCharacter;
+}
+
+
+void UGOSkillBase::ExecuteSkill(ESkillCollisionType SkillCollisionType)
+{
+	switch (SkillCollisionType)
+	{
+	case ESkillCollisionType::LineTraceSingle:
+		PerformLineTraceSingle(GetTotalSkillStat());
+		break;
+	case ESkillCollisionType::LineTraceMulti:
+		PerformLineTraceMulti(GetTotalSkillStat());
+		break;
+	case ESkillCollisionType::SweepSingle:
+		PerformSweepSingle(GetTotalSkillStat());
+		break;
+	case ESkillCollisionType::SweepMulti:
+		PerformSweepMulti(GetTotalSkillStat());
+		break;
+	case ESkillCollisionType::OverlapMulti:
+		PerformOverlapMulti(GetTotalSkillStat());
+		break;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] ESkillCollisionType !!! %d : "), SkillCollisionType);
+
+}
+
+void UGOSkillBase::PerformLineTraceSingle(const FGOSkillStat& Stats)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceSingle Called 0000!"));
+	if (!SkillOwnerCharacter) return;
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceSingle Called 1111!"));
+	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
+	FVector Forward = OwnerActor->GetActorForwardVector();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector End = Start + Forward * Stats.DamageRange;
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(OwnerActor);  // 스킬 사용자는 무시
+
+	HitDetected = OwnerActor->GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, CCHANNEL_GOACTION, CollisionParams);
+	if (HitDetected)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor)
+		{
+			// 피해 적용 로직 (예: HitActor->TakeDamage())
+
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceSingle Called !"));
+
+}
+
+
+void UGOSkillBase::PerformLineTraceMulti(const FGOSkillStat& Stats)
+{
+	if (!SkillOwnerCharacter) return;
+	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
+	FVector Forward = OwnerActor->GetActorForwardVector();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector End = Start + Forward * Stats.DamageRange;
+
+	TArray<FHitResult> HitResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(OwnerActor);
+
+	HitDetected = OwnerActor->GetWorld()->LineTraceMultiByChannel(HitResults, Start, End, CCHANNEL_GOACTION, CollisionParams);
+	if (HitDetected)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor)
+			{
+				// 피해 적용 로직
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceMulti Called !"));
+
+}
+
+void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called 000 !"));
+
+	if (!SkillOwnerCharacter) return;
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called 111 !"));
+
+	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
+	FVector Forward = OwnerActor->GetActorForwardVector();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
+
+	FHitResult HitResult;
+	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(Stats.DamageRadius);
+
+	HitDetected = OwnerActor->GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape);
+	if (HitDetected)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor)
+		{
+			// 피해 적용 로직
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called !"));
+
+}
+
+void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats)
+{
+	if (!SkillOwnerCharacter) return;
+	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
+	FVector Forward = OwnerActor->GetActorForwardVector();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
+
+	TArray<FHitResult> HitResults;
+	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(Stats.DamageRadius);
+
+	HitDetected = OwnerActor->GetWorld()->SweepMultiByChannel(HitResults, Start, End, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape);
+	if (HitDetected)
+	{
+		for (const FHitResult& Hit : HitResults)
+		{
+			AActor* HitActor = Hit.GetActor();
+			if (HitActor)
+			{
+				// 피해 적용 로직
+			}
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepMulti Called !"));
+
+}
+
+void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti 000 !"));
+
+	if (!SkillOwnerCharacter) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti 111 !"));
+
+	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
+	FVector Location = OwnerActor->GetActorLocation() + OwnerActor->GetActorForwardVector() * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(Stats.DamageRadius);
+	TArray<FOverlapResult> Overlaps;
+	if (OwnerActor->GetWorld()->OverlapMultiByChannel(Overlaps, Location, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape))
+	{
+		for (const FOverlapResult& Overlap : Overlaps)
+		{
+			AActor* OverlappedActor = Overlap.GetActor();
+			if (OverlappedActor && OverlappedActor != OwnerActor)
+			{
+				// 피해 적용 로직
+				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called ! OverlappedActor : %s"), *OverlappedActor->GetName());
+			}
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
+
 }

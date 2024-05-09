@@ -25,6 +25,12 @@ void UGOBeastUltimateSkill::UpdateCast(float DeltaTime)
 	Super::UpdateCast(DeltaTime);
 }
 
+void UGOBeastUltimateSkill::ActivateSkill()
+{
+	Super::ActivateSkill();
+
+}
+
 void UGOBeastUltimateSkill::FinishCast()
 {
 	Super::FinishCast();

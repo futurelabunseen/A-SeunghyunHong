@@ -210,14 +210,24 @@ protected:
 	void PlayAttackAnimation();
 
 	/**
-	* 공격을 판정하는 함수입니다.
+	* IGOAnimationAttackInterface
+	* 공격을 판정하는 함수입니다. 
 	*/
 	virtual void AttackHitCheck() override;
+	// virtual void SkillAttackHitCheck() override;
 
 	/**
 	* 공격을 확정합니다.
 	*/
 	void AttackHitConfirm(AActor* HitActor);
+
+	//void AttackHitConfirm(AActor* HitActor, float Damage);
+
+	//// LineTraceMulti 또는 SweepMulti에서 오는 여러 히트 결과 처리
+	//void AttackHitConfirm(const TArray<FHitResult>& HitResults, float Damage);
+
+	//// OverlapMulti에서 오는 여러 오버랩 결과 처리
+	//void AttackHitConfirm(const TArray<FOverlapResult>& OverlapResults, float Damage);
 
 	void DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 

@@ -25,6 +25,12 @@ void UGORogersSkill03::UpdateCast(float DeltaTime)
 	Super::UpdateCast(DeltaTime);
 }
 
+void UGORogersSkill03::ActivateSkill()
+{
+	Super::ActivateSkill();
+
+}
+
 void UGORogersSkill03::FinishCast()
 {
 	Super::FinishCast();

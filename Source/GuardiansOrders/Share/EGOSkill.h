@@ -151,3 +151,16 @@ enum class ESkillState : uint8
 	NoMana UMETA(DisplayName = "No Mana"),
 	Max UMETA(Hidden)
 };
+
+////////////////////////////////////////////////////////////////////////
+// ESkillCollisionType
+////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class ESkillCollisionType : uint8
+{
+	LineTraceSingle   UMETA(DisplayName = "Line Trace Single"),
+	LineTraceMulti    UMETA(DisplayName = "Line Trace Multi"),
+	SweepSingle       UMETA(DisplayName = "Sweep Single"),
+	SweepMulti        UMETA(DisplayName = "Sweep Multi"),
+	OverlapMulti      UMETA(DisplayName = "Overlap Multi")
+};

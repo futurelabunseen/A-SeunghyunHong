@@ -28,4 +28,3 @@ UGOSkillBase* UGOSkills::GetSkill(ECharacterSkills SkillType)
     }
     return nullptr;
 }
-

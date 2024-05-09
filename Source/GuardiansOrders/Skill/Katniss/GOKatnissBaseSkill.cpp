@@ -25,6 +25,12 @@ void UGOKatnissBaseSkill::UpdateCast(float DeltaTime)
 	Super::UpdateCast(DeltaTime);
 }
 
+void UGOKatnissBaseSkill::ActivateSkill()
+{
+	Super::ActivateSkill();
+
+}
+
 void UGOKatnissBaseSkill::FinishCast()
 {
 	Super::FinishCast();
