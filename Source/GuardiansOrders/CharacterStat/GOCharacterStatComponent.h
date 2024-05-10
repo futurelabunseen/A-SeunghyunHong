@@ -59,6 +59,7 @@ public:
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
 
 	void HealHp();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerHealHp();
 

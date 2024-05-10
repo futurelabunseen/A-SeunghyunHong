@@ -212,7 +212,8 @@ void UGOSkillBase::PerformLineTraceSingle(const FGOSkillStat& Stats)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceSingle Called !"));
-
+	FColor TraceColor = HitDetected ? FColor::Red : FColor::Green;
+	DrawDebugLine(GetWorld(), Start, End, TraceColor, false, 5.0f, 0, 1.f);
 }
 
 
@@ -242,7 +243,8 @@ void UGOSkillBase::PerformLineTraceMulti(const FGOSkillStat& Stats)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceMulti Called !"));
-
+	FColor TraceColor = HitDetected ? FColor::Red : FColor::Green;
+	DrawDebugLine(GetWorld(), Start, End, TraceColor, false, 5.0f, 0, 1.f);
 }
 
 void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats)
@@ -270,7 +272,8 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats)
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called !"));
-
+	FColor TraceColor = HitDetected ? FColor::Red : FColor::Green;
+	DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats)
@@ -297,7 +300,8 @@ void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats)
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepMulti Called !"));
-
+	FColor TraceColor = HitDetected ? FColor::Red : FColor::Green;
+	DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats)
@@ -325,5 +329,8 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats)
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
-
+	FColor TraceColor = Overlaps.Num() > 0 ? FColor::Red : FColor::Green;
+	DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
 }
+
+// 스킬 객체마다 만들어줄 것!
