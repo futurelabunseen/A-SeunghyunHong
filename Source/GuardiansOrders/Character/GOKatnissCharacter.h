@@ -16,7 +16,7 @@ class GUARDIANSORDERS_API AGOKatnissCharacter : public AGOPlayerCharacter
 	GENERATED_BODY()
 
 public:
-	AGOKatnissCharacter();
+	AGOKatnissCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 

@@ -5,6 +5,7 @@
 #include "GuardiansOrders/GuardiansOrders.h"
 #include "UI/GOHUDWidget.h"
 #include "CommonActivatableWidget.h"
+#include "UI/SkillWidget/GOSkillSetBarWidget.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -73,7 +74,6 @@ void AGOPlayerController::BeginPlay()
             GOHUDWidget->AddToViewport();
         }
     }
-    
 }
 
 void AGOPlayerController::OnPossess(APawn* InPawn)
@@ -84,3 +84,9 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
 
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
+
+void AGOPlayerController::InitializeSkills()
+{
+
+}
+

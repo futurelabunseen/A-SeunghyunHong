@@ -15,7 +15,7 @@ class GUARDIANSORDERS_API AGONonPlayerCharacter : public AGOCharacterBase
 	GENERATED_BODY()
 	
 public:
-	AGONonPlayerCharacter();
+	AGONonPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	void SetDead() override;

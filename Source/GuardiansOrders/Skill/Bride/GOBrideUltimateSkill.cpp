@@ -15,32 +15,43 @@ void UGOBrideUltimateSkill::PostInitProperties()
 
 void UGOBrideUltimateSkill::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGOBrideUltimateSkill::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
+}
+
+void UGOBrideUltimateSkill::ActivateSkill()
+{
+	Super::ActivateSkill();
+
 }
 
 void UGOBrideUltimateSkill::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGOBrideUltimateSkill::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGOBrideUltimateSkill::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGOBrideUltimateSkill::IsCasting() const
-{
-	return false;
-}
-
-bool UGOBrideUltimateSkill::IsCastable() const
-{
-	return false;
-}
+//bool UGOBrideUltimateSkill::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGOBrideUltimateSkill::IsCastable() const
+//{
+//	return false;
+//}

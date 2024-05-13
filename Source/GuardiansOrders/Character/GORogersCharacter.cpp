@@ -3,8 +3,10 @@
 
 #include "GORogersCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
+#include "GOCharacterMovementComponent.h"
 
-AGORogersCharacter::AGORogersCharacter()
+AGORogersCharacter::AGORogersCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	bReplicates = true;
 }

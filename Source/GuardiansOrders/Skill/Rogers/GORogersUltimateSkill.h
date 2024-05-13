@@ -21,11 +21,12 @@ public:
 public:
 	virtual void StartCast() override;
 	virtual void UpdateCast(float DeltaTime) override;
+	virtual void ActivateSkill() override;
 	virtual void FinishCast() override;
 	virtual void InterruptedCast() override;
 	virtual void ActivateEffect() override;
-	virtual bool IsCasting() const override;
-	virtual bool IsCastable() const override;
+	//virtual bool IsCasting() const override;
+	//virtual bool IsCastable() const override;
 
 private:
 	//bool bIsCastable = false;

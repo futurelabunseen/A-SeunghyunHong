@@ -2,10 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h" 
+#include "Share/EGOSkill.h"
 #include "GOSkillStat.generated.h"
 
 USTRUCT(BlueprintType)
-struct FGOSkillStat : public FTableRowBase
+struct FGOSkillStat : public FTableRowBase // Row 이름을 뒤에 만들고... 커스텀 구조체를 보통FGOSkillStat 이런식으로 
 {
 	GENERATED_BODY()
 
@@ -15,9 +16,14 @@ public:
 		DamageRange(0.0f),
 		DamageRadius(0.0f),
 		DamageSpeed(0.0f),
-		CoolDownTime(0.f),
-		CastingTime(0.f),
-		ManaCost(0.0f) {}
+		CoolDownTime(0.0f),
+		CastingTime(0.0f),
+		ManaCost(0.0f),
+		AutoDetectionType(EAutoDetectionType::None),
+		DetectionRadius(200.0f),
+		DetectionDegree(45.0f),
+		SkillCollisionType(ESkillCollisionType::SweepSingle)
+		{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	float DamageMultiplier;
@@ -39,6 +45,18 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	float ManaCost;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
+	EAutoDetectionType AutoDetectionType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
+	float DetectionRadius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
+	float DetectionDegree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
+	ESkillCollisionType SkillCollisionType;
 
 	//FGOSkillStat operator+(const FGOSkillStat& Other) const
 	//{

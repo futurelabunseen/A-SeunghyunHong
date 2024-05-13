@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 ////////////////////////////////////////////////////////////////
-// EGOSkillCategory
+// ECharacterSkills 
 // 스킬의 활성화 방식입니다. (입력 구분)
 ////////////////////////////////////////////////////////////////
 
@@ -14,10 +14,10 @@
 	* PotionSkill:				포션 스킬				F키
 	* BuffSkill:				(TODO) 버프 스킬			숫자키
 */
-UENUM(BlueprintType)
-enum class EGOSkillCategory : uint8
+UENUM()
+enum class ECharacterSkills : uint8
 {
-	None UMETA(Hidden),
+	None = 0 UMETA(Hidden),
 
 	BaseSkill UMETA(DisplayName = "BaseSkill"),
 	Skill01 UMETA(DisplayName = "Skill01"),
@@ -30,6 +30,40 @@ enum class EGOSkillCategory : uint8
 	Max UMETA(Hidden)
 };
 
+////////////////////////////////////////////////////////////////
+// ECharacterSpells 
+// 스펠의 활성화 방식입니다. (입력 구분)
+////////////////////////////////////////////////////////////////
+
+/**
+	* Spell01:					스펠 1: Ghost				D키
+	* Spell02:					스펠 2: Heal					F키
+*/
+
+UENUM()
+enum class ECharacterSpells : uint8
+{
+	None = 0 UMETA(Hidden),
+
+	Spell01 UMETA(DisplayName = "Spell01"),
+	Spell02 UMETA(DisplayName = "Spell02"),
+	Spell03 UMETA(DisplayName = "Spell03"),
+
+	Max UMETA(Hidden)
+};
+
+
+UENUM()
+enum class ESpellType : uint8
+{
+	None = 0 UMETA(Hidden),
+
+	GOSpell_Flash UMETA(DisplayName = "GOSpell_Flash"),
+	GOSpell_Heal UMETA(DisplayName = "GOSpell_Heal"),
+	GOSpell_Ghost UMETA(DisplayName = "GOSpell_Ghost"),
+
+	Max UMETA(Hidden)
+};
 
 
 ///////////////////////////////////////////////////////////////////
@@ -100,3 +134,37 @@ enum class EAutoDetectionType : uint8
 	Radius = 1,
 	RadiusDegree = 2,
 };
+
+
+////////////////////////////////////////////////////////////////////////
+// ESkillState
+////////////////////////////////////////////////////////////////////////
+
+UENUM(BlueprintType)
+enum class ESkillState : uint8
+{
+	None UMETA(DisplayName = "None"),
+	ReadyToCast UMETA(DisplayName = "Ready to Cast"),
+	Casting UMETA(DisplayName = "Casting"),
+	CastCancelled UMETA(DisplayName = "Cast Cancelled"),
+	OnCooldown UMETA(DisplayName = "On Cooldown"),
+	NoMana UMETA(DisplayName = "No Mana"),
+	Max UMETA(Hidden)
+};
+
+////////////////////////////////////////////////////////////////////////
+// ESkillCollisionType
+////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class ESkillCollisionType : uint8
+{
+	LineTraceSingle   UMETA(DisplayName = "Line Trace Single"),
+	LineTraceMulti    UMETA(DisplayName = "Line Trace Multi"),
+	SweepSingle       UMETA(DisplayName = "Sweep Single"),
+	SweepMulti        UMETA(DisplayName = "Sweep Multi"),
+	OverlapMulti      UMETA(DisplayName = "Overlap Multi")
+};
+
+////////////////////////////////////////////////////////////////////////
+// FGOOutHitCollisionStructure
+////////////////////////////////////////////////////////////////////////

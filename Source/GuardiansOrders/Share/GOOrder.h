@@ -10,11 +10,11 @@ enum class FGOOrderType : uint8
 	None = 0,
 	Move,
 	Flash,
-	BaseSkill,
-	Skill1,
-	Skill2,
-	Skill3,
-	UltimateSkill
+	BaseSkill, // Skill LMB
+	Skill1, // Skill Q
+	Skill2, // Skill W
+	Skill3, // Skill E
+	UltimateSkill // Skill R
 };
 
 

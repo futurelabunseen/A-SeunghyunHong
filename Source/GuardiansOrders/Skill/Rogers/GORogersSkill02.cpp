@@ -15,32 +15,43 @@ void UGORogersSkill02::PostInitProperties()
 
 void UGORogersSkill02::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGORogersSkill02::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
 }
+
+void UGORogersSkill02::ActivateSkill()
+{
+	Super::ActivateSkill();
+}
+
 
 void UGORogersSkill02::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGORogersSkill02::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGORogersSkill02::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGORogersSkill02::IsCasting() const
-{
-	return false;
-}
-
-bool UGORogersSkill02::IsCastable() const
-{
-	return false;
-}
+//bool UGORogersSkill02::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGORogersSkill02::IsCastable() const
+//{
+//	return false;
+//}

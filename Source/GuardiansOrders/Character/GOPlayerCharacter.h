@@ -6,6 +6,7 @@
 #include "Character/GOCharacterBase.h"
 #include "Interface/GOCharacterHUDInterface.h"
 #include "Interface/GOPlaySkillAnimInterface.h"
+#include "Interface/GOSpellFlashInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -26,12 +27,12 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface
 {
 	GENERATED_BODY()
 	
 public:
-	AGOPlayerCharacter();
+	AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 
@@ -49,13 +50,13 @@ protected:
 
 // Data Section
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
-	UGOCharacterDataAsset* HeroDataAsset;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
+	//UGOCharacterDataAsset* HeroDataAsset;
 
-	EHeroType HeroType;
-	ERoleType RoleType;
-	EAttackRange AttackRange;
-	EArchetype Archetype;
+	//EHeroType HeroType;
+	//ERoleType RoleType;
+	//EAttackRange AttackRange;
+	//EArchetype Archetype;
 
 // Camera Section
 protected:
@@ -103,7 +104,13 @@ protected:
 	TObjectPtr<UInputAction> ActionSkillR;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ActionSkillF;	
+	TObjectPtr<UInputAction> ActionSpellD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionSpellF;	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ActionSpellG;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ActionShowMaxBasicAttackRange;
@@ -121,10 +128,18 @@ protected:
 	virtual void OnSkillW();
 	virtual void OnSkillE();
 	virtual void OnSkillR();
-	void OnSkillF();
+
+	/**
+	 * Flash Spell : 마우스 커서가 있는 쪽으로 짧은 순간이동이 가능합니다.
+	 */
+	void OnSpellD();
+	void OnSpellF();
+	void OnSpellG();	
 
 	// 최대 공격 사거리를 보여주는 콜백 함수입니다. 
 	void OnShowMaxBasicAttackRange();
+public:
+	void UpdateSkillBar();
 
 public:
 	// Time Threshold to know if it was a short press.
@@ -195,14 +210,29 @@ protected:
 	void PlayAttackAnimation();
 
 	/**
-	* 공격을 판정하는 함수입니다.
+	* IGOAnimationAttackInterface
+	* 공격을 판정하는 함수입니다. 
 	*/
 	virtual void AttackHitCheck() override;
+
+	// 새로 만든: 스킬시스템용 
+	virtual void SkillAttackHitCheck() override;
 
 	/**
 	* 공격을 확정합니다.
 	*/
 	void AttackHitConfirm(AActor* HitActor);
+
+	// 새로 만든: 스킬시스템용 
+	void AttackSkillHitConfirm(AActor* HitActor, float SkillDamage);
+
+	//void AttackHitConfirm(AActor* HitActor, float Damage);
+
+	//// LineTraceMulti 또는 SweepMulti에서 오는 여러 히트 결과 처리
+	//void AttackHitConfirm(const TArray<FHitResult>& HitResults, float Damage);
+
+	//// OverlapMulti에서 오는 여러 오버랩 결과 처리
+	//void AttackHitConfirm(const TArray<FOverlapResult>& OverlapResults, float Damage);
 
 	void DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 
@@ -216,14 +246,37 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCAttack(float AttackStartTime);
 
+	// 새로 만든: 스킬시스템용 
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCAttackNew(float AttackStartTime, UGOSkillBase* CurrentSkill);	
+	
+	// 새로 만든: 스킬시스템용 구조체
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCActivateSkill(float AttackStartTime, FHeroSkillKey Key);
+
 	/**
 	* 
 	*/
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttack();
+	void MulticastRPCAttack();	
+	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCAttackNew(UGOSkillBase* CurrentSkill);	
+	
+	// 새로 만든: 스킬시스템용 구조체
+	//UFUNCTION(NetMulticast, Unreliable)
+	//void MulticastRPCActivateSkil(FHeroSkillKey Key);
 
 	UFUNCTION(Client, Unreliable)
-	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);
+	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
+	
+	// 새로 만든: 스킬시스템용 
+	UFUNCTION(Client, Reliable)
+	void ClientRPCPlaySkillAnimation(AGOPlayerCharacter* CharacterToPlay, UGOSkillBase* CurrentSkill);
+	//
+	// 새로 만든: 스킬시스템용 구조체
+	UFUNCTION(Client, Reliable)
+	void ClientRPCActivateSkill(AGOPlayerCharacter* CharacterToPlay, FHeroSkillKey Key);
 	
 	/**
 	* 클라이언트가 무언가 액터에 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
@@ -236,6 +289,27 @@ protected:
 	*/
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifyMiss(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime);
+
+	/**
+	 * 새로 만든: 스킬시스템용 
+	 */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillMiss(float HitCheckTime);
+	
+	// 테스트용: 스킬시스템 FHitResult
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount);
+
+	// 테스트용: 스킬시스템 TArray<FHitResult>
+	UFUNCTION(Server, Reliable)
+	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount);
+
+	// 테스트용: 스킬시스템 TArray<FOverlapResult>
+	UFUNCTION(Server, Reliable)
+	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount);
 
 	/** 
 	* 현재 공격 중인가 ? 
@@ -268,7 +342,7 @@ protected:
 	* 공격 판정용 변수입니다.
 	* 공격자와 피격자 사이의 거리가 3미터 이내면 공격으로, 3미터 초과 시 기각합니다.
 	*/
-	float AcceptCheckDistance = 300.0f;
+	float AcceptCheckDistance = 500.0f;
 
 	/**
 	* 판정 최소 지연 시간
@@ -381,6 +455,27 @@ public:
 		return (ActionStateBitMask & EGOPlayerActionState::Died);
 	}
 
+
+	// TObjectPtr<class UAnimMontage> SkillAnimMontage;
+
+	void CheckActorNetworkStatus(AActor* ActorToCheck);
+
+	FName GetHeroTypeFName(EHeroType HeroType)
+	{
+		switch (HeroType)
+		{
+		case EHeroType::Rogers: return FName(TEXT("Rogers"));
+		case EHeroType::Katniss: return FName(TEXT("Katniss"));
+		case EHeroType::Beast: return FName(TEXT("Beast"));
+		case EHeroType::Bride: return FName(TEXT("Bride"));
+		default: return FName(TEXT("None"));
+		}
+	}
+
+// Camera Shake
+	UPROPERTY(EditAnywhere, Category="Combat")
+	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
+
 // ======== IGOPlaySkillAnimInterface ========
 
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
@@ -389,9 +484,20 @@ public:
 	}
 
 	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill);
+	virtual void PlaySkillAnimByKey(FHeroSkillKey Key);
 	//{
 	//	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 1 called. This function is inherited from GOPlaySkillAnimInterface. "));
 	//	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
 	//	
 	//}
+
+	// 새로 만든: 스킬시스템용 구조체
+	virtual void ActivateSkillByKey(FHeroSkillKey Key);
+
+	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
+
+// ======== IGOSpellFlashInterface ========
+	
+	virtual void ActivateSpellFlash();
+
 };

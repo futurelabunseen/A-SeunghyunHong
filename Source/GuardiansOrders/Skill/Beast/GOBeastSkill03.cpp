@@ -15,32 +15,43 @@ void UGOBeastSkill03::PostInitProperties()
 
 void UGOBeastSkill03::StartCast()
 {
-	SetCoolDownTimer();
-	bIsCasting = true;
+	//SetCoolDownTimer();
+	//bIsCasting = true;
+	Super::StartCast();
 }
 
 void UGOBeastSkill03::UpdateCast(float DeltaTime)
 {
+	Super::UpdateCast(DeltaTime);
+}
+
+void UGOBeastSkill03::ActivateSkill()
+{
+	Super::ActivateSkill();
+
 }
 
 void UGOBeastSkill03::FinishCast()
 {
+	Super::FinishCast();
 }
 
 void UGOBeastSkill03::InterruptedCast()
 {
+	Super::InterruptedCast();
 }
 
 void UGOBeastSkill03::ActivateEffect()
 {
+	Super::ActivateEffect();
 }
 
-bool UGOBeastSkill03::IsCasting() const
-{
-	return false;
-}
-
-bool UGOBeastSkill03::IsCastable() const
-{
-	return false;
-}
+//bool UGOBeastSkill03::IsCasting() const
+//{
+//	return false;
+//}
+//
+//bool UGOBeastSkill03::IsCastable() const
+//{
+//	return false;
+//}

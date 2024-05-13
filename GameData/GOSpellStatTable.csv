@@ -1,0 +1,4 @@
+﻿Name,DamageMultiplier,DamageRange,DamageRadius,DamageSpeed,CoolDownTime,MoveSpeedMultiplier,HealAmount
+GOSpell_Ghost,,,,,120,,
+GOSpell_Heal,,,,,130,,
+GOSpell_Flash,,,,,140,,

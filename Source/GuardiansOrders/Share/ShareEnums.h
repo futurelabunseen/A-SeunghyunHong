@@ -24,8 +24,21 @@ enum class EHeroType : uint8
     Katniss UMETA(DisplayName = "Katniss"),
     Beast UMETA(DisplayName = "Beast"),
     Bride UMETA(DisplayName = "Bride"),
+    Max UMETA(Hidden)
+
 };
 
+//FName GetHeroTypeFName(EHeroType HeroType)
+//{
+//    switch (HeroType)
+//    {
+//        case EHeroType::Rogers: return FName(TEXT("Rogers"));
+//        case EHeroType::Katniss: return FName(TEXT("Katniss"));
+//        case EHeroType::Beast: return FName(TEXT("Beast"));
+//        case EHeroType::Bride: return FName(TEXT("Bride"));
+//        default: return FName(TEXT("None"));
+//    }
+//}
 
 /////////////////////////////////////////////////////////////////
 // 캐릭터 관련 정보 : 데이터 애셋에서 지정합니다. 

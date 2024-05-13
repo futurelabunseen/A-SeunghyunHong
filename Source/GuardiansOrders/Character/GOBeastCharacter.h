@@ -16,7 +16,7 @@ class GUARDIANSORDERS_API AGOBeastCharacter : public AGOPlayerCharacter
 	GENERATED_BODY()
 
 public:
-	AGOBeastCharacter();
+	AGOBeastCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 

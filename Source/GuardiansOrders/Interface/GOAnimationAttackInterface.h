@@ -23,4 +23,5 @@ class GUARDIANSORDERS_API IGOAnimationAttackInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void AttackHitCheck() = 0;
+	virtual void SkillAttackHitCheck() = 0;
 };

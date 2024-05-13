@@ -1,14 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Skill/GOSkillBase.h"
+#include "GameData/GOGameSubsystem.h"
 #include "GOSkillCastComponent.generated.h"
-
-
-class GOSkillCastComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOSkillCastComponent : public UActorComponent
@@ -26,33 +24,47 @@ public:
 
 public:
 	/**
-	  * ½ºÅ³ÀÌ ½ÃÀÛµÉ ¶§ ¹ß»ıÇÏ´Â ÀÌº¥Æ®¸¦ Ã³¸®ÇÕ´Ï´Ù.
+	  * ìŠ¤í‚¬ì´ ì‹œì‘ë  ë•Œ ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
 	  */
-	void OnStartCast(UGOSkillBase* InSkillInstance);
-
+	void OnStartCast(FHeroSkillKey Key);
+	
 	/**
-	  * ½ºÅ³ÀÌ È°¼ºÈ­µÇ´Â µ¿¾È °è¼ÓÇØ¼­ ¹ß»ıÇÏ´Â ÀÌº¥Æ®¸¦ Ã³¸®ÇÕ´Ï´Ù.
+	  * ìŠ¤í‚¬ì´ í™œì„±í™”ë˜ëŠ” ë™ì•ˆ ê³„ì†í•´ì„œ ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
 	  */
 	void OnUpdateCast(float DeltaTime);
 
 	/**
-	  * ½ºÅ³ »ç¿ëÀÌ ¿Ï·áµÇ¾úÀ» ¶§ ¹ß»ıÇÏ´Â ÀÌº¥Æ®¸¦ Ã³¸®ÇÕ´Ï´Ù.
+	  * ìŠ¤í‚¬ ì‚¬ìš©ì´ ì™„ë£Œë˜ì—ˆì„ ë•Œ ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
 	  */
 	void OnFinishCast();
 
 	/**
-	  * ½ºÅ³ÀÌ Áß´ÜµÉ ¶§ ¹ß»ıÇÏ´Â ÀÌº¥Æ®¸¦ Ã³¸®ÇÕ´Ï´Ù.
+	  * ìŠ¤í‚¬ì´ ì¤‘ë‹¨ë  ë•Œ ë°œìƒí•˜ëŠ” ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
 	  */
 	void OnInterruptCast();
 
+	void UpdateCoolDownTime(float DeltaTime);
+
+public:
+	// ì˜¤í† íƒ€ê²ŸíŒ…
+	TObjectPtr<class AGOCharacterBase> DetectClosestTarget(float Radius);
+	TObjectPtr<AGOCharacterBase> DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree);
+
+	// í˜„ì¬ ìŠ¤í‚¬ Get, Set
+	void SetCurrentSkillByKey(FHeroSkillKey Key);
+	void SetCurrentSkillKey(FHeroSkillKey Key);
+	TObjectPtr<UGOSkillBase> GetCurrentSkill();
+	FHeroSkillKey GetCurrentSkillKey();
+
 private:
-	//  ÇöÀç Ä³½ºÆÃ ÁßÀÎÁöÀÇ ¿©ºÎ 
+	//  í˜„ì¬ ìºìŠ¤íŒ… ì¤‘ì¸ì§€ì˜ ì—¬ë¶€ 
 	bool bIsOnCasting = false;
 
 	TObjectPtr<UGOSkillBase> CurrentSkill;
-
+	FHeroSkillKey SkillKey;
+	float CastDownTimer = 0.f;
 };
 
 /*
-EGOSkillType¿¡ µû¶ó ´Ù¸£°Ô Ã³¸®
+EGOSkillTypeì— ë”°ë¼ ë‹¤ë¥´ê²Œ ì²˜ë¦¬
 */

@@ -7,6 +7,7 @@
 #include "GOPlayerController.generated.h"
 
 class UGOHUDWidget;
+class UGOSkillSetBarWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
@@ -39,4 +40,14 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=HUD)
 	TObjectPtr<UGOHUDWidget> GOHUDWidget;
+
+
+// ======== SkillSetBar UI ======== 
+protected:
+	// SkillSetBar Widget 인스턴스
+	UPROPERTY()
+	TObjectPtr<UGOSkillSetBarWidget> SkillSetBarWidget;
+
+public:
+	void InitializeSkills();
 };

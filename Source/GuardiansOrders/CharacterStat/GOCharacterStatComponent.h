@@ -17,6 +17,9 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnManaChangedDelegate, float /*CurrnetMana
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatChangedDelegate, const FGOCharacterStat& /*BaseStat*/, const FGOCharacterStat& /*ModifierStat*/);
 
+// For Skill Slot Widget
+DECLARE_MULTICAST_DELEGATE_OneParam(FUGOCharacterStatComponentOnManaChangedDelegate, float /*CurrnetMana*/);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOCharacterStatComponent : public UActorComponent
 {
@@ -24,6 +27,7 @@ class GUARDIANSORDERS_API UGOCharacterStatComponent : public UActorComponent
 
 public:	
 	UGOCharacterStatComponent();
+	FUGOCharacterStatComponentOnManaChangedDelegate UGOCharacterStatComponentOnManaChangedDelegate;
 
 protected:
 	virtual void InitializeComponent() override;
@@ -53,7 +57,11 @@ public:
 	FORCEINLINE FGOCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
-	FORCEINLINE void HealHp() { CurrentHp = FMath::Clamp(CurrentHp + CurrentHp*0.2, 0, GetTotalStat().MaxHp); OnHpChanged.Broadcast(CurrentHp, MaxHp); }
+
+	void HealHp();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerHealHp();
 
 	// 내 캐릭터가 대미지를 받으면 적용하는 함수입니다.
 	float ApplyDamage(float InDamage);
@@ -67,9 +75,6 @@ public:
 	FORCEINLINE float GetMaxBasicAttackRange() const { return BaseStat.MaxBasicAttackRange; }
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterStatDataTable;
-
 	// called when hp is changed
 	void SetHp(float NewHp);
 

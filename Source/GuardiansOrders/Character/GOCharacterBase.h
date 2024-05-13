@@ -8,7 +8,9 @@
 #include "Interface/GOCharacterWidgetInterface.h"
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
-#include "Skill/GOSkillBase.h"
+// #include "Skill/GOSkillBase.h"
+#include "Skill/Slots/GOSkills.h"
+#include "Skill/Slots/GOSpells.h"
 #include "GOCharacterBase.generated.h"
 
 class UGOCharacterStatComponent;
@@ -17,6 +19,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UGOUserWidget;
 class UGOSkillCastComponent;
+class UGOSpellCastComponent;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
@@ -24,84 +27,29 @@ class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOAnimat
 	GENERATED_BODY()
 	
 public:
-	AGOCharacterBase();
+	AGOCharacterBase(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 
-protected:
+public:
 	virtual void BeginPlay() override;
 
 // Data Section
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	void SetData(FName InCharacterName);
-
-	UFUNCTION(BlueprintCallable, Category = "Character")
-	void SetCharacterStatData(FName InCharacterName);
-
-	// 개별 스킬 데이터를 설정합니다.
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	void SetBaseSkillData(FName InSkillName);
-
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	void SetSkillDataQ(FName InSkillName);
-
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	void SetSkillDataW(FName InSkillName);
-
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	void SetSkillDataE(FName InSkillName);
-
-	UFUNCTION(BlueprintCallable, Category = "Skills")
-	void SetSkillDataR(FName InSkillName);
+	TObjectPtr<UGOCharacterStatComponent> GetStatComponent() { return Stat; }
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterDataTable;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Data")
-	UDataTable* CharacterStatDataTable;
-
 	FGOCharacterData CharacterData;
 
 	FGOCharacterStat CharacterStat;
 
-	// 스킬 클래스 정보
+	// Skills, SkillSlot 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> BaseSkillClass;
-
+	TObjectPtr<UGOSkills> CharacterSkillSet;
+	// Spells
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillQClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillWClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillEClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TSubclassOf<UGOSkillBase> SkillRClass;
-
-	// 스킬 인스턴스
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkillBase> BaseSkillInstance;	
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkillBase> SkillQInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkillBase> SkillWInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkillBase> SkillEInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Skills")
-	TObjectPtr<UGOSkillBase> SkillRInstance;
-
-// Skill Slot Section
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SkillSlot)
-	TArray<UGOSkillBase*> SkillSlot;
-
-	const int32 SKILLSOT_CAPACITY{ 5 };
+	TObjectPtr<UGOSpells> CharacterSpellSet;
 
 // Stat Section
 protected:
@@ -109,6 +57,7 @@ protected:
 	TObjectPtr<UGOCharacterStatComponent> Stat;
 
 	void ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
+
 
 // UI Widget Section
 protected:
@@ -129,14 +78,16 @@ protected:
 // Attack Hit Section
 protected:
 	virtual void AttackHitCheck() override;
+	virtual void SkillAttackHitCheck() override;
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 // Skill Action Section
 protected:
 	UGOSkillCastComponent* SkillCastComponent;
+	UGOSpellCastComponent* SpellCastComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> ComboActionMontage;
+	TObjectPtr<class UAnimMontage> ComboActionMontage;	
 
 	void ProcessComboCommand();
 

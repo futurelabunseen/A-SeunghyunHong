@@ -2,10 +2,10 @@
 
 
 #include "GOCharacterStatComponent.h"
-#include "GameData/GOGameSingleton.h"
 #include "GameData/GOGameSubsystem.h"
 #include "Net/UnrealNetwork.h"
 #include "GuardiansOrders/GuardiansOrders.h"
+#include <Kismet/GameplayStatics.h>
 
 UGOCharacterStatComponent::UGOCharacterStatComponent()
 {
@@ -15,12 +15,6 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 
 	// 액터 컴포넌트 리플리케이트
 	SetIsReplicated(true);
-
-	ConstructorHelpers::FObjectFinder<UDataTable> CharacterStatDataObj(TEXT("DataTable'/Game/GameData/CharacterStatDataTable/GOCharacterStatTable.GOCharacterStatTable'"));
-	if (CharacterStatDataObj.Succeeded())
-	{
-		CharacterStatDataTable = CharacterStatDataObj.Object;
-	}
 }
 
 void UGOCharacterStatComponent::InitializeComponent()
@@ -34,40 +28,40 @@ void UGOCharacterStatComponent::InitializeComponent()
 
 void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 {
-	static const FString ContextString(TEXT("Character Stat Data Lookup"));
-	if (!CharacterStatDataTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CharacterStatDataTable is not initialized."));
-		return;
-	}
-	FGOCharacterStat* CharacterStatDataRow = CharacterStatDataTable->FindRow<FGOCharacterStat>(InCharacterName, ContextString);
-	if (CharacterStatDataRow)
-	{
-		SetBaseStat(*CharacterStatDataRow);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
-	}
-	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, UGOGameSingleton::Get().CharacterMaxCnt);
-	//SetBaseStat(UGOGameSingleton::Get().GetCharacterStat(CurrentCharacterType));
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
 
-	//UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
-	//if (!GameSubsystem)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("GameSubsystem이 유효하지 않습니다."));
-	//	return;
-	//}
-	//CurrentCharacterType = FMath::Clamp(InNewCharacterType, 1, GameSubsystem->CharacterMaxCnt);
-	//SetBaseStat(GameSubsystem->GetCharacterStat(CurrentCharacterType));
-	//if (!(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f))
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("Character stats for type %d are not initialized properly."), CurrentCharacterType);
-	//	// Set default or fallback values
-	//	BaseStat.MaxHp = 100.0f;  // Default value if not set
-	//	BaseStat.MaxMana = 100.0f;  // Default value if not set
-	//}
-	//check(BaseStat.MaxHp > 0.0f && BaseStat.MaxMana > 0.0f);
+	// Retrieve the subsystem from the game instance.
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	if (GOGameInstance)
+	{
+		FGOCharacterStat* CharacterStatDataRow = GOGameInstance->GetCharacterStatData(InCharacterName);
+		if (CharacterStatDataRow)
+		{
+			SetBaseStat(*CharacterStatDataRow);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Character stats not found for %s."), *InCharacterName.ToString());
+		}
+	}
+}
+
+void UGOCharacterStatComponent::HealHp()
+{
+	CurrentHp = FMath::Clamp(CurrentHp + CurrentHp * 0.2, 0, GetTotalStat().MaxHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+}
+
+void UGOCharacterStatComponent::ServerHealHp_Implementation()
+{
+	HealHp();
+	UE_LOG(LogTemp, Log, TEXT("ServerHealHp_Implementation "));
+}
+
+bool UGOCharacterStatComponent::ServerHealHp_Validate()
+{
+	return true;  // 추가적인 유효성 검사 로직이 필요할 경우 이곳에 구현
 }
 
 float UGOCharacterStatComponent::ApplyDamage(float InDamage)
@@ -102,6 +96,11 @@ void UGOCharacterStatComponent::SetMana(float NewMana)
 {
 	CurrentMana = FMath::Clamp<float>(NewMana, 0.0f, MaxMana);
 	OnManaChanged.Broadcast(CurrentMana, MaxMana);
+
+	// for Skill Slot Widget
+	UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
+	UE_LOG(LogTemp, Warning, TEXT("[UGOCharacterStatComponent::SetMana] CurrentMana is  %f"), CurrentMana);
+
 }
 
 void UGOCharacterStatComponent::SetHp(float NewHp)
@@ -163,6 +162,7 @@ void UGOCharacterStatComponent::RegenerateHp()
 	{
 		CurrentHp = FMath::Min(CurrentHp + BaseStat.HpRegenerationRate, MaxHp);
 		OnHpChanged.Broadcast(CurrentHp, MaxHp);
+		UE_LOG(LogTemp, Warning, TEXT("[debuggung] RegenerateHp() called ended"));
 	}
 }
 
@@ -172,18 +172,22 @@ void UGOCharacterStatComponent::RegenerateMana()
 	{
 		CurrentMana = FMath::Min(CurrentMana + BaseStat.ManaRegenerationRate, MaxMana);
 		OnManaChanged.Broadcast(CurrentMana, MaxMana);
+		UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
 	}
 }
 
 void UGOCharacterStatComponent::OnRep_CurrentHp()
 {
 	GO_SUBLOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+	UE_LOG(LogTemp, Warning, TEXT("[debuggung] OnRep_CurrentHP() called CurrentHp: %d"), CurrentHp);
 
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 	if (CurrentHp <= KINDA_SMALL_NUMBER)
 	{
 		OnHpZero.Broadcast();
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[debuggung] OnRep_CurrentHP() called ended CurrentHp: %d"), CurrentHp);
+
 }
 
 void UGOCharacterStatComponent::OnRep_MaxHp()

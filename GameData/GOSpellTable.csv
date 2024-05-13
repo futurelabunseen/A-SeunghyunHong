@@ -1,0 +1,4 @@
+Name,SpellStatName,SpellName,Description,SpellTriggerType,SpellEffectType,SpellAnim,SpellEffectAsset,SpellIcon
+GOSpell_Ghost,GOSpell_Ghost,Ghost,,,,,,
+GOSpell_Heal,GOSpell_Heal,Heal,,,,,,
+GOSpell_Flash,GOSpell_Flash,Flash,,,,,,
