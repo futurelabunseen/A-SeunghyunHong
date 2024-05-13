@@ -734,19 +734,16 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 		ESkillCollisionType CurrentSkillCollisionType = CurrentSkill->GetSkillCollisionType();
 		float SkillDamage = CurrentSkill->GetTotalSkillStat().DamageMultiplier * Stat->GetTotalStat().BaseDamage;
 
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SkillAttackHitCheck DamageMultiplier Hit: %f"), CurrentSkill->GetTotalSkillStat().DamageMultiplier);
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SkillAttackHitCheck BaseDamage Hit: %f"), Stat->GetTotalStat().BaseDamage);
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SkillAttackHitCheck SkillDamage Hit: %f"), SkillDamage);
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SkillAttackHitCheck CurrentSkillCollisionType Hit: %d"), CurrentSkillCollisionType);
-		
 		// 공격한 시간
 		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
+		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE case ESkillCollisionType::OverlapMulti:"));
 
 		// 클라이언트에서 진행 (판정에 대한 검증을 받아야 하므로 패킷 전송 필요)
 		if (!HasAuthority())
 		{
 			if (HitDetected)
 			{
+				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE 222 case ESkillCollisionType::OverlapMulti:"));
 
 				AActor* HitActor = nullptr;
 				switch (CurrentSkillCollisionType)
@@ -756,7 +753,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					if (IsValid(HitActor)) {
 						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillDamage);
 						ServerRPCNotifySkillHitTest(OutHitResult, SkillDamage);
-						//ServerRPCNotifySkillHit(SkillHitCollisionStructure, HitCheckTime, ESkillCollisionType::LineTraceSingle, SkillDamage);
 					}
 					break;
 
@@ -768,8 +764,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = HitResult.GetActor();
 						if (IsValid(HitActor)) {
 							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillDamage);
-							
-							//ServerRPCNotifySkillHit(SkillHitCollisionStructure, HitCheckTime, ESkillCollisionType::LineTraceMulti, SkillDamage);
 						}
 					}
 					break;
@@ -783,10 +777,8 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 					if (HitActor != nullptr) {
 						UE_LOG(LogTemp, Warning, TEXT("Hit: 5555 sweep single"));
-						// AttackSkillHitConfirm(HitActor, SkillDamage);
 						 ServerRPCNotifySkillHitTest(OutHitResult, SkillDamage);
 						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillDamage);
-						// ServerRPCNotifySkillHit(SkillHitCollisionStructure, HitCheckTime, ESkillCollisionType::SweepSingle, SkillDamage);
 					}
 					break;
 
@@ -798,13 +790,12 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = HitResult.GetActor();
 						if (IsValid(HitActor)) {
 							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillDamage);
-							
-							//ServerRPCNotifySkillHit(SkillHitCollisionStructure, HitCheckTime, ESkillCollisionType::SweepMulti, SkillDamage);
 						}
 					}
 					break;
 
 				case ESkillCollisionType::OverlapMulti:
+					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] case ESkillCollisionType::OverlapMulti:"));
 
 					ServerRPCNotifySkillHitOverlapResult(OutOverlaps, SkillDamage);
 
@@ -812,8 +803,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = OverlapResult.GetActor();
 						if (IsValid(HitActor)) {
 							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillDamage);
-							
-							//ServerRPCNotifySkillHit(SkillHitCollisionStructure, HitCheckTime, ESkillCollisionType::OverlapMulti, SkillDamage);
 						}
 					}
 					break;
@@ -840,23 +829,15 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 			if (HitDetected)
 			{
-				///AttackHitConfirm(OutHitResult.GetActor());
-				// AttackSkillHitConfirm(HitActor, SkillDamage);
 				AActor* HitActor = nullptr;
 				switch (CurrentSkillCollisionType)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] Hit: 222222"));
-
-					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] CurrentSkillCollisionType Hit: %d"), CurrentSkillCollisionType);
-
 				case ESkillCollisionType::LineTraceSingle:
 					HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
 					if (IsValid(HitActor)) {
-						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle Hit: %s"), *HitActor->GetName());
+						AttackSkillHitConfirm(HitActor, SkillDamage);
+						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillDamage);
 					}
-					AttackSkillHitConfirm(HitActor, SkillDamage);
-					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillDamage);
-
 					break;
 
 				case ESkillCollisionType::LineTraceMulti:
@@ -892,7 +873,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					for (const FOverlapResult& OverlapResult : SkillHitCollisionStructure.OutOverlaps) {
 						HitActor = OverlapResult.GetActor();
 						if (IsValid(HitActor)) {
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit 00: %s, %d"), *HitActor->GetName(), SkillDamage);
 							AttackSkillHitConfirm(HitActor, SkillDamage);
 							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillDamage);
 						}
@@ -938,64 +918,18 @@ void AGOPlayerCharacter::AttackSkillHitConfirm(AActor* HitActor, float SkillDama
 	if (HasAuthority())
 	{
 		FDamageEvent DamageEvent;
-		HitActor->TakeDamage(SkillDamage, DamageEvent, GetController(), this); //?
+		HitActor->TakeDamage(SkillDamage, DamageEvent, GetController(), this);
 		UE_LOG(LogTemp, Warning, TEXT("ServerRPCNotifySkillHit_Implementation !!!  SkillDamage: %f"), SkillDamage);
 	}
 
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-//void AGOPlayerCharacter::AttackHitConfirm(AActor* HitActor, float Damage)
-//{
-//	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-//
-//	if (HasAuthority())
-//	{
-//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
-//		FDamageEvent DamageEvent;
-//		HitActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this); //?
-//	}
-//}
-//
-//void AGOPlayerCharacter::AttackHitConfirm(const TArray<FHitResult>& HitResults, float Damage)
-//{
-//	if (HasAuthority())
-//	{
-//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
-//		FDamageEvent DamageEvent;
-//		for (const FHitResult& Hit : HitResults)
-//		{
-//			if (AActor* HitActor = Hit.GetActor())
-//			{
-//				HitActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this);
-//			}
-//		}
-//	}
-//}
-//
-//void AGOPlayerCharacter::AttackHitConfirm(const TArray<FOverlapResult>& OverlapResults, float Damage)
-//{
-//	if (HasAuthority())
-//	{
-//		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
-//		FDamageEvent DamageEvent;
-//		for (const FOverlapResult& Overlap : OverlapResults)
-//		{
-//			if (AActor* OverlappedActor = Overlap.GetActor())
-//			{
-//				OverlappedActor->TakeDamage(BaseDamage, DamageEvent, GetController(), this);
-//			}
-//		}
-//	}
-//}
-
 void AGOPlayerCharacter::DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward)
 {
 #if ENABLE_DRAW_DEBUG
 	const float DamageRange = Stat->GetTotalStat().DamageRange;
 	const float DamageRadius = Stat->GetTotalStat().DamageRadius;
-	// const float AttackRadius = Stat->GetAttackRadius();
-
 	FVector CapsuleOrigin = TraceStart + (TraceEnd - TraceStart) * 0.5f;
 	float CapsuleHalfHeight = DamageRange * 0.5f;
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DamageRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.0f);
@@ -1056,7 +990,6 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 			UGOSkillBase* ActiveSkill = SkillCastComponent->GetCurrentSkill();
 			// 대미지 전달
 			AttackHitConfirm(HitActor);
-			//AttackHitConfirm(HitActor, (ActiveSkill->GetTotalSkillStat().DamageMultiplier) * (Stat->GetTotalStat().BaseDamage));
 		}
 		else
 		{
@@ -1115,12 +1048,6 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHit_Implementation(const FGOOutHitC
 		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepSingle!!! 000"));
 
 		HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
-		if (HitActor != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepSingle!!! 111 HitActor: %s"), *HitActor->GetName());
-
-		}
-
 		if (HitActor != nullptr) {
 			AttackSkillHitConfirm(HitActor, DamageAmount);
 			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepSingle!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
@@ -1232,10 +1159,13 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TAr
 void AGOPlayerCharacter::ServerRPCNotifySkillHitOverlapResult_Implementation(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount)
 {
 	AActor* HitActor = nullptr;
+	UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitOverlapResult_Implementation 000 Hit: %f"), DamageAmount);
 
 	for (const FOverlapResult& OverlapResult : FOverlapResults) {
 		HitActor = OverlapResult.GetActor();
 		if (IsValid(HitActor)) {
+			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitOverlapResult_Implementation 111 Hit: %s"), *HitActor->GetName());
+
 			AttackSkillHitConfirm(HitActor, DamageAmount);
 			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), DamageAmount);
 		}

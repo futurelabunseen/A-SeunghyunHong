@@ -314,7 +314,8 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	Params.AddIgnoredActor(OwnerActor);
 
 	// TArray<FOverlapResult> Overlaps;
-	if (OwnerActor->GetWorld()->OverlapMultiByChannel(OutOverlaps, Location, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape, Params))
+	HitDetected = OwnerActor->GetWorld()->OverlapMultiByChannel(OutOverlaps, Location, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape, Params);
+	if (HitDetected)
 	{
 		for (const FOverlapResult& Overlap : OutOverlaps)
 		{
