@@ -594,6 +594,7 @@ void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGOPlayerCharacter, bCanAttack);
+	DOREPLIFETIME(AGOPlayerCharacter, NetRotation);
 
 	DOREPLIFETIME(AGOPlayerCharacter, ActionStateBitMask);
 
@@ -1589,6 +1590,25 @@ void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
 
 	// 서버에게 명령을 보냅니다.
 	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), CurrentSkill);
+}
+
+void AGOPlayerCharacter::OnRep_Rotation()
+{
+	SetActorRotation(NetRotation);
+}
+
+bool AGOPlayerCharacter::ServerSetRotation_Validate(FRotator NewRotation)
+{
+	return true;
+}
+
+void AGOPlayerCharacter::ServerSetRotation_Implementation(FRotator NewRotation)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		NetRotation = NewRotation;
+		OnRep_Rotation(); // 동기화를 위해 직접 호출
+	}
 }
 
 // ======== IGOSpellFlashInterface ========

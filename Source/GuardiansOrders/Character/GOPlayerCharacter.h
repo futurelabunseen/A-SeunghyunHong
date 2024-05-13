@@ -476,6 +476,17 @@ public:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
 
+// Rotation
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_Rotation)
+	FRotator NetRotation;
+
+	UFUNCTION()
+	void OnRep_Rotation();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetRotation(FRotator NewRotation);
+
 // ======== IGOPlaySkillAnimInterface ========
 
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
