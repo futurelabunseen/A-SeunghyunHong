@@ -52,6 +52,7 @@ public:
 
 	// 현재 스킬 Get, Set
 	void SetCurrentSkillByKey(FHeroSkillKey Key);
+	void SetCurrentSkillKey(FHeroSkillKey Key);
 	TObjectPtr<UGOSkillBase> GetCurrentSkill();
 	FHeroSkillKey GetCurrentSkillKey();
 

@@ -50,7 +50,7 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
 
-	SkillKey = Key;
+	SetCurrentSkillKey(Key);
 	SetCurrentSkillByKey(SkillKey);
 
 	// If there is an active skill with a running cooldown, end it safely
@@ -140,7 +140,7 @@ void UGOSkillCastComponent::OnFinishCast()
 	}
 	CurrentSkill->ActivateEffect();
 	CurrentSkill->FinishCast();  // 스킬의 완료 로직 실행
-	CurrentSkill = nullptr;
+	//CurrentSkill = nullptr;
 	bIsOnCasting = false;
 	CastDownTimer = 0.f;
 	//GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, false);  // Cast 상태 비활성화
@@ -242,6 +242,11 @@ void UGOSkillCastComponent::SetCurrentSkillByKey(FHeroSkillKey Key)
 	CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
 }
 
+void UGOSkillCastComponent::SetCurrentSkillKey(FHeroSkillKey Key)
+{
+	SkillKey = Key;
+}
+
 TObjectPtr<UGOSkillBase> UGOSkillCastComponent::GetCurrentSkill()
 {
 	return CurrentSkill;
@@ -249,5 +254,5 @@ TObjectPtr<UGOSkillBase> UGOSkillCastComponent::GetCurrentSkill()
 
 FHeroSkillKey UGOSkillCastComponent::GetCurrentSkillKey()
 {
-	return FHeroSkillKey();
+	return SkillKey;
 }

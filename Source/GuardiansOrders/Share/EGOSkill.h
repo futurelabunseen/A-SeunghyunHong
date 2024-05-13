@@ -15,7 +15,7 @@
 	* BuffSkill:				(TODO) 버프 스킬			숫자키
 */
 UENUM()
-enum class ECharacterSkills : uint32
+enum class ECharacterSkills : uint8
 {
 	None = 0 UMETA(Hidden),
 
@@ -164,3 +164,7 @@ enum class ESkillCollisionType : uint8
 	SweepMulti        UMETA(DisplayName = "Sweep Multi"),
 	OverlapMulti      UMETA(DisplayName = "Overlap Multi")
 };
+
+////////////////////////////////////////////////////////////////////////
+// FGOOutHitCollisionStructure
+////////////////////////////////////////////////////////////////////////

@@ -13,8 +13,8 @@ void UAnimNotify_AttackHitCheck::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		IGOAnimationAttackInterface* AttackPawn = Cast<IGOAnimationAttackInterface>(MeshComp->GetOwner());
 		if (AttackPawn)
 		{
-			AttackPawn->AttackHitCheck();
-			// AttackPawn->SkillAttackHitCheck();
+			// AttackPawn->AttackHitCheck();
+			AttackPawn->SkillAttackHitCheck();
 		}
 	}
 	FString ClassName = GetName();

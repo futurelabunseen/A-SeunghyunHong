@@ -10,7 +10,6 @@
 #include "GameData/GOSkillData.h"
 #include "Delegates/Delegate.h"
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
-// #include "Character/GOCharacterBase.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -18,6 +17,15 @@ class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
 class AGOCharacterBase;
+
+USTRUCT()
+struct FGOOutHitCollisionStructure {
+	GENERATED_BODY()
+
+	FHitResult OutHitResult;
+	TArray<FHitResult> OutHitResults;
+	TArray<FOverlapResult> OutOverlaps;
+};
 
 // DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
 DECLARE_MULTICAST_DELEGATE_OneParam(UGOSkillBaseFIsOnCooldown, bool);
@@ -46,6 +54,9 @@ public:
 	bool IsCasting() const { return bIsCasting; };
 	//virtual bool IsCastable() const { return CoolDownTimer <= 0; }
 	//bool IsCasting() const { return bIsOnCasting; }
+	
+	FGOOutHitCollisionStructure OutHitCollisionStruct;
+	FGOOutHitCollisionStructure& GetOutHitCollisionStructure() { return OutHitCollisionStruct; }
 
 public:
 	/**
@@ -114,11 +125,11 @@ public:
 	ESkillCollisionType GetSkillCollisionType() const { return GetTotalSkillStat().SkillCollisionType; }
 
 	void ExecuteSkill(ESkillCollisionType SkillCollisionType);
-	void PerformLineTraceSingle(const FGOSkillStat& Stats);
-	void PerformLineTraceMulti(const FGOSkillStat& Stats);
-	void PerformSweepSingle(const FGOSkillStat& Stats);
-	void PerformSweepMulti(const FGOSkillStat& Stats);
-	void PerformOverlapMulti(const FGOSkillStat& Stats);
+	void PerformLineTraceSingle(const FGOSkillStat& Stats, FHitResult& OutHitResult);
+	void PerformLineTraceMulti(const FGOSkillStat& Stats, TArray<FHitResult>& OutHitResults);
+	void PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& OutHitResult);
+	void PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResult>& OutHitResults);
+	void PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverlapResult>& OutOverlaps);
 
 	FORCEINLINE bool GetHitDetected() { return HitDetected; }
 
@@ -132,8 +143,6 @@ protected:
 
 	// 스킬 소유자에 대한 참조입니다.
 	TObjectPtr<AActor> SkillOwnerCharacter;
-	// 스킬의 피격자가 될 캐릭터에 대한 참조입니다.
-	TObjectPtr<AActor> SkillTargetCharacter;
 
 	// Data Section
 public:

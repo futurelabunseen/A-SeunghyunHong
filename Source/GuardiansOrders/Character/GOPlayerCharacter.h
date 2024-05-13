@@ -214,12 +214,17 @@ protected:
 	* 공격을 판정하는 함수입니다. 
 	*/
 	virtual void AttackHitCheck() override;
-	// virtual void SkillAttackHitCheck() override;
+
+	// 새로 만든: 스킬시스템용 
+	virtual void SkillAttackHitCheck() override;
 
 	/**
 	* 공격을 확정합니다.
 	*/
 	void AttackHitConfirm(AActor* HitActor);
+
+	// 새로 만든: 스킬시스템용 
+	void AttackSkillHitConfirm(AActor* HitActor, float SkillDamage);
 
 	//void AttackHitConfirm(AActor* HitActor, float Damage);
 
@@ -285,6 +290,27 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifyMiss(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime);
 
+	/**
+	 * 새로 만든: 스킬시스템용 
+	 */
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillMiss(float HitCheckTime);
+	
+	// 테스트용: 스킬시스템 FHitResult
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount);
+
+	// 테스트용: 스킬시스템 TArray<FHitResult>
+	UFUNCTION(Server, Reliable)
+	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount);
+
+	// 테스트용: 스킬시스템 TArray<FOverlapResult>
+	UFUNCTION(Server, Reliable)
+	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount);
+
 	/** 
 	* 현재 공격 중인가 ? 
 	* 공격 중이라면 공격을 못하도록 플래그를 걸어주는 용도입니다.
@@ -316,7 +342,7 @@ protected:
 	* 공격 판정용 변수입니다.
 	* 공격자와 피격자 사이의 거리가 3미터 이내면 공격으로, 3미터 초과 시 기각합니다.
 	*/
-	float AcceptCheckDistance = 300.0f;
+	float AcceptCheckDistance = 500.0f;
 
 	/**
 	* 판정 최소 지연 시간
