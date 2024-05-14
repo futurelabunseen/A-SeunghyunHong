@@ -37,6 +37,7 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	SetupInputMode(NewPlayer);
+	ShowHeroSelectionWidget(NewPlayer);
 
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
 	if (NumOfPlayers == 2)
@@ -114,5 +115,18 @@ void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		PlayerController->SetInputMode(InputMode);
 		PlayerController->bShowMouseCursor = true;
+	}
+}
+
+void AGOLobbyGameMode::ShowHeroSelectionWidget(APlayerController* PlayerController)
+{
+	if (HeroSelectionWidgetClass && PlayerController && PlayerController->IsLocalController())
+	{
+		UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
+		if (HeroSelectionWidget)
+		{
+			HeroSelectionWidget->AddToViewport();
+			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName());
+		}
 	}
 }

@@ -28,5 +28,5 @@ private:
 
 	void CheckAllPlayersSelected();
 	void SetupInputMode(APlayerController* PlayerController);
-
+	void ShowHeroSelectionWidget(APlayerController* PlayerController);
 };
