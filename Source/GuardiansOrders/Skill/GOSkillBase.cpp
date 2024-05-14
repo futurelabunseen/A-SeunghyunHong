@@ -36,7 +36,7 @@ void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
 
 void UGOSkillBase::InitializeSkill(FName InSkillName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UGOSkillBase::InitializeSkill InSkillName: %s"), InSkillName);
+	//UE_LOG(LogTemp, Warning, TEXT("UGOSkillBase::InitializeSkill InSkillName: %s"), InSkillName);
 
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;

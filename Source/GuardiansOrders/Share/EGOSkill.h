@@ -113,7 +113,7 @@ enum class ESkillAffectType : uint8
 	None UMETA(Hidden),
 
 	Damage UMETA(DisplayName = "Damage"),
-	Defense UMETA(DisplayName = "Defense"),
+	Block UMETA(DisplayName = "Block"),
 	Heal UMETA(DisplayName = "Heal"),
 	Buff UMETA(DisplayName = "Buff"),
 	Debuff UMETA(DisplayName = "Debuff"),

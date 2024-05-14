@@ -16,26 +16,15 @@ public:
 		DamageRange(0.0f),
 		DamageRadius(0.0f),
 		DamageSpeed(0.0f),
-
 		CoolDownTime(0.0f),
 		CastingTime(0.0f),
 		ManaCost(0.0f),
-
 		AutoDetectionType(EAutoDetectionType::None),
 		DetectionRadius(200.0f),
 		DetectionDegree(45.0f),
-
-		SkillCollisionType(ESkillCollisionType::SweepSingle),
-
-		DefenseMultiplier(0.0f),
-		DefenseRange(0.0f),
-		DefenseRadius(0.0f),	
-
-		HealMultiplier(0.0f),
-		HealRange(0.0f),
-		HealRadius(0.0f)
+		SkillCollisionType(ESkillCollisionType::SweepSingle)
 		{}
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	float DamageMultiplier;
 
@@ -68,24 +57,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	ESkillCollisionType SkillCollisionType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float DefenseMultiplier;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float DefenseRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float DefenseRadius;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float HealMultiplier;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float HealRange;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
-	float HealRadius;
 
 	//FGOSkillStat operator+(const FGOSkillStat& Other) const
 	//{

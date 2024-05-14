@@ -472,9 +472,8 @@ public:
 	}
 
 // Camera Shake
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category="Combat")
 	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
-
 
 // Rotation
 public:
