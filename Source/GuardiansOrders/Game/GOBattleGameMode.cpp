@@ -7,6 +7,10 @@
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
 #include "GOPlayerState.h"
+#include "Character/GORogersCharacter.h"
+#include "Character/GOBeastCharacter.h"
+#include "Character/GOKatnissCharacter.h"
+#include "Character/GOBrideCharacter.h"
 
 AGOBattleGameMode::AGOBattleGameMode()
 {
@@ -123,4 +127,37 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 
 void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
 {
+}
+
+void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = NewPlayer;
+	SpawnParams.Instigator = NewPlayer->GetPawn();
+
+	FVector SpawnLocation = GetRandomStartTransform().GetLocation();
+	FRotator SpawnRotation = GetRandomStartTransform().GetRotation().Rotator();
+
+	ACharacter* NewCharacter = nullptr;
+
+	switch (HeroType)
+	{
+	case EHeroType::Rogers:
+		NewCharacter = GetWorld()->SpawnActor<AGORogersCharacter>(AGORogersCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+	case EHeroType::Katniss:
+		NewCharacter = GetWorld()->SpawnActor<AGOKatnissCharacter>(AGOKatnissCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+	case EHeroType::Beast:
+		NewCharacter = GetWorld()->SpawnActor<AGOBeastCharacter>(AGOBeastCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+	case EHeroType::Bride:
+		NewCharacter = GetWorld()->SpawnActor<AGOBrideCharacter>(AGOBrideCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
+		break;
+	}
+
+	if (NewCharacter)
+	{
+		NewPlayer->Possess(NewCharacter);
+	}
 }

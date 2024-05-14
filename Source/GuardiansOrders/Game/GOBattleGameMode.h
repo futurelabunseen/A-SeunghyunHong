@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "Interface/GOBattleInterface.h"
+#include "Share/ShareEnums.h"
 #include "GOBattleGameMode.generated.h"
 
 class APlayerStart;
@@ -66,4 +67,7 @@ public:
 
 protected:
 	TArray<TObjectPtr<APlayerStart>> PlayerStartArray;
+
+private:
+	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
 };

@@ -7,6 +7,7 @@
 // GOCharacterStatTable.csv 를 참고해주세요 
 ///////////////////////////////////////////////////////////////
 
+
 /**
  * 캐릭터 타입입니다. 
  * Lobby 에서 선택한 캐릭터로 Battle 에서 플레이할 수 있습니다.
@@ -27,6 +28,15 @@ enum class EHeroType : uint8
     Max UMETA(Hidden)
 
 };
+
+//USTRUCT()
+//struct FSelectedHeroInfo
+//{
+//    GENERATED_BODY()
+//
+//    UPROPERTY()
+//    EHeroType SelectedHeroType;
+//};
 
 //FName GetHeroTypeFName(EHeroType HeroType)
 //{

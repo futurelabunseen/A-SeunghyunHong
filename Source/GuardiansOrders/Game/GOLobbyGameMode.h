@@ -7,6 +7,7 @@
 #include "Share/ShareEnums.h"
 #include "GOLobbyGameMode.generated.h"
 
+
 UCLASS()
 class GUARDIANSORDERS_API AGOLobbyGameMode : public AGameMode
 {
@@ -14,5 +15,16 @@ class GUARDIANSORDERS_API AGOLobbyGameMode : public AGameMode
 
 public:
 	AGOLobbyGameMode();
+	virtual void BeginPlay() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	void SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UCommonUserWidget> HeroSelectionWidgetClass;
+
+private:
+	TMap<APlayerController*, EHeroType> PlayerCharacterSelection;
+
+
 };
