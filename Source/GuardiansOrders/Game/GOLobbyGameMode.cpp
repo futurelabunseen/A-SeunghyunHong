@@ -15,18 +15,11 @@ AGOLobbyGameMode::AGOLobbyGameMode()
 {
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
-
-	//static ConstructorHelpers::FClassFinder<UCommonUserWidget> WidgetClassFinder(TEXT("/Game/UI/CWBP_HeroSelectionWidget.CWBP_HeroSelectionWidget"));
-	//if (WidgetClassFinder.Succeeded())
-	//{
-	//	HeroSelectionWidgetClass = WidgetClassFinder.Class;
-	//}
 }
 
 void AGOLobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("[LOBBY] BeginPlay in GOLobbyGameMode called"));
 
 	if (HeroSelectionWidgetClass)
 	{
@@ -37,35 +30,31 @@ void AGOLobbyGameMode::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport"));
 
 		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[LOBBY] Failed to create  HeroSelectionWidget "));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[LOBBY] HeroSelectionWidgetClass is null"));
 	}
 }
 
 void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+	SetupInputMode(NewPlayer);
+
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
 	if (NumOfPlayers == 2)
 	{
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			bUseSeamlessTravel = true;
-			//World->ServerTravel(FString("/Game/Map/Battle?listen"));
+		UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
 
-			for (const auto& PlayerSelection : PlayerCharacterSelection)
-			{
-				FString URLParams = FString::Printf(TEXT("?CharacterType=%d"), static_cast<int32>(PlayerSelection.Value));
-				World->ServerTravel(FString("/Game/Map/Battle") + URLParams + TEXT("?listen"));
-			}
-		}
+		//UWorld* World = GetWorld();
+		//if (World)
+		//{
+		//	bUseSeamlessTravel = true;
+		//	//World->ServerTravel(FString("/Game/Map/Battle?listen"));
+
+		//	for (const auto& PlayerSelection : PlayerCharacterSelection)
+		//	{
+		//		FString URLParams = FString::Printf(TEXT("?CharacterType=%d"), static_cast<int32>(PlayerSelection.Value));
+		//		World->ServerTravel(FString("/Game/Map/Battle") + URLParams + TEXT("?listen"));
+		//	}
+		//}
 	}
 }
 
@@ -84,6 +73,46 @@ void AGOLobbyGameMode::SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter
 		if (NewCharacter)
 		{
 			PlayerController->Possess((APawn*)NewCharacter);
+
+			// Add
+			//AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
+			//if (PlayerState)
+			//{
+			//	PlayerState->SelectedCharacterClass = CharacterClass;
+			//	PlayerCharacterSelection.Add(PlayerController, NewCharacter->MyHeroType);
+			//	CheckAllPlayersSelected();
+			//}
 		}
+	}
+}
+
+void AGOLobbyGameMode::CheckAllPlayersSelected()
+{
+	// Add
+	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
+	if (PlayerCharacterSelection.Num() == NumOfPlayers)
+	{
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			bUseSeamlessTravel = true;
+			FString URLParams;
+			for (const auto& PlayerSelection : PlayerCharacterSelection)
+			{
+				URLParams += FString::Printf(TEXT("?CharacterType=%d"), static_cast<int32>(PlayerSelection.Value));
+			}
+			World->ServerTravel(FString("/Game/Map/Battle") + URLParams + TEXT("?listen"));
+		}
+	}
+}
+
+void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
+{
+	if (PlayerController)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
 	}
 }

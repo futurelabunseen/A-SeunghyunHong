@@ -49,7 +49,10 @@ protected:
 	virtual void PostNetInit() override;
 
 // Data Section
-protected:
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hero Data")
+	EHeroType MyHeroType;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
 	//UGOCharacterDataAsset* HeroDataAsset;
 

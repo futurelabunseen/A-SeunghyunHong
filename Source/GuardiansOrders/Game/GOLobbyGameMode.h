@@ -26,5 +26,7 @@ public:
 private:
 	TMap<APlayerController*, EHeroType> PlayerCharacterSelection;
 
+	void CheckAllPlayersSelected();
+	void SetupInputMode(APlayerController* PlayerController);
 
 };
