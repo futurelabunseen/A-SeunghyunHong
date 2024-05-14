@@ -812,14 +812,19 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] Unknown collision type!!!"));
 					break;
 				}
-				if (HitCameraShakeClass)
-				{
-					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-				}
+				//if (HitCameraShakeClass)
+				//{
+				//	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+				//}
 			}
 			else
 			{
 				ServerRPCNotifySkillMiss(HitCheckTime);
+			}
+
+			if (HitCameraShakeClass)
+			{
+				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
 			}
 		}
 		// 서버에서 진행 (패킷 전송 필요없이 바로 처리)
@@ -885,13 +890,16 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					break;
 				}
 
-				if (HitCameraShakeClass)
-				{
-					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-					UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
-				}
+				//if (HitCameraShakeClass)
+				//{
+				//	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+				//	UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
+				//}
 			}
-
+			if (HitCameraShakeClass)
+			{
+				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+			}
 		}
 	}
 }

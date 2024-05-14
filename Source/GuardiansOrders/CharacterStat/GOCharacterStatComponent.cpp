@@ -14,7 +14,7 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 	bWantsInitializeComponent = true;
 
 	// 액터 컴포넌트 리플리케이트
-	SetIsReplicated(true);
+	// SetIsReplicated(true);
 }
 
 void UGOCharacterStatComponent::InitializeComponent()
@@ -113,6 +113,7 @@ void UGOCharacterStatComponent::BeginPlay()
 {
 	GO_SUBLOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::BeginPlay();
+	SetIsReplicated(true);
 	ResetStat();
 	GetWorld()->GetTimerManager().SetTimer(ManaRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateMana, 1.0f, true, 1.0f);
 	GetWorld()->GetTimerManager().SetTimer(HpRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateHp, 1.0f, true, 1.0f);

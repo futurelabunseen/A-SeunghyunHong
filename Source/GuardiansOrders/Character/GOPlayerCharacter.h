@@ -381,9 +381,8 @@ protected:
 
 // State section
 private:
-	UPROPERTY(Replicated, VisibleInstanceOnly,
-	Meta = (Bitmask, BitmaskEnum = "EGOPlayerActionState"), Category = "Player State")
-	uint32 ActionStateBitMask = 0;
+	UPROPERTY(EditAnywhere, Replicated, Category = "Player", Meta = (Bitmask, BitmaskEnum = "/Script/GuardiansOrders.EGOPlayerActionState"))
+	uint32 ActionStateBitMask;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DefaultImpactTime = 0.67f;
@@ -473,8 +472,9 @@ public:
 	}
 
 // Camera Shake
-	UPROPERTY(EditAnywhere, Category="Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
+
 
 // Rotation
 public:
