@@ -145,7 +145,7 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 {
 	if (PlayerStartArray.Num() == 0)
 	{
-		return FTransform(FVector(0.0f, 0.0f, 230.0f));
+		return FTransform(FVector(600.f, 3600.f, -395.f));
 	}
 	int32 RandIndex = FMath::RandRange(0, PlayerStartArray.Num() - 1);
 
@@ -169,5 +169,14 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, TSubc
 	if (NewCharacter)
 	{
 		NewPlayer->Possess(NewCharacter);
+		// Move the character to a random PlayerStart location
+		FTransform StartTransform = GetRandomStartTransform();
+		NewCharacter->SetActorLocation(StartTransform.GetLocation());
+		NewCharacter->SetActorRotation(StartTransform.GetRotation().Rotator());
+
+		// Log the location and name of the PlayerStart actor
+		FVector PlayerStartLocation = StartTransform.GetLocation();
+		UE_LOG(LogTemp, Log, TEXT("[SEAMLESS] Player spawned and moved to PlayerStart Location: X=%f, Y=%f, Z=%f"), 
+			PlayerStartLocation.X, PlayerStartLocation.Y, PlayerStartLocation.Z); // 0.0f, 0.0f, 230.0f
 	}
 }

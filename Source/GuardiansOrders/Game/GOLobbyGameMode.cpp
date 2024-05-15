@@ -29,17 +29,38 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer);
 	SetupInputMode(NewPlayer);
 	
-	//ShowHeroSelectionWidget(NewPlayer); // 게임모드 서버 게임스테이트 (서->클 리플) 준비해!! 영상
-	AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
-	if (GS)
+	if (NewPlayer && NewPlayer->PlayerState)
 	{
-		GS->ShowHeroSelectionWidget();
+		FString PlayerName = NewPlayer->PlayerState->GetPlayerName();
+		FString PlayerControllerName = NewPlayer->GetName();
+
+		// Display the player's name on the screen
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, 
+				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"), 
+					*PlayerName, *PlayerControllerName));
+		}
 	}
 
-	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (NumOfPlayers == 2)
+	if (HasAuthority()) // 서버에서만 실행
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
+		//AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+		//if (GS)
+		//{
+		//	GS->ShowHeroSelectionWidget(NewPlayer);
+		//}
+
+		int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
+		if (NumOfPlayers == 2)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
+			AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+			if (GS)
+			{
+				GS->ShowHeroSelectionWidget();
+			}
+		}
 	}
 }
 
@@ -63,7 +84,7 @@ void AGOLobbyGameMode::SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter
 void AGOLobbyGameMode::CheckAllPlayersSelected()
 {
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (PlayerCharacterClasses.Num() == 1) //2
+	if (PlayerCharacterClasses.Num() == 2) //2
 	{
 		UWorld* World = GetWorld();
 		if (World)
@@ -91,13 +112,24 @@ void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
 
 void AGOLobbyGameMode::ShowHeroSelectionWidget(APlayerController* PlayerController)
 {
-	if (HeroSelectionWidgetClass && PlayerController && PlayerController->IsLocalController())
-	{
-		UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
-		if (HeroSelectionWidget)
-		{
-			HeroSelectionWidget->AddToViewport();
-			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName());
-		}
-	}
+	// 주석해줌
+	//if (HeroSelectionWidgetClass && PlayerController)
+	//{
+	//	UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
+	//	if (HeroSelectionWidget)
+	//	{
+	//		HeroSelectionWidget->AddToViewport();
+	//		UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName());
+	//	
+	//		if (GEngine)
+	//		{
+	//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, 
+	//				FString::Printf(TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName()));
+	//		}
+	//	}
+	//}
+}
+
+void AGOLobbyGameMode::OnGamePlayerReady()
+{
 }

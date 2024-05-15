@@ -32,7 +32,7 @@ public:
 	*/
 	virtual void OnRep_ReplicatedHasBegunPlay() override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(Transient, Replicated)
 	int32 RemainingTime;
@@ -40,4 +40,32 @@ public:
 	int32 MatchPlayTime = 20;
 	int32 ShowResultWaitingTime = 5;
 
+	// 추가해줌
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UCommonUserWidget> HeroSelectionWidgetClass;
+
+
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShowHeroSelectionWidget)
+	bool bShowHeroSelectionWidget;
+
+	UPROPERTY(ReplicatedUsing = OnRep_ShowHeroSelectionWidget)
+	bool bShowHeroSelectionWidget2;
+
+public:
+	UFUNCTION()
+	void OnRep_ShowHeroSelectionWidget();
+
+	// 정리
+	UFUNCTION()
+	void OnRep_HeroSelectionWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowHeroSelectionWidget();
+
+	UFUNCTION()
+	void OnGamePlayerReadyNotified();
+
+private:
+	void DisplayHeroSelectionWidget(APlayerController* PlayerController);
 };
