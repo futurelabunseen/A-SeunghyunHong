@@ -11,11 +11,13 @@
 #include "Character/GOBeastCharacter.h"
 #include "Character/GOKatnissCharacter.h"
 #include "Character/GOBrideCharacter.h"
+#include "Cheats/GOCheatManager.h"
 
 AGOBattleGameMode::AGOBattleGameMode()
 {
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
+	//CheatClass = UGOCheatManager::StaticClass();
 }
 
 void AGOBattleGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -41,27 +43,52 @@ void AGOBattleGameMode::PostLogin(APlayerController* NewPlayer)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::PostLogin(NewPlayer);
 
-	UNetDriver* NetDriver = GetNetDriver();
-	if (NetDriver)
+	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AGOBattleGameMode::PostSeamlessTravel()
+{
+	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	Super::PostSeamlessTravel();
+
+	for (APlayerState* PlayerState : GameState->PlayerArray)
 	{
-		if (NetDriver->ClientConnections.Num() == 0)
+		APlayerController* PlayerController = PlayerState->GetOwner<APlayerController>();
+		if (PlayerController)
 		{
-			GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("No Client Connection"));
+			AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+			if (GOPlayerState)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState found for PlayerController: %s"), *PlayerController->GetName());
+
+				if (GOPlayerState->SelectedCharacterClass)
+				{
+					SpawnPlayerCharacter(PlayerController, GOPlayerState->SelectedCharacterClass);
+
+					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] MyBattle SelectedCharacterClass: %s"), *GOPlayerState->SelectedCharacterClass->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] SelectedCharacterClass is not set. PlayerState: %s, PlayerController: %s"),
+						*GOPlayerState->GetName(), *PlayerController->GetName());
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState is invalid. PlayerController: %s"),
+					*PlayerController->GetName());
+			}
 		}
 		else
 		{
-			for (const auto& Connection : NetDriver->ClientConnections)
-			{
-				GO_LOG(LogGONetwork, Log, TEXT("Client Connections: %s"), *Connection->GetName());
-			}
+			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerController is null for PlayerState: %s"),
+				*PlayerState->GetName());
 		}
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("No NetDriver"));
 	}
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
+
 
 void AGOBattleGameMode::StartPlay()
 {
@@ -129,7 +156,7 @@ void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledP
 {
 }
 
-void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType)
+void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<AGOPlayerCharacter> CharacterClass)
 {
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = NewPlayer;
@@ -138,24 +165,7 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHero
 	FVector SpawnLocation = GetRandomStartTransform().GetLocation();
 	FRotator SpawnRotation = GetRandomStartTransform().GetRotation().Rotator();
 
-	ACharacter* NewCharacter = nullptr;
-
-	switch (HeroType)
-	{
-	case EHeroType::Rogers:
-		NewCharacter = GetWorld()->SpawnActor<AGORogersCharacter>(AGORogersCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
-		break;
-	case EHeroType::Katniss:
-		NewCharacter = GetWorld()->SpawnActor<AGOKatnissCharacter>(AGOKatnissCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
-		break;
-	case EHeroType::Beast:
-		NewCharacter = GetWorld()->SpawnActor<AGOBeastCharacter>(AGOBeastCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
-		break;
-	case EHeroType::Bride:
-		NewCharacter = GetWorld()->SpawnActor<AGOBrideCharacter>(AGOBrideCharacter::StaticClass(), SpawnLocation, SpawnRotation, SpawnParams);
-		break;
-	}
-
+	AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
 	if (NewCharacter)
 	{
 		NewPlayer->Possess(NewCharacter);

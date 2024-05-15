@@ -9,3 +9,14 @@ void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AGOPlayerState, SelectedCharacterClass);
 }
+
+void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
+{
+	Super::CopyProperties(PlayerState);
+
+	AGOPlayerState* MyPlayerState = Cast<AGOPlayerState>(PlayerState);
+	if (MyPlayerState)
+	{
+		MyPlayerState->SelectedCharacterClass = SelectedCharacterClass;
+	}
+}

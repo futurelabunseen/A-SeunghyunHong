@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "GOLobbyGameMode.h"
@@ -10,52 +10,36 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "Character/GOPlayerCharacter.h"
+#include "Cheats/GOCheatManager.h"
 
 AGOLobbyGameMode::AGOLobbyGameMode()
 {
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
+	//CheatClass = UGOCheatManager::StaticClass();
 }
 
 void AGOLobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (HeroSelectionWidgetClass)
-	{
-		UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(GetWorld(), HeroSelectionWidgetClass);
-		if (HeroSelectionWidget)
-		{
-			HeroSelectionWidget->AddToViewport();
-			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport"));
-
-		}
-	}
 }
 
 void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	SetupInputMode(NewPlayer);
-	ShowHeroSelectionWidget(NewPlayer);
+	
+	//ShowHeroSelectionWidget(NewPlayer); // ê²Œìž„ëª¨ë“œ ì„œë²„ ê²Œìž„ìŠ¤í…Œì´íŠ¸ (ì„œ->í´ ë¦¬í”Œ) ì¤€ë¹„í•´!! ì˜ìƒ
+	AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+	if (GS)
+	{
+		GS->ShowHeroSelectionWidget();
+	}
 
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
 	if (NumOfPlayers == 2)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
-
-		//UWorld* World = GetWorld();
-		//if (World)
-		//{
-		//	bUseSeamlessTravel = true;
-		//	//World->ServerTravel(FString("/Game/Map/Battle?listen"));
-
-		//	for (const auto& PlayerSelection : PlayerCharacterSelection)
-		//	{
-		//		FString URLParams = FString::Printf(TEXT("?CharacterType=%d"), static_cast<int32>(PlayerSelection.Value));
-		//		World->ServerTravel(FString("/Game/Map/Battle") + URLParams + TEXT("?listen"));
-		//	}
-		//}
 	}
 }
 
@@ -64,49 +48,36 @@ void AGOLobbyGameMode::SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (PlayerController)
 	{
-		FVector SpawnLocation = FVector::ZeroVector; // ¿øÇÏ´Â ½ºÆù À§Ä¡ ¼³Á¤
-		FRotator SpawnRotation = FRotator::ZeroRotator;
-
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = PlayerController;
-
-		AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
-		if (NewCharacter)
+		AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
+		if (PlayerState)
 		{
-			PlayerController->Possess((APawn*)NewCharacter);
+			PlayerState->SelectedCharacterClass = CharacterClass;
+			PlayerCharacterClasses.Add(PlayerController, CharacterClass);
+			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] Lobby SelectedCharacterClass: %s"), *PlayerState->SelectedCharacterClass->GetName());
 
-			// Add
-			//AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
-			//if (PlayerState)
-			//{
-			//	PlayerState->SelectedCharacterClass = CharacterClass;
-			//	PlayerCharacterSelection.Add(PlayerController, NewCharacter->MyHeroType);
-			//	CheckAllPlayersSelected();
-			//}
+			CheckAllPlayersSelected();
 		}
 	}
 }
 
 void AGOLobbyGameMode::CheckAllPlayersSelected()
 {
-	// Add
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	if (PlayerCharacterSelection.Num() == NumOfPlayers)
+	if (PlayerCharacterClasses.Num() == 1) //2
 	{
 		UWorld* World = GetWorld();
 		if (World)
 		{
 			bUseSeamlessTravel = true;
 			FString URLParams;
-			for (const auto& PlayerSelection : PlayerCharacterSelection)
+			for (const auto& PlayerClass : PlayerCharacterClasses)
 			{
-				URLParams += FString::Printf(TEXT("?CharacterType=%d"), static_cast<int32>(PlayerSelection.Value));
+				URLParams += FString::Printf(TEXT("?CharacterClass=%s"), *PlayerClass.Value->GetName());
 			}
-			World->ServerTravel(FString("/Game/Map/Battle") + URLParams + TEXT("?listen"));
+			World->ServerTravel(FString("/Game/Map/MyBattle") + URLParams + TEXT("?listen"));
 		}
 	}
 }
-
 void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
 {
 	if (PlayerController)

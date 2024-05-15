@@ -9,7 +9,7 @@
 #include "GOBattleGameMode.generated.h"
 
 class APlayerStart;
-
+class UGOCheatManager;
 
 /**
  * 오직 서버에만 존재합니다. 
@@ -42,6 +42,8 @@ public:
 	 */
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
+	virtual void PostSeamlessTravel() override;
+
 	/**
 	 * 게임 시작 조건에 부합하면 공식적으로 게임의 시작을 지시하는 함수입니다.
 	 */
@@ -69,5 +71,7 @@ protected:
 	TArray<TObjectPtr<APlayerStart>> PlayerStartArray;
 
 private:
-	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
+	//void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
+	void SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+
 };

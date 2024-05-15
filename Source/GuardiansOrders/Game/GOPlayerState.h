@@ -21,8 +21,9 @@ class GUARDIANSORDERS_API AGOPlayerState : public APlayerState
 	
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
 public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Character Selection")
-	TSubclassOf<ACharacter> SelectedCharacterClass;
+	TSubclassOf<class AGOPlayerCharacter> SelectedCharacterClass;
 };
