@@ -21,13 +21,7 @@ public:
 
 	void SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
 
-	// 주석해줌
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<class UCommonUserWidget> HeroSelectionWidgetClass;*/
 
-	void ShowHeroSelectionWidget(APlayerController* PlayerController);
-
-	// 정리
 	UFUNCTION()
 	void OnGamePlayerReady();
 

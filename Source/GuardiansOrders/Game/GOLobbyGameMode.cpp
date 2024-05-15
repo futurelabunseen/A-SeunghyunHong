@@ -43,23 +43,14 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		}
 	}
 
-	if (HasAuthority()) // 서버에서만 실행
+	if (HasAuthority())
 	{
-		//AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
-		//if (GS)
-		//{
-		//	GS->ShowHeroSelectionWidget(NewPlayer);
-		//}
-
 		int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
 		if (NumOfPlayers == 2)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
-			AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
-			if (GS)
-			{
-				GS->ShowHeroSelectionWidget();
-			}
+
+			OnGamePlayerReady();
 		}
 	}
 }
@@ -110,26 +101,11 @@ void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
 	}
 }
 
-void AGOLobbyGameMode::ShowHeroSelectionWidget(APlayerController* PlayerController)
-{
-	// 주석해줌
-	//if (HeroSelectionWidgetClass && PlayerController)
-	//{
-	//	UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
-	//	if (HeroSelectionWidget)
-	//	{
-	//		HeroSelectionWidget->AddToViewport();
-	//		UE_LOG(LogTemp, Warning, TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName());
-	//	
-	//		if (GEngine)
-	//		{
-	//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, 
-	//				FString::Printf(TEXT("[LOBBY] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName()));
-	//		}
-	//	}
-	//}
-}
-
 void AGOLobbyGameMode::OnGamePlayerReady()
 {
+	AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+	if (GS)
+	{
+		GS->OnGamePlayerReadyNotified();
+	}
 }

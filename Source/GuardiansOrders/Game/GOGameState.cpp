@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+癤�// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Game/GOGameState.h"
@@ -42,26 +42,35 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AGOGameState, bShowHeroSelectionWidget);
 }
 
-void AGOGameState::ShowHeroSelectionWidget()
+void AGOGameState::OnRep_HeroSelectionWidget()
+{
+	ShowHeroSelectionWidget();
+}
+
+void AGOGameState::OnGamePlayerReadyNotified()
 {
 	if (HasAuthority())
 	{
 		bShowHeroSelectionWidget = true;
+		ShowHeroSelectionWidget();
 	}
-	OnRep_ShowHeroSelectionWidget();//테스트로 주석해봄
 }
 
-void AGOGameState::OnRep_ShowHeroSelectionWidget()
+void AGOGameState::ShowHeroSelectionWidget()
 {
-	// 이거 해줌 //위젯보여줘함수를 서버일 경우 직접 호출해주고, (하나의 함수로 퉁) 클라일 경우 
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController && PlayerController->IsLocalController())
 	{
 		DisplayHeroSelectionWidget(PlayerController);
+		UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] ShowHeroSelectionWidget player %s"),*PlayerController->GetName());
 	}
 }
 
-// 추가해줌
+void AGOGameState::OnRep_ShowHeroSelectionWidget()
+{
+	ShowHeroSelectionWidget();
+}
+
 void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerController)
 {
 	if (PlayerController)

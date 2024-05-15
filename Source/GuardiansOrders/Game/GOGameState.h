@@ -44,19 +44,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<class UCommonUserWidget> HeroSelectionWidgetClass;
 
-
-
-	UPROPERTY(ReplicatedUsing = OnRep_ShowHeroSelectionWidget)
+	// 정리
+	UPROPERTY(ReplicatedUsing = OnRep_HeroSelectionWidget)
 	bool bShowHeroSelectionWidget;
-
-	UPROPERTY(ReplicatedUsing = OnRep_ShowHeroSelectionWidget)
-	bool bShowHeroSelectionWidget2;
 
 public:
 	UFUNCTION()
 	void OnRep_ShowHeroSelectionWidget();
 
-	// 정리
 	UFUNCTION()
 	void OnRep_HeroSelectionWidget();
 
