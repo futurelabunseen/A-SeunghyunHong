@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "Share/ShareEnums.h"
+#include "Share/EGOTeam.h"
 #include "GOPlayerState.generated.h"
 
 /**
@@ -20,10 +21,40 @@ class GUARDIANSORDERS_API AGOPlayerState : public APlayerState
 	GENERATED_BODY()
 	
 public:
+	AGOPlayerState();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void CopyProperties(class APlayerState* PlayerState) override;
 
 public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Character Selection")
 	TSubclassOf<class AGOPlayerCharacter> SelectedCharacterClass;
+
+	// 추가
+	// 
+	//// 캐릭터 선택 완료 여부
+	//UPROPERTY(ReplicatedUsing = OnRep_CharacterSelected, BlueprintReadOnly, Category = "Character Selection")
+	//bool bCharacterSelected;
+
+	//UFUNCTION()
+	//void OnRep_CharacterSelected();
+
+	//// 캐릭터 선택 함수
+	//void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+
+	/**
+	 * Team
+	 */
+	FORCEINLINE ETeamType GetTeamType() const { return Team; }
+	FORCEINLINE void SetTeam(ETeamType TeamToSet);
+
+
+	UFUNCTION()
+	void OnRep_Team();
+
+private:
+	// 팀 정보 (Red, Blue)
+	UPROPERTY(ReplicatedUsing = OnRep_Team)
+	ETeamType Team = ETeamType::ET_NoTeam;
+
+
 };

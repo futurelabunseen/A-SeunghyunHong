@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
 #include "Share/ShareEnums.h"
+#include "GOPlayerState.h"
 #include "GOGameState.generated.h"
 
 /**
@@ -48,10 +49,29 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_HeroSelectionWidget)
 	bool bShowHeroSelectionWidget;
 
-public:
-	UFUNCTION()
-	void OnRep_ShowHeroSelectionWidget();
+	/**
+	 * Team
+	 */
 
+	void RedTeamScores();
+	void BlueTeamScores();
+
+	TArray<AGOPlayerState*> RedTeam;
+	TArray<AGOPlayerState*> BlueTeam;
+
+	UPROPERTY(ReplicatedUsing = OnRep_RedTeamScore)
+	float RedTeamScore = 0.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_BlueTeamScore)
+	float BlueTeamScore = 0.f;
+
+	UFUNCTION()
+	void OnRep_RedTeamScore();
+
+	UFUNCTION()
+	void OnRep_BlueTeamScore();
+
+public:
 	UFUNCTION()
 	void OnRep_HeroSelectionWidget();
 
@@ -61,6 +81,11 @@ public:
 	UFUNCTION()
 	void OnGamePlayerReadyNotified();
 
+	//// 모든 플레이어가 캐릭터를 선택했는지 확인//바꿔야함
+	//void CheckAllPlayersSelected();
+
 private:
 	void DisplayHeroSelectionWidget(APlayerController* PlayerController);
+
+
 };

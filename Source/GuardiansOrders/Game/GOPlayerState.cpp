@@ -3,11 +3,20 @@
 
 #include "Game/GOPlayerState.h"
 #include "Net/UnrealNetwork.h"
+#include "Game/GOGameState.h"
+#include "Character/GOPlayerCharacter.h"
+
+AGOPlayerState::AGOPlayerState()
+{
+	SelectedCharacterClass = nullptr;
+	//bCharacterSelected = false;
+}
 
 void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AGOPlayerState, SelectedCharacterClass);
+	//DOREPLIFETIME(AGOPlayerState, bCharacterSelected);
 }
 
 void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
@@ -18,5 +27,67 @@ void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
 	if (MyPlayerState)
 	{
 		MyPlayerState->SelectedCharacterClass = SelectedCharacterClass;
+		//MyPlayerState->bCharacterSelected = bCharacterSelected;
 	}
 }
+
+//void AGOPlayerState::OnRep_CharacterSelected()
+//{
+//	if (bCharacterSelected)
+//	{
+//		AGOGameState* GameState = GetWorld()->GetGameState<AGOGameState>();
+//		if (GameState)
+//		{
+//			GameState->CheckAllPlayersSelected();
+//		}
+//	}
+//}
+
+//void AGOPlayerState::SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
+//{
+//	//if (HasAuthority())
+//	{
+//		SelectedCharacterClass = CharacterClass;
+//		bCharacterSelected = true;
+//		OnRep_CharacterSelected();
+//
+//		if (GEngine)
+//		{
+//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue,
+//				FString::Printf(TEXT("[AGOPlayerState] selected %s"),
+//					
+//					*SelectedCharacterClass->GetName()));
+//		}
+//	}
+//}
+
+void AGOPlayerState::SetTeam(ETeamType TeamToSet)
+{
+	Team = TeamToSet;
+
+	// 팀에 따른 설정 (예: 매터리얼)
+	AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
+	if (BCharacter)
+	{
+		//BCharacter->SetTeamColor(Team);
+	}
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue,
+			FString::Printf(TEXT("[AGOPlayerState] Team %d"),
+
+				TeamToSet));
+	}
+}
+
+void AGOPlayerState::OnRep_Team()
+{
+	// 팀에 따른 설정 (예: 매터리얼)
+	AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
+	if (BCharacter)
+	{
+		//BCharacter->SetTeamColor(Team);
+	}
+}
+

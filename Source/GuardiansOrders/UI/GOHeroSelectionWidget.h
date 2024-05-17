@@ -44,4 +44,8 @@ protected:
 
     UPROPERTY(meta = (BindWidget))
     UButton* BrideButton;
+
+private:
+    // Ãß°¡
+    void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
 };

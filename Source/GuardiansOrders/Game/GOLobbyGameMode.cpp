@@ -28,7 +28,7 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
 	SetupInputMode(NewPlayer);
-	
+
 	if (NewPlayer && NewPlayer->PlayerState)
 	{
 		FString PlayerName = NewPlayer->PlayerState->GetPlayerName();
@@ -37,8 +37,8 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		// Display the player's name on the screen
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green, 
-				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"), 
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"),
 					*PlayerName, *PlayerControllerName));
 		}
 	}

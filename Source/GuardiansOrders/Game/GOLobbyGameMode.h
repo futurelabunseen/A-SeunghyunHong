@@ -25,6 +25,7 @@ public:
 	UFUNCTION()
 	void OnGamePlayerReady();
 
+
 	// 선택된 캐릭터 정보를 저장하는 변수
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
 	TMap<APlayerController*, TSubclassOf<class AGOPlayerCharacter>> PlayerCharacterClasses;

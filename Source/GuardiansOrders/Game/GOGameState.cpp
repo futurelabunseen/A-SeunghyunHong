@@ -6,9 +6,9 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h" 
-#include "GOLobbyGameMode.h"
 #include "UObject/ConstructorHelpers.h"
 #include "CommonUserWidget.h"
+#include "Game/GOPlayerState.h"
 
 AGOGameState::AGOGameState()
 {
@@ -40,6 +40,26 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 	//DOREPLIFETIME(AGOGameState, RemainingTime);
 	DOREPLIFETIME(AGOGameState, bShowHeroSelectionWidget);
+	DOREPLIFETIME(AGOGameState, RedTeamScore);
+	DOREPLIFETIME(AGOGameState, BlueTeamScore);
+}
+
+void AGOGameState::RedTeamScores()
+{
+	++RedTeamScore;
+}
+
+void AGOGameState::BlueTeamScores()
+{
+	++BlueTeamScore;
+}
+
+void AGOGameState::OnRep_RedTeamScore()
+{
+}
+
+void AGOGameState::OnRep_BlueTeamScore()
+{
 }
 
 void AGOGameState::OnRep_HeroSelectionWidget()
@@ -56,6 +76,29 @@ void AGOGameState::OnGamePlayerReadyNotified()
 	}
 }
 
+//void AGOGameState::CheckAllPlayersSelected()
+//{
+//	int32 NumSelectedPlayers = 0;
+//	for (APlayerState* PlayerState : PlayerArray)
+//	{
+//		AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+//		if (GOPlayerState && GOPlayerState->bCharacterSelected)
+//		{
+//			NumSelectedPlayers++;
+//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+//				FString::Printf(TEXT("[AGOGameState] NumSelectedPlayers is %d ! "),
+//					NumSelectedPlayers));
+//		}
+//	}
+//
+//	if (NumSelectedPlayers == 2) //PlayerArray.Num()
+//	{
+//		// ...
+//		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+//			FString::Printf(TEXT("[AGOGameState] All Players selected ! ")));
+//	}
+//}
+
 void AGOGameState::ShowHeroSelectionWidget()
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
@@ -64,11 +107,6 @@ void AGOGameState::ShowHeroSelectionWidget()
 		DisplayHeroSelectionWidget(PlayerController);
 		UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] ShowHeroSelectionWidget player %s"),*PlayerController->GetName());
 	}
-}
-
-void AGOGameState::OnRep_ShowHeroSelectionWidget()
-{
-	ShowHeroSelectionWidget();
 }
 
 void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerController)
