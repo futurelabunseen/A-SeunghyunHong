@@ -7,6 +7,7 @@
 // GOCharacterStatTable.csv 를 참고해주세요 
 ///////////////////////////////////////////////////////////////
 
+
 /**
  * 캐릭터 타입입니다. 
  * Lobby 에서 선택한 캐릭터로 Battle 에서 플레이할 수 있습니다.
@@ -27,6 +28,15 @@ enum class EHeroType : uint8
     Max UMETA(Hidden)
 
 };
+
+//USTRUCT()
+//struct FSelectedHeroInfo
+//{
+//    GENERATED_BODY()
+//
+//    UPROPERTY()
+//    EHeroType SelectedHeroType;
+//};
 
 //FName GetHeroTypeFName(EHeroType HeroType)
 //{
@@ -90,25 +100,6 @@ enum class EArchetype : uint8
     Fighter UMETA(DisplayName = "Fighter"),
     Carry UMETA(DisplayName = "Carry"),
     Supporter UMETA(DisplayName = "Supporter"),
-
-    Max UMETA(Hidden)
-};
-
-////////////////////////////////////////////////////////////////
-// 팀전 배틀 게임에 필요한 데이터입니다.
-////////////////////////////////////////////////////////////////
-
-/**
- * 팀 정보입니다.
- * RedTeam과 BlueTeam이 있습니다.
- */
-UENUM(BlueprintType)
-enum class ETeamType : uint8
-{
-    None UMETA(Hidden),
-
-    RedTeam UMETA(DisplayName = "Red Team"),
-    BlueTeam UMETA(DisplayName = "Blue Team"),
 
     Max UMETA(Hidden)
 };

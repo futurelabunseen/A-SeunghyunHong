@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
 #include "Share/ShareEnums.h"
+#include "GOPlayerState.h"
 #include "GOGameState.generated.h"
 
 /**
@@ -32,12 +33,59 @@ public:
 	*/
 	virtual void OnRep_ReplicatedHasBegunPlay() override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(Transient, Replicated)
 	int32 RemainingTime;
 
 	int32 MatchPlayTime = 20;
 	int32 ShowResultWaitingTime = 5;
+
+	// 추가해줌
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UCommonUserWidget> HeroSelectionWidgetClass;
+
+	// 정리
+	UPROPERTY(ReplicatedUsing = OnRep_HeroSelectionWidget)
+	bool bShowHeroSelectionWidget;
+
+	/**
+	 * Team
+	 */
+
+	void RedTeamScores();
+	void BlueTeamScores();
+
+	TArray<AGOPlayerState*> RedTeam;
+	TArray<AGOPlayerState*> BlueTeam;
+
+	UPROPERTY(ReplicatedUsing = OnRep_RedTeamScore)
+	float RedTeamScore = 0.f;
+
+	UPROPERTY(ReplicatedUsing = OnRep_BlueTeamScore)
+	float BlueTeamScore = 0.f;
+
+	UFUNCTION()
+	void OnRep_RedTeamScore();
+
+	UFUNCTION()
+	void OnRep_BlueTeamScore();
+
+public:
+	UFUNCTION()
+	void OnRep_HeroSelectionWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void ShowHeroSelectionWidget();
+
+	UFUNCTION()
+	void OnGamePlayerReadyNotified();
+
+	//// 모든 플레이어가 캐릭터를 선택했는지 확인//바꿔야함
+	//void CheckAllPlayersSelected();
+
+private:
+	void DisplayHeroSelectionWidget(APlayerController* PlayerController);
+
 
 };

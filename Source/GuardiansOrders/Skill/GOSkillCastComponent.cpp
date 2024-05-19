@@ -7,6 +7,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
 #include "Character/GOCharacterBase.h"
+#include "Character/GOPlayerCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "Physics/GOCollision.h"
 
@@ -102,7 +103,8 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 
 	if (bIsOnCasting) 
 	{
-		if (AActor* Owner = GetOwner())
+		//if (AActor* Owner = GetOwner())
+		if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetOwner()))
 		{
 			if (CurrentSkill->GetTarget() != nullptr)
 			{
@@ -111,6 +113,8 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 				Direction.Z = 0; // Ignore Z axis for rotation
 				FRotator NewRotation = Direction.Rotation();
 				Owner->SetActorRotation(NewRotation);
+
+				Owner->ServerSetRotation(NewRotation);
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. SetActorRotation To Target !!!! "));
 			}
 

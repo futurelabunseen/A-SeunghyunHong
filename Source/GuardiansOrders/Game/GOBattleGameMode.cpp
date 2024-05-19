@@ -7,11 +7,17 @@
 #include "GameFramework/PlayerStart.h"
 #include "EngineUtils.h"
 #include "GOPlayerState.h"
+#include "Character/GORogersCharacter.h"
+#include "Character/GOBeastCharacter.h"
+#include "Character/GOKatnissCharacter.h"
+#include "Character/GOBrideCharacter.h"
+#include "Cheats/GOCheatManager.h"
 
 AGOBattleGameMode::AGOBattleGameMode()
 {
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
+	//CheatClass = UGOCheatManager::StaticClass();
 }
 
 void AGOBattleGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -37,27 +43,52 @@ void AGOBattleGameMode::PostLogin(APlayerController* NewPlayer)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::PostLogin(NewPlayer);
 
-	UNetDriver* NetDriver = GetNetDriver();
-	if (NetDriver)
+	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AGOBattleGameMode::PostSeamlessTravel()
+{
+	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	Super::PostSeamlessTravel();
+
+	for (APlayerState* PlayerState : GameState->PlayerArray)
 	{
-		if (NetDriver->ClientConnections.Num() == 0)
+		APlayerController* PlayerController = PlayerState->GetOwner<APlayerController>();
+		if (PlayerController)
 		{
-			GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("No Client Connection"));
+			AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+			if (GOPlayerState)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState found for PlayerController: %s"), *PlayerController->GetName());
+
+				if (GOPlayerState->SelectedCharacterClass)
+				{
+					SpawnPlayerCharacter(PlayerController, GOPlayerState->SelectedCharacterClass);
+
+					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] MyBattle SelectedCharacterClass: %s"), *GOPlayerState->SelectedCharacterClass->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] SelectedCharacterClass is not set. PlayerState: %s, PlayerController: %s"),
+						*GOPlayerState->GetName(), *PlayerController->GetName());
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState is invalid. PlayerController: %s"),
+					*PlayerController->GetName());
+			}
 		}
 		else
 		{
-			for (const auto& Connection : NetDriver->ClientConnections)
-			{
-				GO_LOG(LogGONetwork, Log, TEXT("Client Connections: %s"), *Connection->GetName());
-			}
+			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerController is null for PlayerState: %s"),
+				*PlayerState->GetName());
 		}
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("No NetDriver"));
 	}
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
+
 
 void AGOBattleGameMode::StartPlay()
 {
@@ -114,7 +145,7 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 {
 	if (PlayerStartArray.Num() == 0)
 	{
-		return FTransform(FVector(0.0f, 0.0f, 230.0f));
+		return FTransform(FVector(600.f, 3600.f, -395.f));
 	}
 	int32 RandIndex = FMath::RandRange(0, PlayerStartArray.Num() - 1);
 
@@ -123,4 +154,29 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 
 void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
 {
+}
+
+void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<AGOPlayerCharacter> CharacterClass)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = NewPlayer;
+	SpawnParams.Instigator = NewPlayer->GetPawn();
+
+	FVector SpawnLocation = GetRandomStartTransform().GetLocation();
+	FRotator SpawnRotation = GetRandomStartTransform().GetRotation().Rotator();
+
+	AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
+	if (NewCharacter)
+	{
+		NewPlayer->Possess(NewCharacter);
+		// Move the character to a random PlayerStart location
+		FTransform StartTransform = GetRandomStartTransform();
+		NewCharacter->SetActorLocation(StartTransform.GetLocation());
+		NewCharacter->SetActorRotation(StartTransform.GetRotation().Rotator());
+
+		// Log the location and name of the PlayerStart actor
+		FVector PlayerStartLocation = StartTransform.GetLocation();
+		UE_LOG(LogTemp, Log, TEXT("[SEAMLESS] Player spawned and moved to PlayerStart Location: X=%f, Y=%f, Z=%f"), 
+			PlayerStartLocation.X, PlayerStartLocation.Y, PlayerStartLocation.Z); // 0.0f, 0.0f, 230.0f
+	}
 }

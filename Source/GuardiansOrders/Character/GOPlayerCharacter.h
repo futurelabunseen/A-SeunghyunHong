@@ -49,7 +49,10 @@ protected:
 	virtual void PostNetInit() override;
 
 // Data Section
-protected:
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hero Data")
+	EHeroType MyHeroType;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
 	//UGOCharacterDataAsset* HeroDataAsset;
 
@@ -381,9 +384,8 @@ protected:
 
 // State section
 private:
-	UPROPERTY(Replicated, VisibleInstanceOnly,
-	Meta = (Bitmask, BitmaskEnum = "EGOPlayerActionState"), Category = "Player State")
-	uint32 ActionStateBitMask = 0;
+	UPROPERTY(EditAnywhere, Replicated, Category = "Player", Meta = (Bitmask, BitmaskEnum = "/Script/GuardiansOrders.EGOPlayerActionState"))
+	uint32 ActionStateBitMask;
 
 	UPROPERTY(EditDefaultsOnly)
 	float DefaultImpactTime = 0.67f;
@@ -475,6 +477,17 @@ public:
 // Camera Shake
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
+
+// Rotation
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_Rotation)
+	FRotator NetRotation;
+
+	UFUNCTION()
+	void OnRep_Rotation();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerSetRotation(FRotator NewRotation);
 
 // ======== IGOPlaySkillAnimInterface ========
 
