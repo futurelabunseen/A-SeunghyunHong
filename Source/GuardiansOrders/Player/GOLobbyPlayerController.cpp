@@ -4,6 +4,7 @@
 #include "Player/GOLobbyPlayerController.h"
 #include "Game/GOPlayerState.h"
 #include "Game/GOLobbyGameMode.h"
+#include "UI/GOLobbyHUDWidget.h"
 
 AGOLobbyPlayerController::AGOLobbyPlayerController()
 {
@@ -14,6 +15,22 @@ void AGOLobbyPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     EnableMouseCursor();
+    UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 000 "));
+
+    if (IsLocalPlayerController() && IsValid(GOLobbyHUDWidgetClass))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 111 "));
+
+        GOLobbyHUDWidget = CreateWidget<UGOLobbyHUDWidget>(this, GOLobbyHUDWidgetClass);
+
+        if (GOLobbyHUDWidget)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 222 "));
+
+            GOLobbyHUDWidget->AddToViewport();
+            SetupLobbyHUDWidget(GOLobbyHUDWidget);
+        }
+    }
 }
 
 void AGOLobbyPlayerController::EnableMouseCursor()
@@ -26,6 +43,20 @@ void AGOLobbyPlayerController::EnableMouseCursor()
     InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
     InputMode.SetHideCursorDuringCapture(false);
     SetInputMode(InputMode);
+}
+
+void AGOLobbyPlayerController::SetupLobbyHUDWidget(UGOLobbyHUDWidget* InLobbyHUDWidget)
+{
+    UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 0 "));
+
+    if (InLobbyHUDWidget)
+    {
+        InLobbyHUDWidget->InitializeHeroSelection();
+        UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 1 "));
+
+    }
+    UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 2 "));
+
 }
 
 void AGOLobbyPlayerController::ServerSelectHero_Implementation(EHeroType HeroType)

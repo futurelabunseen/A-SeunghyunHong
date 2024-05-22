@@ -9,6 +9,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "CommonUserWidget.h"
 #include "Game/GOPlayerState.h"
+#include <Player/GOLobbyPlayerController.h>
+#include "UI/GOLobbyHUDWidget.h"
 
 AGOGameState::AGOGameState()
 {
@@ -155,28 +157,45 @@ void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerControlle
 {
 	if (PlayerController)
 	{
-		if (HeroSelectionWidgetClass)
+		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+		if (LobbyController && LobbyController->GOLobbyHUDWidget)
 		{
-			UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
-			if (HeroSelectionWidget)
-			{
-				HeroSelectionWidget->AddToViewport();
-				UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] %s added to viewport for player %s"), *HeroSelectionWidget->GetName(), *PlayerController->GetName());
+			LobbyController->GOLobbyHUDWidget->ShowHeroSelectionWidget();
+			UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName());
 
-				if (GEngine)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-						FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName()));
-				}
-			}
-			else
+			if (GEngine)
 			{
-				UE_LOG(LogTemp, Error, TEXT("[GAME STATE] Failed to create HeroSelectionWidget for player %s"), *PlayerController->GetName());
+				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+					FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName()));
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("[GAME STATE] HeroSelectionWidgetClass is not set."));
+			UE_LOG(LogTemp, Error, TEXT("[GAME STATE] Failed to find GOLobbyHUDWidget for player %s"), *PlayerController->GetName());
 		}
 	}
+	//	if (HeroSelectionWidgetClass)
+	//	{
+	//		UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
+	//		if (HeroSelectionWidget)
+	//		{
+	//			HeroSelectionWidget->AddToViewport();
+	//			UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] %s added to viewport for player %s"), *HeroSelectionWidget->GetName(), *PlayerController->GetName());
+
+	//			if (GEngine)
+	//			{
+	//				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+	//					FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName()));
+	//			}
+	//		}
+	//		else
+	//		{
+	//			UE_LOG(LogTemp, Error, TEXT("[GAME STATE] Failed to create HeroSelectionWidget for player %s"), *PlayerController->GetName());
+	//		}
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Error, TEXT("[GAME STATE] HeroSelectionWidgetClass is not set."));
+	//	}
+	//}
 }
