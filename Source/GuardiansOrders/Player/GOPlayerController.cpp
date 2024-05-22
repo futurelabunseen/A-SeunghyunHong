@@ -6,6 +6,9 @@
 #include "UI/GOHUDWidget.h"
 #include "CommonActivatableWidget.h"
 #include "UI/SkillWidget/GOSkillSetBarWidget.h"
+#include <Game/GOPlayerState.h>
+#include <GameData/GOGameSubsystem.h>
+#include <Character/GOPlayerCharacter.h>
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -48,6 +51,25 @@ void AGOPlayerController::PostNetInit()
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
+void AGOPlayerController::PostSeamlessTravel()
+{
+    Super::PostSeamlessTravel();
+
+    AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+    if (PS)
+    {
+        int32 PlayerId = PS->GetPlayerId();
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+                FString::Printf(TEXT("PostSeamlessTravel - PlayerId: %d"), PlayerId));
+        }
+    }
+
+    //SpawnAndPossessCharacter();
+
+}
+
 void AGOPlayerController::BeginPlay()
 {
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Start"));
@@ -74,6 +96,8 @@ void AGOPlayerController::BeginPlay()
             GOHUDWidget->AddToViewport();
         }
     }
+
+
 }
 
 void AGOPlayerController::OnPossess(APawn* InPawn)
@@ -88,5 +112,59 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
 void AGOPlayerController::InitializeSkills()
 {
 
+}
+
+void AGOPlayerController::SpawnAndPossessCharacter()
+{
+    EHeroType SelectedHero = GetSelectedHero();
+    if (SelectedHero == EHeroType::None)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No hero selected."));
+        return;
+    }
+
+    UGOGameSubsystem* GameSubsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+    if (!GameSubsystem)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("GameSubsystem not found."));
+        return;
+    }
+
+    TSubclassOf<AGOPlayerCharacter> CharacterClass = GameSubsystem->GetCharacterClassByHeroType(SelectedHero);
+    if (!CharacterClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Character class not found for hero type %d"), static_cast<int8>(SelectedHero));
+        return;
+    }
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.Owner = this;
+    SpawnParams.Instigator = GetPawn();
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+    FVector NewSpawnLocation = FVector(0.0f, 0.0f, 100.0f);
+    FRotator NewSpawnRotation = FRotator::ZeroRotator;
+
+    AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, NewSpawnLocation, NewSpawnRotation, SpawnParams);
+    if (NewCharacter)
+    {
+        Possess(NewCharacter);
+        UE_LOG(LogTemp, Warning, TEXT("[POSSESS] possessed."));
+
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to spawn pawn."));
+    }
+}
+
+EHeroType AGOPlayerController::GetSelectedHero()
+{
+    AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+    if (PS)
+    {
+        return PS->SelectedHero.SelectedHero;
+    }
+    return EHeroType::None;
 }
 

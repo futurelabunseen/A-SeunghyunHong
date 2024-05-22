@@ -14,6 +14,9 @@
  * 팀 스코어, 현재 월드의 시간, 플레이어 스테이트의 배열 등을 관리할 수 있습니다.
  */
 
+
+
+
 UCLASS()
 class GUARDIANSORDERS_API AGOGameState : public AGameState
 {
@@ -52,6 +55,17 @@ public:
 	/**
 	 * Team
 	 */
+	
+	// Red팀과 Blue팀의 영웅 정보를 담을 배열
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterSelected)
+	TArray<FHeroSelectionInfo> RedTeamHeroes;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CharacterSelected)
+	TArray<FHeroSelectionInfo> BlueTeamHeroes;
+
+	// OnRep 함수: Replication이 발생했을 때 클라이언트에서 호출된다.
+	UFUNCTION()
+	void OnRep_CharacterSelected();
 
 	void RedTeamScores();
 	void BlueTeamScores();
@@ -83,6 +97,8 @@ public:
 
 	//// 모든 플레이어가 캐릭터를 선택했는지 확인//바꿔야함
 	//void CheckAllPlayersSelected();
+	
+	bool AreAllPlayersReady(); // 모든 플레이어의 Ready 상태를 확인하는 함수
 
 private:
 	void DisplayHeroSelectionWidget(APlayerController* PlayerController);

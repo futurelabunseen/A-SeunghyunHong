@@ -29,6 +29,13 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Character Selection")
 	TSubclassOf<class AGOPlayerCharacter> SelectedCharacterClass;
 
+	// 플레이어가 선택한 영웅 정보
+	UPROPERTY(Replicated)
+	FHeroSelectionInfo SelectedHero;
+
+	UPROPERTY(Replicated)
+	bool bIsReady; // Ready 상태를 저장하는 변수 추가
+
 	// 추가
 	// 
 	//// 캐릭터 선택 완료 여부
@@ -45,8 +52,7 @@ public:
 	 * Team
 	 */
 	FORCEINLINE ETeamType GetTeamType() const { return Team; }
-	FORCEINLINE void SetTeam(ETeamType TeamToSet);
-
+	void SetTeam(ETeamType TeamToSet);
 
 	UFUNCTION()
 	void OnRep_Team();
@@ -55,6 +61,4 @@ private:
 	// 팀 정보 (Red, Blue)
 	UPROPERTY(ReplicatedUsing = OnRep_Team)
 	ETeamType Team = ETeamType::ET_NoTeam;
-
-
 };

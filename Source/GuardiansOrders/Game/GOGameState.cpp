@@ -42,6 +42,35 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AGOGameState, bShowHeroSelectionWidget);
 	DOREPLIFETIME(AGOGameState, RedTeamScore);
 	DOREPLIFETIME(AGOGameState, BlueTeamScore);
+	DOREPLIFETIME(AGOGameState, RedTeamHeroes);
+	DOREPLIFETIME(AGOGameState, BlueTeamHeroes);
+}
+
+void AGOGameState::OnRep_CharacterSelected()
+{
+	// Update UI 
+
+	if (GEngine)
+	{
+		// Red Team
+		for (const FHeroSelectionInfo& HeroInfo : RedTeamHeroes)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Red Team - PlayerId: %d, HeroType: %d"),
+					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
+		}
+
+		// Blue Team
+		for (const FHeroSelectionInfo& HeroInfo : BlueTeamHeroes)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Blue Team - PlayerId: %d, HeroType: %d"),
+					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
+		}
+	}
+
+
+
 }
 
 void AGOGameState::RedTeamScores()
@@ -107,6 +136,19 @@ void AGOGameState::ShowHeroSelectionWidget()
 		DisplayHeroSelectionWidget(PlayerController);
 		UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] ShowHeroSelectionWidget player %s"),*PlayerController->GetName());
 	}
+}
+
+bool AGOGameState::AreAllPlayersReady()
+{
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+		if (GOPlayerState && !GOPlayerState->bIsReady)
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerController)

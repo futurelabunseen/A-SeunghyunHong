@@ -9,8 +9,7 @@
 void AGOTeamBattleGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-
-	AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+	/*AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
 	if (BGameState)
 	{
 		AGOPlayerState* BPState = NewPlayer->GetPlayerState<AGOPlayerState>();
@@ -27,7 +26,7 @@ void AGOTeamBattleGameMode::PostLogin(APlayerController* NewPlayer)
 				BPState->SetTeam(ETeamType::ET_BlueTeam);
 			}
 		}
-	}
+	}*/
 }
 
 void AGOTeamBattleGameMode::Logout(AController* Existing)
@@ -48,11 +47,16 @@ void AGOTeamBattleGameMode::Logout(AController* Existing)
 	}
 }
 
+void AGOTeamBattleGameMode::PostSeamlessTravel()
+{
+	Super::PostSeamlessTravel();
+}
+
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
 
-	AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+	/*AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
 	if (BGameState)
 	{
 		for (auto PState : BGameState->PlayerArray)
@@ -72,5 +76,25 @@ void AGOTeamBattleGameMode::HandleMatchHasStarted()
 				}
 			}
 		}
-	}
+	}*/
 }
+
+
+/*
+
+	AGOPlayerState* PS = NewPlayer->GetPlayerState<AGOPlayerState>();
+	int32 PlayerId = PS->GetPlayerId();
+	PS->SelectedHero = FHeroSelectionInfo(PlayerId);
+
+	if (PS->GetTeamType() == ETeamType::ET_RedTeam)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 40.f, FColor::Cyan,
+				FString::Printf(TEXT("RedTeam - PlayerId: %d"), PlayerId));
+	}
+	else if (PS->GetTeamType() == ETeamType::ET_BlueTeam)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 40.f, FColor::Cyan,
+			FString::Printf(TEXT("BlueTeam - PlayerId: %d"), PlayerId));
+	}
+
+*/

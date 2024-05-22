@@ -162,7 +162,11 @@ public:
 
     FName GetSpellTypeFName(ESpellType SpellType);
 
+    TSubclassOf<class AGOPlayerCharacter> GetCharacterClassByHeroType(EHeroType HeroType) const;
+
 protected:
+    void InitializeHeroCharacterMap();
+
     TArray<FGOCharacterStat> CharacterStatTable;
 
     // For Newer Game data Setting System
@@ -184,6 +188,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Data")
     TObjectPtr<UDataTable> SpellStatDataTable;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Character")
+    TObjectPtr<UDataTable> HeroCharacterDataTable;
+
     //Skill
     UPROPERTY(EditDefaultsOnly, Category = "Skills")
     TMap<FHeroSkillKey, TObjectPtr<UGOSkillBase>> AllPlayersSkill;
@@ -191,6 +198,9 @@ protected:
     //Spell
     UPROPERTY(EditDefaultsOnly, Category = "Spells")
     TMap<FHeroSpellKey, TObjectPtr<UGOSpellBase>> AllPlayersSpell;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character")
+    TMap<EHeroType, TSubclassOf<class AGOPlayerCharacter>> HeroCharacterMap;
 
 public:
     int32 CharacterMaxCnt;

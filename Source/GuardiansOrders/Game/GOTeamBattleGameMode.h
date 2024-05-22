@@ -17,6 +17,7 @@ class GUARDIANSORDERS_API AGOTeamBattleGameMode : public AGOBattleGameMode
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 	virtual void Logout(AController* Existing) override;
+	virtual void PostSeamlessTravel() override;
 
 protected:
 	virtual void HandleMatchHasStarted() override;

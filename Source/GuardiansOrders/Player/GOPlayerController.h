@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Share/ShareEnums.h"
 #include "GOPlayerController.generated.h"
 
 class UGOHUDWidget;
@@ -26,6 +27,8 @@ protected:
 	*/
 	virtual void PostNetInit() override;
 	
+	virtual void PostSeamlessTravel() override;
+
 	virtual void BeginPlay() override;
 
 	/**
@@ -50,4 +53,15 @@ protected:
 
 public:
 	void InitializeSkills();
+
+
+// ======== SpawnAndPossess ======== 
+public:
+	// New function to spawn and possess a character
+	void SpawnAndPossessCharacter();
+
+private:
+	// Helper function to get the selected hero type from the player state
+	EHeroType GetSelectedHero();
+
 };

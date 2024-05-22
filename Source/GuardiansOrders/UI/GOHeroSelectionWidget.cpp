@@ -11,6 +11,7 @@
 #include "Game/GOLobbyGameMode.h"
 #include "Game/GOGameState.h"
 #include "Game/GOPlayerState.h"
+#include "Player/GOLobbyPlayerController.h"
 
 void UGOHeroSelectionWidget::NativeConstruct()
 {
@@ -32,63 +33,80 @@ void UGOHeroSelectionWidget::NativeConstruct()
     {
         KatnissButton->OnClicked.AddDynamic(this, &UGOHeroSelectionWidget::OnKatnissButtonClicked);
     }
+    if (ReadyButton)
+    {
+        ReadyButton->OnClicked.AddDynamic(this, &UGOHeroSelectionWidget::OnReadyButtonClicked);
+    }
 }
 
 void UGOHeroSelectionWidget::OnRogersButtonClicked()
 {
-    //AGOLobbyGameMode* LobbyGameMode = Cast<AGOLobbyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    //if (LobbyGameMode)
-    //{
-    //    LobbyGameMode->SetSelectedCharacter(AGORogersCharacter::StaticClass());
-    //}
-    SelectCharacter(AGORogersCharacter::StaticClass());
+    // SelectCharacter(AGORogersCharacter::StaticClass());
+    SelectCharacter(EHeroType::Rogers);
 }
 
 void UGOHeroSelectionWidget::OnKatnissButtonClicked()
 {
-    //AGOLobbyGameMode* LobbyGameMode = Cast<AGOLobbyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    //if (LobbyGameMode)
-    //{
-    //    LobbyGameMode->SetSelectedCharacter(AGOKatnissCharacter::StaticClass());
-    //}
-    SelectCharacter(AGOKatnissCharacter::StaticClass());
+    // SelectCharacter(AGOKatnissCharacter::StaticClass());
+    SelectCharacter(EHeroType::Katniss);
 }
 
-void UGOHeroSelectionWidget::SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
-{
-    //APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-    //if (PlayerController)
-    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-    if (PlayerController && PlayerController->IsLocalController())
-    {
-        AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
-        if (PlayerState)
-        {
-            //PlayerState->SelectCharacter(CharacterClass);
-        
-            GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-                FString::Printf(TEXT("[UGOHeroSelectionWidget] Player %s selected ! "),
-                    *PlayerController->GetName()));
-        }
-    }
-}
 
 void UGOHeroSelectionWidget::OnBeastButtonClicked()
 {
-    //AGOLobbyGameMode* LobbyGameMode = Cast<AGOLobbyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    //if (LobbyGameMode)
-    //{
-    //    LobbyGameMode->SetSelectedCharacter(AGOBeastCharacter::StaticClass());
-    //}
-    SelectCharacter(AGOBeastCharacter::StaticClass());
+    // SelectCharacter(AGOBeastCharacter::StaticClass());
+    SelectCharacter(EHeroType::Beast);
 }
 
 void UGOHeroSelectionWidget::OnBrideButtonClicked()
 {
-    //AGOLobbyGameMode* LobbyGameMode = Cast<AGOLobbyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-    //if (LobbyGameMode)
-    //{
-    //    LobbyGameMode->SetSelectedCharacter(AGOBrideCharacter::StaticClass());
-    //}
-    SelectCharacter(AGOBrideCharacter::StaticClass());
+    // SelectCharacter(AGOBrideCharacter::StaticClass());
+    SelectCharacter(EHeroType::Bride);
+}
+
+
+//void UGOHeroSelectionWidget::SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
+//{
+//    //APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+//    //if (PlayerController)
+//    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+//    if (PlayerController && PlayerController->IsLocalController())
+//    {
+//        AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
+//        if (PlayerState)
+//        {
+//            //PlayerState->SelectCharacter(CharacterClass);
+//
+//            GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+//                FString::Printf(TEXT("[UGOHeroSelectionWidget] Player %s selected ! "),
+//                    *PlayerController->GetName()));
+//        }
+//    }
+//}
+
+
+void UGOHeroSelectionWidget::SelectCharacter(EHeroType HeroType)
+{
+    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    if (PlayerController)
+    {
+        AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
+        if (GOPlayerController)
+        {
+            GOPlayerController->ServerSelectHero(HeroType);
+        }
+    }
+}
+
+void UGOHeroSelectionWidget::OnReadyButtonClicked()
+{
+    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    if (PlayerController)
+    {
+        AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
+        if (GOPlayerController)
+        {
+            GOPlayerController->ServerReady(); // Ready 상태를 서버에 전송
+        }
+    }
 }

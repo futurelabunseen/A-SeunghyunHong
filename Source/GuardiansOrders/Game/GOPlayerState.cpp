@@ -4,18 +4,24 @@
 #include "Game/GOPlayerState.h"
 #include "Net/UnrealNetwork.h"
 #include "Game/GOGameState.h"
+#include "Game/GOLobbyGameMode.h"
 #include "Character/GOPlayerCharacter.h"
+#include "Player/GOLobbyPlayerController.h"
 
 AGOPlayerState::AGOPlayerState()
 {
 	SelectedCharacterClass = nullptr;
 	//bCharacterSelected = false;
+
+	// SetPlayerId()
 }
 
 void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AGOPlayerState, SelectedCharacterClass);
+	DOREPLIFETIME(AGOPlayerState, SelectedHero);
+	DOREPLIFETIME(AGOPlayerState, Team);
 	//DOREPLIFETIME(AGOPlayerState, bCharacterSelected);
 }
 
@@ -27,6 +33,8 @@ void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
 	if (MyPlayerState)
 	{
 		MyPlayerState->SelectedCharacterClass = SelectedCharacterClass;
+		MyPlayerState->SelectedHero = SelectedHero;
+		MyPlayerState->Team = Team;
 		//MyPlayerState->bCharacterSelected = bCharacterSelected;
 	}
 }
@@ -74,10 +82,9 @@ void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue,
-			FString::Printf(TEXT("[AGOPlayerState] Team %d"),
-
-				TeamToSet));
+		FColor TeamColor = (TeamToSet == ETeamType::ET_RedTeam) ? FColor::Red : FColor::Blue;
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, TeamColor,
+			FString::Printf(TEXT("[AGOPlayerState] Team %d"), TeamToSet));
 	}
 }
 
@@ -90,4 +97,3 @@ void AGOPlayerState::OnRep_Team()
 		//BCharacter->SetTeamColor(Team);
 	}
 }
-

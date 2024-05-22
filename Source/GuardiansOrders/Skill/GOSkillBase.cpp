@@ -248,7 +248,7 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& Out
 
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
 	FVector Forward = OwnerActor->GetActorForwardVector();
-	FVector Start = FVector(100,0,0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Start = FVector(150,0,0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	//FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
 	FVector End = Start + Forward * Stats.DamageRange;  // 무의미한 벡터, 스위프의 시작점만 중요
 
@@ -278,7 +278,7 @@ void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResul
 	if (!SkillOwnerCharacter) return;
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
 	FVector Forward = OwnerActor->GetActorForwardVector();
-	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Start = FVector(150, 0, 0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
 
 	//TArray<FHitResult> HitResults;
@@ -308,7 +308,7 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	if (!SkillOwnerCharacter) return;
 
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
-	FVector Location = OwnerActor->GetActorLocation() + OwnerActor->GetActorForwardVector() * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Location = FVector(150, 0, 0) + OwnerActor->GetActorLocation() + OwnerActor->GetActorForwardVector() * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(Stats.DamageRadius);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(OwnerActor);

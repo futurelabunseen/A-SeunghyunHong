@@ -43,6 +43,8 @@ public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	virtual void PostSeamlessTravel() override;
+	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
+	virtual void Logout(AController* Exiting) override;
 
 	/**
 	 * 게임 시작 조건에 부합하면 공식적으로 게임의 시작을 지시하는 함수입니다.
@@ -67,11 +69,27 @@ public:
 	virtual FTransform GetRandomStartTransform() const;
 	virtual void OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn);
 
+
+	UPROPERTY(EditAnywhere, Category = "Character Classes")
+	TSubclassOf<class AGOPlayerCharacter> RogersCharacterClass;
+
+	UPROPERTY(EditAnywhere, Category = "Character Classes")
+	TSubclassOf<AGOPlayerCharacter> KatnissCharacterClass;
+
+	UPROPERTY(EditAnywhere, Category = "Character Classes")
+	TSubclassOf<AGOPlayerCharacter> BeastCharacterClass;
+
+	UPROPERTY(EditAnywhere, Category = "Character Classes")
+	TSubclassOf<AGOPlayerCharacter> BrideCharacterClass;
+
+	void CheckPlayerControllers();
+
 protected:
 	TArray<TObjectPtr<APlayerStart>> PlayerStartArray;
 
 private:
-	//void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
+	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
 	void SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+
 
 };
