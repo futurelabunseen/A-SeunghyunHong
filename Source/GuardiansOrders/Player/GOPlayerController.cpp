@@ -96,12 +96,9 @@ void AGOPlayerController::BeginPlay()
         if (GOHUDWidget)
         {
             GOHUDWidget->AddToViewport();
-            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -2"));
 
             if (GOHUDWidget->CharacterOverlayClass)
             {
-                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
-
                 GOHUDWidget->AddCharacterOverlay();
 
             }

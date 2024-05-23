@@ -1239,6 +1239,7 @@ void AGOPlayerCharacter::SetDead()
 	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, 5.0f, false);
 }
 
+// TODO: Death
 float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));

@@ -18,5 +18,5 @@ public:
 	AGONonPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
-	void SetDead() override;
+	virtual void SetDead() override;
 };

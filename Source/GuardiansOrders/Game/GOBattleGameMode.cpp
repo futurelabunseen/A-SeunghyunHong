@@ -49,58 +49,6 @@ void AGOBattleGameMode::PostLogin(APlayerController* NewPlayer)
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-//void AGOBattleGameMode::PostSeamlessTravel()
-//{
-//	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-//
-//	Super::PostSeamlessTravel();
-//	UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode PostSeamlessTravel"));
-//
-//	int32 PlayerCount = GameState->PlayerArray.Num();
-//	UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] Number of players in GameState->PlayerArray: %d"), PlayerCount);
-//
-//	for (APlayerState* PlayerState : GameState->PlayerArray)
-//	{
-//		if (PlayerState)
-//		{
-//			FString PlayerName = PlayerState->GetPlayerName();
-//			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState: %s"), *PlayerName);
-//
-//			AGOPlayerController* PlayerController = PlayerState->GetOwner<AGOPlayerController>();
-//			if (PlayerController)
-//			{
-//				AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
-//				if (GOPlayerState)
-//				{
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState %s found for PlayerController: %s"), *PlayerName, *PlayerController->GetName());
-//
-//					// Spawn the player character based on the selected hero
-//					SpawnPlayerCharacter(PlayerController, GOPlayerState->SelectedHero.SelectedHero);
-//
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode SelectedCharacterClass: %d, %d"),
-//						GOPlayerState->SelectedHero.SelectedHero, GOPlayerState->GetTeamType());
-//				}
-//				else
-//				{
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState is invalid. PlayerController: %s"),
-//						*PlayerController->GetName());
-//				}
-//			}
-//			else
-//			{
-//				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerController is null for PlayerState: %s"),
-//					*PlayerName);
-//			}
-//		}
-//		else
-//		{
-//			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] PlayerState is null"));
-//		}
-//	}
-//
-//	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
-//}
-
 void AGOBattleGameMode::PostSeamlessTravel()
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
@@ -115,44 +63,6 @@ void AGOBattleGameMode::PostSeamlessTravel()
 	//GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AGOBattleGameMode::CheckPlayerControllers);
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
-
-
-//void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
-//{
-//	Super::HandleSeamlessTravelPlayer(C);
-//
-//	if (!C)
-//	{
-//		UE_LOG(LogTemp, Error, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer - Controller is null"));
-//		return;
-//	}
-//
-//	UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer - Controller class: %s"), *C->GetClass()->GetName());
-//
-//	if (C->IsA(AGOPlayerController::StaticClass()))
-//	{
-//		AGOPlayerController* PlayerController = Cast<AGOPlayerController>(C);
-//		if (PlayerController)
-//		{
-//			APawn* OldPawn = PlayerController->GetPawn();
-//			if (OldPawn)
-//			{
-//				OldPawn->Destroy(); // 기존 Pawn 파괴
-//			}
-//
-//			AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
-//			if (PlayerState)
-//			{
-//				// 선택된 히어로 타입으로 새로운 캐릭터 스폰 및 빙의
-//				SpawnPlayerCharacter(PlayerController, PlayerState->SelectedHero.SelectedHero);
-//			}
-//		}
-//	}
-//	else
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer - Controller is not of type AGOPlayerController"));
-//	}
-//}
 
 void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 {
@@ -270,56 +180,15 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 
 void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
 {
-}
+	// TODO
+	AGOPlayerState* AttackPlayerState = Killer ? Cast<AGOPlayerState>(Killer->PlayerState) : nullptr;
+	AGOPlayerState* VictimPlayerState = KilledPlayer ? Cast<AGOPlayerState>(KilledPlayer->PlayerState) : nullptr;
 
-//void AGOBattleGameMode::CheckPlayerControllers()
-//{
-//	TArray<APlayerState*> PlayerStates = GameState->PlayerArray;
-//
-//	for (APlayerState* PlayerState : PlayerStates)
-//	{
-//		if (PlayerState)
-//		{
-//			AGOPlayerController* PlayerController = Cast<AGOPlayerController>(PlayerState->GetOwner());
-//			if (!PlayerController)
-//			{
-//				PlayerController = GetWorld()->SpawnActor<AGOPlayerController>(AGOPlayerController::StaticClass());
-//				if (PlayerController)
-//				{
-//					PlayerController->PlayerState = PlayerState;
-//					PlayerState->SetOwner(PlayerController);
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode CheckPlayerControllers - New PlayerController created for PlayerState: %s"), *PlayerState->GetName());
-//				}
-//			}
-//
-//			if (PlayerController)
-//			{
-//				APawn* OldPawn = PlayerController->GetPawn();
-//				if (OldPawn)
-//				{
-//					OldPawn->Destroy();
-//				}
-//
-//				AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
-//				if (GOPlayerState)
-//				{
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode CheckPlayerControllers - PlayerState %s found for PlayerController: %s"), *PlayerState->GetName(), *PlayerController->GetName());
-//
-//					// 선택된 히어로 타입으로 새로운 캐릭터 스폰 및 빙의
-//					SpawnPlayerCharacter(PlayerController, GOPlayerState->SelectedHero.SelectedHero);
-//				}
-//				else
-//				{
-//					UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode CheckPlayerControllers - PlayerState is invalid. PlayerController: %s"), *PlayerController->GetName());
-//				}
-//			}
-//		}
-//		else
-//		{
-//			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode CheckPlayerControllers - PlayerState is null"));
-//		}
-//	}
-//}
+	if (AttackPlayerState && AttackPlayerState != VictimPlayerState)
+	{
+		AttackPlayerState->AddToScore(1.0f);
+	}
+}
 
 void AGOBattleGameMode::CheckPlayerControllers()
 {
@@ -428,34 +297,5 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHero
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - CharacterClass is null! Cannot spawn player character."));
-	}
-}
-
-
-
-void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<AGOPlayerCharacter> CharacterClass)
-{
-	
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = NewPlayer;
-	SpawnParams.Instigator = NewPlayer->GetPawn();
-
-	FVector SpawnLocation = GetRandomStartTransform().GetLocation();
-	FRotator SpawnRotation = GetRandomStartTransform().GetRotation().Rotator();
-
-	AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
-	if (NewCharacter)
-	{
-		NewPlayer->Possess(NewCharacter);
-		// Move the character to a random PlayerStart location
-		FTransform StartTransform = GetRandomStartTransform();
-		NewCharacter->SetActorLocation(StartTransform.GetLocation());
-		NewCharacter->SetActorRotation(StartTransform.GetRotation().Rotator());
-
-		// Log the location and name of the PlayerStart actor
-		FVector PlayerStartLocation = StartTransform.GetLocation();
-		UE_LOG(LogTemp, Log, TEXT("[SEAMLESS] Player spawned and moved to PlayerStart Location: X=%f, Y=%f, Z=%f"), 
-			PlayerStartLocation.X, PlayerStartLocation.Y, PlayerStartLocation.Z); // 0.0f, 0.0f, 230.0f
 	}
 }

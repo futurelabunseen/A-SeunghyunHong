@@ -267,6 +267,10 @@ void AGOCharacterBase::SetDead()
     
     if (ManaBar) // Ensure ManaBar is not null
         ManaBar->SetHiddenInGame(true);
+
+	if (StatsBar)
+		StatsBar->SetHiddenInGame(true);
+
 	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	//if (PlayerController)
 	//{

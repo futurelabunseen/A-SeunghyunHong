@@ -80,14 +80,14 @@ void AGOPlayerState::OnRep_Score()
 		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
-			Controller->SetHUDScore(Score);
+			Controller->SetHUDScore(GetScore());
 		}
 	}
 }
 
 void AGOPlayerState::AddToScore(float ScoreAmount)
 {
-	Score += ScoreAmount;
+	SetScore(GetScore() + ScoreAmount);
 
 	Character = Character == nullptr ? Cast<AGOPlayerCharacter>(GetPawn()) : Character;
 	if (Character)
@@ -95,7 +95,7 @@ void AGOPlayerState::AddToScore(float ScoreAmount)
 		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
 		if (Controller)
 		{
-			Controller->SetHUDScore(ScoreAmount);
+			Controller->SetHUDScore(GetScore());
 		}
 	}
 }
