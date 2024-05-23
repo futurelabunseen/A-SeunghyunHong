@@ -86,12 +86,11 @@ public:
 
 	void CheckPlayerControllers();
 
+	bool bTeamsMatch = false;
+
 protected:
 	TArray<TObjectPtr<APlayerStart>> PlayerStartArray;
 
 private:
 	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
-	void SpawnPlayerCharacter(APlayerController* NewPlayer, TSubclassOf<class AGOPlayerCharacter> CharacterClass);
-
-
 };

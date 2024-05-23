@@ -23,6 +23,7 @@ public:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void StartPlay() override;
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
+	virtual void OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn);
 
 protected:
 	virtual void HandleMatchHasStarted() override;

@@ -85,6 +85,10 @@ public:
 
 	void AddCharacterOverlayDelayed();
 
+	void HideTeamScores();
+	void InitTeamScores();
+	void SetHUDRedTeamScore(int32 RedScore);
+	void SetHUDBlueTeamScore(int32 BlueScore);
 private:
 	float MatchTime = 120.f; //120 seconds 
 	uint32 CountdownInt = 0;

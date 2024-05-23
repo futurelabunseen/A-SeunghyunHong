@@ -12,6 +12,7 @@
 #include <Player/GOLobbyPlayerController.h>
 #include "UI/GOLobbyHUDWidget.h"
 #include "CommonTextBlock.h"
+#include "Player/GOPlayerController.h"
 
 AGOGameState::AGOGameState()
 {
@@ -82,59 +83,45 @@ void AGOGameState::OnRep_CharacterSelected()
 
 void AGOGameState::OnRep_CountDownForTravelReadyTime()
 {
-	//AGOLobbyPlayerController* PC = Cast<AGOLobbyPlayerController>(GetWorld()->GetFirstPlayerController());
-	//if (PC)
-	//{
-	//	//PC->SetHUD
-	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_CountDownFosrTravelReadyTime"));
-	//}
 
-	//for (APlayerState* PlayerState : PlayerArray)
-	//{
-	//	AGOLobbyPlayerController* PlayerController = Cast<AGOLobbyPlayerController>(PlayerState->GetOwner());
-	//	if (PlayerController && PlayerController->IsLocalController())
-	//	{
-	//		UGOLobbyHUDWidget* LobbyHUDWidget = Cast<UGOLobbyHUDWidget>(PlayerController->GetHUD()->GetUserWidgetObject());
-	//		if (LobbyHUDWidget && LobbyHUDWidget->CountdownText)
-	//		{
-
-	//			LobbyHUDWidget->CountdownText->SetText(FText::AsNumber(RemainingReadyTravelTime));
-	//		}
-	//	}
-	//}
-
-	//APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	//if (PlayerController)
-	//{
-	//	AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
-	//	if (GOPlayerController)
-	//	{
-	//		UGOLobbyHUDWidget* LobbyHUDWidget = Cast<UGOLobbyHUDWidget>(GOPlayerController->GetHUD()->GetUserWidgetObject());
-	//		if (LobbyHUDWidget && LobbyHUDWidget->CountdownText)
-	//		{
-
-	//			LobbyHUDWidget->CountdownText->SetText(FText::AsNumber(RemainingReadyTravelTime));
-	//		}
-	//	}
-	//}
 }
 
 void AGOGameState::RedTeamScores()
 {
 	++RedTeamScore;
+	AGOPlayerController* GOPlayer = Cast<AGOPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GOPlayer)
+	{
+		GOPlayer->SetHUDRedTeamScore(RedTeamScore);
+	}
 }
 
 void AGOGameState::BlueTeamScores()
 {
 	++BlueTeamScore;
+	AGOPlayerController* GOPlayer = Cast<AGOPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GOPlayer)
+	{
+		GOPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+	}
 }
 
 void AGOGameState::OnRep_RedTeamScore()
 {
+	AGOPlayerController* GOPlayer = Cast<AGOPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GOPlayer)
+	{
+		GOPlayer->SetHUDRedTeamScore(RedTeamScore);
+	}
 }
 
 void AGOGameState::OnRep_BlueTeamScore()
 {
+	AGOPlayerController* GOPlayer = Cast<AGOPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (GOPlayer)
+	{
+		GOPlayer->SetHUDBlueTeamScore(BlueTeamScore);
+	}
 }
 
 void AGOGameState::UpdateTopscore(AGOPlayerState* ScoringPlayer)
@@ -169,29 +156,6 @@ void AGOGameState::OnGamePlayerReadyNotified()
 		ShowHeroSelectionWidget();
 	}
 }
-
-//void AGOGameState::CheckAllPlayersSelected()
-//{
-//	int32 NumSelectedPlayers = 0;
-//	for (APlayerState* PlayerState : PlayerArray)
-//	{
-//		AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
-//		if (GOPlayerState && GOPlayerState->bCharacterSelected)
-//		{
-//			NumSelectedPlayers++;
-//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-//				FString::Printf(TEXT("[AGOGameState] NumSelectedPlayers is %d ! "),
-//					NumSelectedPlayers));
-//		}
-//	}
-//
-//	if (NumSelectedPlayers == 2) //PlayerArray.Num()
-//	{
-//		// ...
-//		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-//			FString::Printf(TEXT("[AGOGameState] All Players selected ! ")));
-//	}
-//}
 
 void AGOGameState::ShowHeroSelectionWidget()
 {
@@ -237,28 +201,4 @@ void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerControlle
 			UE_LOG(LogTemp, Error, TEXT("[GAME STATE] Failed to find GOLobbyHUDWidget for player %s"), *PlayerController->GetName());
 		}
 	}
-	//	if (HeroSelectionWidgetClass)
-	//	{
-	//		UCommonUserWidget* HeroSelectionWidget = CreateWidget<UCommonUserWidget>(PlayerController, HeroSelectionWidgetClass);
-	//		if (HeroSelectionWidget)
-	//		{
-	//			HeroSelectionWidget->AddToViewport();
-	//			UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] %s added to viewport for player %s"), *HeroSelectionWidget->GetName(), *PlayerController->GetName());
-
-	//			if (GEngine)
-	//			{
-	//				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-	//					FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget added to viewport for player %s"), *PlayerController->GetName()));
-	//			}
-	//		}
-	//		else
-	//		{
-	//			UE_LOG(LogTemp, Error, TEXT("[GAME STATE] Failed to create HeroSelectionWidget for player %s"), *PlayerController->GetName());
-	//		}
-	//	}
-	//	else
-	//	{
-	//		UE_LOG(LogTemp, Error, TEXT("[GAME STATE] HeroSelectionWidgetClass is not set."));
-	//	}
-	//}
 }

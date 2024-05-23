@@ -8,6 +8,7 @@
 
 AGOTeamBattleGameMode::AGOTeamBattleGameMode()
 {
+	bTeamsMatch = true;
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
 }
@@ -68,31 +69,29 @@ float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController*
 	return BaseDamage;
 }
 
+void AGOTeamBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
+{
+	Super::OnPlayerKilled(Killer, KilledPlayer, KilledPawn);
+
+	AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+	AGOPlayerState* AttackerPlayerState = Killer ? Cast<AGOPlayerState>(Killer->PlayerState) : nullptr;
+	if (BGameState && AttackerPlayerState)
+	{
+		if (AttackerPlayerState->GetTeamType() == ETeamType::ET_BlueTeam)
+		{
+			BGameState->BlueTeamScores();
+		}
+		if (AttackerPlayerState->GetTeamType() == ETeamType::ET_RedTeam)
+		{
+			BGameState->RedTeamScores();
+		}
+		UE_LOG(LogTemp, Warning, TEXT("AttackerPlayerState->GetTeamType() : %d"), AttackerPlayerState->GetTeamType());
+	}
+}
+
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
-
-	/*AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
-	if (BGameState)
-	{
-		for (auto PState : BGameState->PlayerArray)
-		{
-			AGOPlayerState* BPState = Cast<AGOPlayerState>(PState.Get());
-			if (BPState && BPState->GetTeamType() == ETeamType::ET_NoTeam)
-			{
-				if (BGameState->BlueTeam.Num() >= BGameState->RedTeam.Num())
-				{
-					BGameState->RedTeam.AddUnique(BPState);
-					BPState->SetTeam(ETeamType::ET_RedTeam);
-				}
-				else
-				{
-					BGameState->BlueTeam.AddUnique(BPState);
-					BPState->SetTeam(ETeamType::ET_BlueTeam);
-				}
-			}
-		}
-	}*/
 }
 
 void AGOTeamBattleGameMode::DefaultRoundTimer()

@@ -23,4 +23,10 @@ public:
 
 	UPROPERTY(meta=(BindWidget))
 	class UCommonTextBlock* MatchCountdownText;
+	
+	UPROPERTY(meta=(BindWidget))
+	class UCommonTextBlock* BlueTeamScore;
+
+	UPROPERTY(meta=(BindWidget))
+	class UCommonTextBlock* RedTeamScore;
 };

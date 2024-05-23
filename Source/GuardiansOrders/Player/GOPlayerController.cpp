@@ -104,7 +104,7 @@ void AGOPlayerController::BeginPlay()
 
                 // GOHUDWidget->AddCharacterOverlay();
                 GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
-
+                InitTeamScores(); // TODO : ±¸Á¶
             }
 
         }
@@ -118,6 +118,73 @@ void AGOPlayerController::AddCharacterOverlayDelayed()
     {
         UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
         GOHUDWidget->AddCharacterOverlay();
+    }
+}
+
+void AGOPlayerController::HideTeamScores()
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->RedTeamScore &&
+            GOHUDWidget->CharacterOverlay->BlueTeamScore;
+
+        if (bHUDVaild)
+        {
+            GOHUDWidget->CharacterOverlay->RedTeamScore->SetText(FText());
+            GOHUDWidget->CharacterOverlay->BlueTeamScore->SetText(FText());
+        }
+    }
+}
+
+void AGOPlayerController::InitTeamScores()
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->RedTeamScore &&
+            GOHUDWidget->CharacterOverlay->BlueTeamScore;
+
+        if (bHUDVaild)
+        {
+            FString Zero("0");
+            GOHUDWidget->CharacterOverlay->RedTeamScore->SetText(FText::FromString(Zero));
+            GOHUDWidget->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(Zero));
+        }
+    }
+}
+
+void AGOPlayerController::SetHUDRedTeamScore(int32 RedScore)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->RedTeamScore;
+
+        if (bHUDVaild)
+        {
+            FString ScoreText = FString::Printf(TEXT("%d"), RedScore);
+            GOHUDWidget->CharacterOverlay->RedTeamScore->SetText(FText::FromString(ScoreText));
+        }
+    }
+}
+
+void AGOPlayerController::SetHUDBlueTeamScore(int32 BlueScore)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->BlueTeamScore;
+
+        if (bHUDVaild)
+        {
+            FString ScoreText = FString::Printf(TEXT("%d"), BlueScore);
+            GOHUDWidget->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(ScoreText));
+        }
     }
 }
 
@@ -139,9 +206,7 @@ void AGOPlayerController::Tick(float DeltaTime)
 
 float AGOPlayerController::GetServerTime()
 {
-    // Server
     if (HasAuthority()) return GetWorld()->GetTimeSeconds();
-    // Client
     else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
 

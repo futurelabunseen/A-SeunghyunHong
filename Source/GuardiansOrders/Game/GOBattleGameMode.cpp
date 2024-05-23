@@ -186,6 +186,7 @@ float AGOBattleGameMode::CalculateDamage(AController* Attacker, AController* Vic
 	return BaseDamage;
 }
 
+// PlayerEliminated
 void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
 {
 	// TODO
