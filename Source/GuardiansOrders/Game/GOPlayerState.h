@@ -51,16 +51,27 @@ public:
 	//void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
 
 	/**
-	 * Score
+	 * Score, Defeats
 	 */
 
 public:
 	virtual void OnRep_Score() override;
 	void AddToScore(float ScoreAmount);
 
+	// Replication notifies
+	UFUNCTION()
+	virtual void OnRep_Defeats();
+
+	void AddToDefeats(int32 DefeatsAmount);
+
 private:
+	UPROPERTY()
 	AGOPlayerCharacter* Character;
+	UPROPERTY()
 	AGOPlayerController* Controller;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
+	int32 Defeats;
 
 	/**
 	 * Team

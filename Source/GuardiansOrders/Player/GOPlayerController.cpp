@@ -133,6 +133,22 @@ void AGOPlayerController::SetHUDScore(float Score)
     }
 }
 
+void AGOPlayerController::SetHUDDefeats(int32 Defeats)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->DefeatsAmount;
+
+        if (bHUDVaild)
+        {
+            FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
+            GOHUDWidget->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+        }
+    }
+}
+
 void AGOPlayerController::InitializeSkills()
 {
 

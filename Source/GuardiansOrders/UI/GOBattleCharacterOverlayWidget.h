@@ -16,5 +16,8 @@ class GUARDIANSORDERS_API UGOBattleCharacterOverlayWidget : public UCommonUserWi
 	
 public:
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* ScoreAmount;
+	class UCommonTextBlock* ScoreAmount;	
+	
+	UPROPERTY(meta=(BindWidget))
+	class UCommonTextBlock* DefeatsAmount;
 };

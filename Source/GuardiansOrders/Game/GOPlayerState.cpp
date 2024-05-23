@@ -22,7 +22,8 @@ void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AGOPlayerState, SelectedCharacterClass);
 	DOREPLIFETIME(AGOPlayerState, SelectedHero);
-	DOREPLIFETIME(AGOPlayerState, Team);
+	DOREPLIFETIME(AGOPlayerState, Team); 
+	DOREPLIFETIME(AGOPlayerState, Defeats);
 	//DOREPLIFETIME(AGOPlayerState, bCharacterSelected);
 }
 
@@ -96,6 +97,33 @@ void AGOPlayerState::AddToScore(float ScoreAmount)
 		if (Controller)
 		{
 			Controller->SetHUDScore(GetScore());
+		}
+	}
+}
+
+void AGOPlayerState::OnRep_Defeats()
+{
+	Character = Character == nullptr ? Cast<AGOPlayerCharacter>(GetPawn()) : Character;
+	if (Character)
+	{
+		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDDefeats(Defeats);
+		}
+	}
+}
+
+void AGOPlayerState::AddToDefeats(int32 DefeatsAmount)
+{
+	Defeats += DefeatsAmount;
+	Character = Character == nullptr ? Cast<AGOPlayerCharacter>(GetPawn()) : Character;
+	if (Character)
+	{
+		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDDefeats(Defeats);
 		}
 	}
 }

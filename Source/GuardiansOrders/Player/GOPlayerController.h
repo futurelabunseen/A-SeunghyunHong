@@ -46,6 +46,8 @@ public:
 
 	void SetHUDScore(float Score);
 
+	void SetHUDDefeats(int32 Defeats);
+
 // ======== SkillSetBar UI ======== 
 protected:
 	// SkillSetBar Widget 인스턴스

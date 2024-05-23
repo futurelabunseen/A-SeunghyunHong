@@ -188,6 +188,11 @@ void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledP
 	{
 		AttackPlayerState->AddToScore(1.0f);
 	}
+
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->AddToDefeats(1);
+	}
 }
 
 void AGOBattleGameMode::CheckPlayerControllers()
