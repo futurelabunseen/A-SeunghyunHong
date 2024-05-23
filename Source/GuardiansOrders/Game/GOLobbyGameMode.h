@@ -27,6 +27,11 @@ public:
 	UFUNCTION()
 	void OnGamePlayerReady();
 
+	UFUNCTION()
+	void OnTravelReadyTimer();
+	
+	FTimerHandle ServerTravelTimerHandle;
+
 	// 선택된 캐릭터 정보를 저장하는 변수
 	UPROPERTY(BlueprintReadOnly, Category = "Character")
 	TMap<APlayerController*, TSubclassOf<class AGOPlayerCharacter>> PlayerCharacterClasses;
@@ -50,5 +55,5 @@ private:
 	void SetupInputMode(APlayerController* PlayerController);
 	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
 
-	
+	void DelayedServerTravel();
 };

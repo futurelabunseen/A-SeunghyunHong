@@ -190,44 +190,26 @@ void AGOLobbyGameMode::HandleSeamlessTravelPlayer(AController*& C)
 }
 
 
-
-
-
-//void AGOLobbyGameMode::SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
-//{
-//	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-//	if (PlayerController)
-//	{
-//		AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
-//		if (PlayerState)
-//		{
-//			PlayerState->SelectedCharacterClass = CharacterClass;
-//			PlayerCharacterClasses.Add(PlayerController, CharacterClass);
-//			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] Lobby SelectedCharacterClass: %s"), *PlayerState->SelectedCharacterClass->GetName());
-//
-//			CheckAllPlayersSelected();
-//		}
-//	}
-//}
-
 void AGOLobbyGameMode::CheckAllPlayersSelected()
 {
 	int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-	//if (PlayerCharacterClasses.Num() == 2) //2
-	//{
-		UWorld* World = GetWorld();
-		if (World)
-		{
-			bUseSeamlessTravel = true;
-			//FString URLParams;
-			//for (const auto& PlayerClass : PlayerCharacterClasses)
-			//{
-			//	URLParams += FString::Printf(TEXT("?CharacterClass=%s"), *PlayerClass.Value->GetName());
-			//}
-			//World->ServerTravel(FString("/Game/Map/MyBattle") + URLParams + TEXT("?listen"));
-			World->ServerTravel(FString("/Game/Map/MyBattle") + TEXT("?listen"));
-		}
-	//}
+	AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+
+	if (GS && GS->AreAllPlayersReady())
+	{
+		// 모든 플레이어가 준비되면 타이머를 시작합니다.
+		GetWorldTimerManager().SetTimer(ServerTravelTimerHandle, this, &AGOLobbyGameMode::DelayedServerTravel, 5.0f, false);
+	}
+}
+
+void AGOLobbyGameMode::DelayedServerTravel()
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		bUseSeamlessTravel = true;
+		World->ServerTravel(FString("/Game/Map/MyBattle") + TEXT("?listen"));
+	}
 }
 
 void AGOLobbyGameMode::SetupInputMode(APlayerController* PlayerController)
@@ -301,6 +283,15 @@ void AGOLobbyGameMode::OnGamePlayerReady()
 	}
 }
 
+void AGOLobbyGameMode::OnTravelReadyTimer()
+{
+	AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+	if (GS)
+	{
+		//GS->();
+	}
+}
+
 //void AGOLobbyGameMode::ServerSelectHero_Implementation(APlayerController* PlayerController, EHeroType HeroType)
 //{
 //	SelectHero(PlayerController, HeroType);
@@ -370,16 +361,8 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 			// 캐릭터 스폰 및 소유
 			SpawnPlayerCharacter(PlayerController, HeroType);
 
-			// 모든 플레이어가 Ready 상태인지 확인하고 ServerTravel 실행
-			if (GS->AreAllPlayersReady())
-			{
-				UWorld* World = GetWorld();
-				if (World)
-				{
-					bUseSeamlessTravel = true;
-					World->ServerTravel(FString("/Game/Map/MyBattle") + TEXT("?listen"));
-				}
-			}
+			// 모든 플레이어가 Ready 상태인지 확인하고 타이머를 시작
+			CheckAllPlayersSelected();
 		}
 	}
 }

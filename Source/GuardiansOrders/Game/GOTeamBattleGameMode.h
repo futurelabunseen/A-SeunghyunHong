@@ -15,10 +15,17 @@ class GUARDIANSORDERS_API AGOTeamBattleGameMode : public AGOBattleGameMode
 	GENERATED_BODY()
 
 public:
+	AGOTeamBattleGameMode();
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
-	virtual void Logout(AController* Existing) override;
+	virtual void Logout(AController* Exiting) override;
 	virtual void PostSeamlessTravel() override;
+	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
+	virtual void StartPlay() override;
 
 protected:
 	virtual void HandleMatchHasStarted() override;
+	virtual void DefaultRoundTimer() override;
+	void FinishMatch();
+
 };

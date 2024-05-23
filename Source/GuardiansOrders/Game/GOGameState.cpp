@@ -11,10 +11,13 @@
 #include "Game/GOPlayerState.h"
 #include <Player/GOLobbyPlayerController.h>
 #include "UI/GOLobbyHUDWidget.h"
+#include "CommonTextBlock.h"
 
 AGOGameState::AGOGameState()
 {
 	RemainingTime = MatchPlayTime;
+
+	RemainingReadyTravelTime = 0;
 	bShowHeroSelectionWidget = false;
 }
 
@@ -46,6 +49,7 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AGOGameState, BlueTeamScore);
 	DOREPLIFETIME(AGOGameState, RedTeamHeroes);
 	DOREPLIFETIME(AGOGameState, BlueTeamHeroes);
+	DOREPLIFETIME(AGOGameState, RemainingReadyTravelTime);
 }
 
 void AGOGameState::OnRep_CharacterSelected()
@@ -73,6 +77,45 @@ void AGOGameState::OnRep_CharacterSelected()
 
 
 
+}
+
+void AGOGameState::OnRep_CountDownForTravelReadyTime()
+{
+	//AGOLobbyPlayerController* PC = Cast<AGOLobbyPlayerController>(GetWorld()->GetFirstPlayerController());
+	//if (PC)
+	//{
+	//	//PC->SetHUD
+	//	UE_LOG(LogTemp, Warning, TEXT("OnRep_CountDownFosrTravelReadyTime"));
+	//}
+
+	//for (APlayerState* PlayerState : PlayerArray)
+	//{
+	//	AGOLobbyPlayerController* PlayerController = Cast<AGOLobbyPlayerController>(PlayerState->GetOwner());
+	//	if (PlayerController && PlayerController->IsLocalController())
+	//	{
+	//		UGOLobbyHUDWidget* LobbyHUDWidget = Cast<UGOLobbyHUDWidget>(PlayerController->GetHUD()->GetUserWidgetObject());
+	//		if (LobbyHUDWidget && LobbyHUDWidget->CountdownText)
+	//		{
+
+	//			LobbyHUDWidget->CountdownText->SetText(FText::AsNumber(RemainingReadyTravelTime));
+	//		}
+	//	}
+	//}
+
+	//APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	//if (PlayerController)
+	//{
+	//	AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
+	//	if (GOPlayerController)
+	//	{
+	//		UGOLobbyHUDWidget* LobbyHUDWidget = Cast<UGOLobbyHUDWidget>(GOPlayerController->GetHUD()->GetUserWidgetObject());
+	//		if (LobbyHUDWidget && LobbyHUDWidget->CountdownText)
+	//		{
+
+	//			LobbyHUDWidget->CountdownText->SetText(FText::AsNumber(RemainingReadyTravelTime));
+	//		}
+	//	}
+	//}
 }
 
 void AGOGameState::RedTeamScores()

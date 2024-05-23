@@ -7,11 +7,13 @@
 #include "GOLobbyHUDWidget.generated.h"
 
 class UGOHeroSelectionWidget;
+class UCommonTextBlock;
+
 /**
  * 
  */
 UCLASS()
-class GUARDIANSORDERS_API UGOLobbyHUDWidget : public UCommonUserWidget
+class GUARDIANSORDERS_API UGOLobbyHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -20,6 +22,8 @@ public:
 	void InitializeHeroSelection();
 	void ShowHeroSelectionWidget();
 
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* CountdownText;
 protected:
 	virtual void NativeConstruct() override;
 

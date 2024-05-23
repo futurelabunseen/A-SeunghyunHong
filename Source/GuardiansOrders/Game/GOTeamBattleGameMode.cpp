@@ -6,33 +6,23 @@
 #include "GOPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
+AGOTeamBattleGameMode::AGOTeamBattleGameMode()
+{
+	GameStateClass = AGOGameState::StaticClass();
+	PlayerStateClass = AGOPlayerState::StaticClass();
+}
+
 void AGOTeamBattleGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	/*AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
-	if (BGameState)
-	{
-		AGOPlayerState* BPState = NewPlayer->GetPlayerState<AGOPlayerState>();
-		if (BPState && BPState->GetTeamType() == ETeamType::ET_NoTeam)
-		{
-			if (BGameState->BlueTeam.Num() >= BGameState->RedTeam.Num())
-			{
-				BGameState->RedTeam.AddUnique(BPState);
-				BPState->SetTeam(ETeamType::ET_RedTeam);
-			}
-			else
-			{
-				BGameState->BlueTeam.AddUnique(BPState);
-				BPState->SetTeam(ETeamType::ET_BlueTeam);
-			}
-		}
-	}*/
 }
 
-void AGOTeamBattleGameMode::Logout(AController* Existing)
+void AGOTeamBattleGameMode::Logout(AController* Exiting)
 {
+	Super::Logout(Exiting);
+
 	AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
-	AGOPlayerState* BPState = Existing->GetPlayerState<AGOPlayerState>();
+	AGOPlayerState* BPState = Exiting->GetPlayerState<AGOPlayerState>();
 
 	if (BGameState && BPState)
 	{
@@ -50,6 +40,16 @@ void AGOTeamBattleGameMode::Logout(AController* Existing)
 void AGOTeamBattleGameMode::PostSeamlessTravel()
 {
 	Super::PostSeamlessTravel();
+}
+
+void AGOTeamBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
+{
+	Super::HandleSeamlessTravelPlayer(C);
+}
+
+void AGOTeamBattleGameMode::StartPlay()
+{
+	Super::StartPlay();
 }
 
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
@@ -79,22 +79,11 @@ void AGOTeamBattleGameMode::HandleMatchHasStarted()
 	}*/
 }
 
+void AGOTeamBattleGameMode::DefaultRoundTimer()
+{
+	Super::DefaultRoundTimer();
+}
 
-/*
-
-	AGOPlayerState* PS = NewPlayer->GetPlayerState<AGOPlayerState>();
-	int32 PlayerId = PS->GetPlayerId();
-	PS->SelectedHero = FHeroSelectionInfo(PlayerId);
-
-	if (PS->GetTeamType() == ETeamType::ET_RedTeam)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 40.f, FColor::Cyan,
-				FString::Printf(TEXT("RedTeam - PlayerId: %d"), PlayerId));
-	}
-	else if (PS->GetTeamType() == ETeamType::ET_BlueTeam)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 40.f, FColor::Cyan,
-			FString::Printf(TEXT("BlueTeam - PlayerId: %d"), PlayerId));
-	}
-
-*/
+void AGOTeamBattleGameMode::FinishMatch()
+{
+}

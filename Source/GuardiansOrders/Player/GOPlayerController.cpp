@@ -9,6 +9,8 @@
 #include <Game/GOPlayerState.h>
 #include <GameData/GOGameSubsystem.h>
 #include <Character/GOPlayerCharacter.h>
+#include "UI/GOBattleCharacterOverlayWidget.h"
+#include "CommonTextBlock.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -94,10 +96,19 @@ void AGOPlayerController::BeginPlay()
         if (GOHUDWidget)
         {
             GOHUDWidget->AddToViewport();
+            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -2"));
+
+            if (GOHUDWidget->CharacterOverlayClass)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
+
+                GOHUDWidget->AddCharacterOverlay();
+
+            }
+
         }
+
     }
-
-
 }
 
 void AGOPlayerController::OnPossess(APawn* InPawn)
@@ -107,6 +118,22 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
     Super::OnPossess(InPawn);
 
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AGOPlayerController::SetHUDScore(float Score)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->ScoreAmount;
+    
+        if (bHUDVaild)
+        {
+            FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
+            GOHUDWidget->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
+        }
+    }
 }
 
 void AGOPlayerController::InitializeSkills()

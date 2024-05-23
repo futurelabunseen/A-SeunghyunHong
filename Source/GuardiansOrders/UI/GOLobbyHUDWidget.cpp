@@ -4,8 +4,9 @@
 #include "UI/GOLobbyHUDWidget.h"
 #include "UI/GOHeroSelectionWidget.h"
 #include "Interface/GOLobbyHUDInterface.h"
+#include "CommonTextBlock.h"
 
-UGOLobbyHUDWidget::UGOLobbyHUDWidget(const FObjectInitializer& ObjectInitializer)
+UGOLobbyHUDWidget::UGOLobbyHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
 
@@ -32,6 +33,10 @@ void UGOLobbyHUDWidget::NativeConstruct()
 	HeroSelectionWidget = Cast<UGOHeroSelectionWidget>(GetWidgetFromName(TEXT("WidgetHeroSelection")));
 	ensure(HeroSelectionWidget);
 	HeroSelectionWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	CountdownText = Cast<UCommonTextBlock>(GetWidgetFromName(TEXT("CountdownText")));
+	ensure(CountdownText);
+	CountdownText->SetVisibility(ESlateVisibility::Hidden);
 
 	IGOLobbyHUDInterface* HUDController = Cast<IGOLobbyHUDInterface>(GetOwningPlayer());
 	if (HUDController)

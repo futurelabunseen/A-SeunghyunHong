@@ -42,7 +42,9 @@ public:
 	int32 RemainingTime;
 
 	int32 MatchPlayTime = 20;
+	
 	int32 ShowResultWaitingTime = 5;
+	//const int32 ReadyForTravelTime = 5;
 
 	// 추가해줌
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
@@ -52,10 +54,16 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_HeroSelectionWidget)
 	bool bShowHeroSelectionWidget;
 
-	/**
-	 * Team
-	 */
-	
+	// OnRep 함수: Replication이 발생했을 때 클라이언트에서 호출된다.
+	UFUNCTION()
+	void OnRep_CharacterSelected();
+
+	UPROPERTY(ReplicatedUsing = OnRep_CountDownForTravelReadyTime)
+	int32 RemainingReadyTravelTime;
+
+	UFUNCTION()
+	void OnRep_CountDownForTravelReadyTime();
+
 	// Red팀과 Blue팀의 영웅 정보를 담을 배열
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterSelected)
 	TArray<FHeroSelectionInfo> RedTeamHeroes;
@@ -63,9 +71,6 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CharacterSelected)
 	TArray<FHeroSelectionInfo> BlueTeamHeroes;
 
-	// OnRep 함수: Replication이 발생했을 때 클라이언트에서 호출된다.
-	UFUNCTION()
-	void OnRep_CharacterSelected();
 
 	void RedTeamScores();
 	void BlueTeamScores();

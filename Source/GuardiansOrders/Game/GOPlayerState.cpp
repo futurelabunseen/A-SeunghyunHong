@@ -7,6 +7,7 @@
 #include "Game/GOLobbyGameMode.h"
 #include "Character/GOPlayerCharacter.h"
 #include "Player/GOLobbyPlayerController.h"
+#include "Player/GOPlayerController.h"
 
 AGOPlayerState::AGOPlayerState()
 {
@@ -68,6 +69,36 @@ void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
 //		}
 //	}
 //}
+
+void AGOPlayerState::OnRep_Score()
+{
+	Super::OnRep_Score();
+
+	Character = Character == nullptr? Cast<AGOPlayerCharacter>(GetPawn()) : Character;
+	if (Character)
+	{
+		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDScore(Score);
+		}
+	}
+}
+
+void AGOPlayerState::AddToScore(float ScoreAmount)
+{
+	Score += ScoreAmount;
+
+	Character = Character == nullptr ? Cast<AGOPlayerCharacter>(GetPawn()) : Character;
+	if (Character)
+	{
+		Controller = Controller == nullptr ? Cast<AGOPlayerController>(Character->Controller) : Controller;
+		if (Controller)
+		{
+			Controller->SetHUDScore(ScoreAmount);
+		}
+	}
+}
 
 void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 {

@@ -8,6 +8,8 @@
 #include "Share/EGOTeam.h"
 #include "GOPlayerState.generated.h"
 
+class AGOPlayerCharacter;
+class AGOPlayerController;
 /**
  * 서버와 모든 클라이언트에 존재합니다.
  * 자신, 다른 플레이어의 상태를 파악할 수 있습니다.
@@ -27,7 +29,7 @@ public:
 
 public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Character Selection")
-	TSubclassOf<class AGOPlayerCharacter> SelectedCharacterClass;
+	TSubclassOf<AGOPlayerCharacter> SelectedCharacterClass;
 
 	// 플레이어가 선택한 영웅 정보
 	UPROPERTY(Replicated)
@@ -49,8 +51,21 @@ public:
 	//void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
 
 	/**
+	 * Score
+	 */
+
+public:
+	virtual void OnRep_Score() override;
+	void AddToScore(float ScoreAmount);
+
+private:
+	AGOPlayerCharacter* Character;
+	AGOPlayerController* Controller;
+
+	/**
 	 * Team
 	 */
+public:
 	FORCEINLINE ETeamType GetTeamType() const { return Team; }
 	void SetTeam(ETeamType TeamToSet);
 

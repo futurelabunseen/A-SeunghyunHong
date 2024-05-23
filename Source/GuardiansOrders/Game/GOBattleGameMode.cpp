@@ -112,7 +112,7 @@ void AGOBattleGameMode::PostSeamlessTravel()
 	UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] Number of players in GameState->PlayerArray: %d"), PlayerCount);
 
 	// 일정 시간 후에 PlayerController를 재검사하기 위해 타이머 설정
-	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AGOBattleGameMode::CheckPlayerControllers);
+	//GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AGOBattleGameMode::CheckPlayerControllers);
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
@@ -172,6 +172,8 @@ void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 		{
 			if (!PlayerController->GetPawn())
 			{
+				// 여기서 스폰빙의
+				//UE_LOG(LogTemp, Error, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer -SpawnPlayerCharacter"));
 				// 선택된 히어로 타입으로 새로운 캐릭터 스폰 및 빙의
 				SpawnPlayerCharacter(PlayerController, PlayerState->SelectedHero.SelectedHero);
 			}
@@ -336,6 +338,8 @@ void AGOBattleGameMode::CheckPlayerControllers()
 					{
 						UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode CheckPlayerControllers - PlayerState %s found for PlayerController: %s"), *PlayerState->GetName(), *PlayerController->GetName());
 
+						UE_LOG(LogTemp, Error, TEXT("[SEAMLESS] AGOBattleGameMode::CheckPlayerControllers -SpawnPlayerCharacter"));
+
 						// 선택된 히어로 타입으로 새로운 캐릭터 스폰 및 빙의
 						SpawnPlayerCharacter(PlayerController, GOPlayerState->SelectedHero.SelectedHero);
 					}
@@ -401,7 +405,7 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHero
 		}
 
 		AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
-		UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - NewCharacter %s"), *NewCharacter->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - NewCharacter %s"), *NewCharacter->GetName());
 
 		if (NewCharacter)
 		{

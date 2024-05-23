@@ -44,6 +44,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=HUD)
 	TObjectPtr<UGOHUDWidget> GOHUDWidget;
 
+	void SetHUDScore(float Score);
 
 // ======== SkillSetBar UI ======== 
 protected:
