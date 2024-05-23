@@ -89,6 +89,18 @@ public:
 
 	UFUNCTION()
 	void OnRep_BlueTeamScore();
+	
+	/** 
+	 * Top Score
+	 */
+	void UpdateTopscore(AGOPlayerState* ScoringPlayer);
+
+	// 복수일 수 있다
+	UPROPERTY(Replicated)
+	TArray<AGOPlayerState*> TopScoringPlayers;
+
+private:
+	float TopScore = 0.f;
 
 public:
 	UFUNCTION()

@@ -50,6 +50,7 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	DOREPLIFETIME(AGOGameState, RedTeamHeroes);
 	DOREPLIFETIME(AGOGameState, BlueTeamHeroes);
 	DOREPLIFETIME(AGOGameState, RemainingReadyTravelTime);
+	DOREPLIFETIME(AGOGameState, TopScoringPlayers);
 }
 
 void AGOGameState::OnRep_CharacterSelected()
@@ -134,6 +135,25 @@ void AGOGameState::OnRep_RedTeamScore()
 
 void AGOGameState::OnRep_BlueTeamScore()
 {
+}
+
+void AGOGameState::UpdateTopscore(AGOPlayerState* ScoringPlayer)
+{
+	if (TopScoringPlayers.Num() == 0)
+	{
+		TopScoringPlayers.Add(ScoringPlayer);
+		TopScore = ScoringPlayer->GetScore();
+	}
+	else if (ScoringPlayer->GetScore() == TopScore)
+	{
+		TopScoringPlayers.AddUnique(ScoringPlayer);
+	}
+	else if (ScoringPlayer->GetScore() > TopScore)
+	{
+		TopScoringPlayers.Empty();
+		TopScoringPlayers.AddUnique(ScoringPlayer);
+		TopScore = ScoringPlayer->GetScore();
+	}
 }
 
 void AGOGameState::OnRep_HeroSelectionWidget()

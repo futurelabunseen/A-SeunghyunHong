@@ -103,7 +103,7 @@ void AGOPlayerController::BeginPlay()
                 UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
 
                 // GOHUDWidget->AddCharacterOverlay();
-                GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 3.0f, false);
+                GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
 
             }
 

@@ -30,6 +30,7 @@ void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
 {
 	Super::CopyProperties(PlayerState);
+	UE_LOG(LogTemp, Warning, TEXT("CopyProperties 000"));
 
 	AGOPlayerState* MyPlayerState = Cast<AGOPlayerState>(PlayerState);
 	if (MyPlayerState)

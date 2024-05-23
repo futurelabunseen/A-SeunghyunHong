@@ -52,6 +52,22 @@ void AGOTeamBattleGameMode::StartPlay()
 	Super::StartPlay();
 }
 
+float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	AGOPlayerState* AttackerPState = Attacker->GetPlayerState<AGOPlayerState>();
+	AGOPlayerState* VictimPState = Victim->GetPlayerState<AGOPlayerState>();
+	if (AttackerPState == nullptr || VictimPState == nullptr) return BaseDamage;
+	if (VictimPState == AttackerPState)
+	{
+		return BaseDamage;
+	}
+	if (AttackerPState->GetTeamType() == VictimPState->GetTeamType())
+	{
+		return 0.f;
+	}
+	return BaseDamage;
+}
+
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();

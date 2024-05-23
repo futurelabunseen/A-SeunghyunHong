@@ -51,6 +51,8 @@ public:
 	 */
 	virtual void StartPlay() override;
 
+	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
+
 protected:
 	virtual void PostInitializeComponents() override;
 

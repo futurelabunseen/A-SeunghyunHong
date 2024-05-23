@@ -42,6 +42,7 @@
 #include "Player/GOPlayerController.h"
 #include "GOCharacterMovementComponent.h"
 #include "Share/EGOSkill.h"
+#include <Game/GOBattleGameMode.h>
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -1216,6 +1217,9 @@ void AGOPlayerCharacter::ResetPlayer()
 	if (ManaBar) // Ensure ManaBar is not null
 		ManaBar->SetHiddenInGame(false);
 
+	if (StatsBar)
+		StatsBar->SetHiddenInGame(false);
+
 	if (HasAuthority())
 	{
 		IGOBattleInterface* GOGameMode = GetWorld()->GetAuthGameMode<IGOBattleInterface>();
@@ -1243,6 +1247,11 @@ void AGOPlayerCharacter::SetDead()
 float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+
+	GOBattleGameMode = GOBattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<AGOBattleGameMode>() : GOBattleGameMode;
+	if (GOBattleGameMode == nullptr) return 0.0f;
+
+	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (Stat->GetCurrentHp() <= 0.0f)

@@ -489,8 +489,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetRotation(FRotator NewRotation);
 
-// ======== IGOPlaySkillAnimInterface ========
+private:
+	UPROPERTY()
+	class AGOBattleGameMode* GOBattleGameMode;
 
+// ======== IGOPlaySkillAnimInterface ========
+public:
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
 	{
 		return SkillCastComponent;

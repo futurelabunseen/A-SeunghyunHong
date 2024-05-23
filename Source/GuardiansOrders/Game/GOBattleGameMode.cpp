@@ -20,6 +20,8 @@ AGOBattleGameMode::AGOBattleGameMode()
 	GameStateClass = AGOGameState::StaticClass();
 	PlayerStateClass = AGOPlayerState::StaticClass();
 	//CheatClass = UGOCheatManager::StaticClass();
+
+	//bDelayedStart = true; 
 }
 
 void AGOBattleGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -178,15 +180,23 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 	return PlayerStartArray[RandIndex]->GetActorTransform();
 }
 
+
+float AGOBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
+{
+	return BaseDamage;
+}
+
 void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn)
 {
 	// TODO
-	AGOPlayerState* AttackPlayerState = Killer ? Cast<AGOPlayerState>(Killer->PlayerState) : nullptr;
+	AGOPlayerState* AttackerPlayerState = Killer ? Cast<AGOPlayerState>(Killer->PlayerState) : nullptr;
 	AGOPlayerState* VictimPlayerState = KilledPlayer ? Cast<AGOPlayerState>(KilledPlayer->PlayerState) : nullptr;
+	AGOGameState* GOGameState = GetGameState<AGOGameState>();
 
-	if (AttackPlayerState && AttackPlayerState != VictimPlayerState)
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
 	{
-		AttackPlayerState->AddToScore(1.0f);
+		AttackerPlayerState->AddToScore(1.0f);
+		GOGameState->UpdateTopscore(AttackerPlayerState);
 	}
 
 	if (VictimPlayerState)
