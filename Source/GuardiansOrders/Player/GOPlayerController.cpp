@@ -96,15 +96,28 @@ void AGOPlayerController::BeginPlay()
         if (GOHUDWidget)
         {
             GOHUDWidget->AddToViewport();
+            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -2"));
 
             if (GOHUDWidget->CharacterOverlayClass)
             {
-                GOHUDWidget->AddCharacterOverlay();
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
+
+                // GOHUDWidget->AddCharacterOverlay();
+                GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 3.0f, false);
 
             }
 
         }
 
+    }
+}
+
+void AGOPlayerController::AddCharacterOverlayDelayed()
+{
+    if (GOHUDWidget && GOHUDWidget->CharacterOverlayClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
+        GOHUDWidget->AddCharacterOverlay();
     }
 }
 
@@ -115,6 +128,55 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
     Super::OnPossess(InPawn);
 
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
+}
+
+void AGOPlayerController::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+    SetHUDTime();
+    CheckTimeSync(DeltaTime);
+}
+
+float AGOPlayerController::GetServerTime()
+{
+    // Server
+    if (HasAuthority()) return GetWorld()->GetTimeSeconds();
+    // Client
+    else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
+}
+
+void AGOPlayerController::ReceivedPlayer()
+{
+    Super::ReceivedPlayer();
+    if (IsLocalController())
+    {
+        ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+    }
+}
+
+void AGOPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
+{
+    // TODO : GameState Custom Func
+    float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
+    ClientReportServerTime(TimeOfClientRequest, ServerTimeOfReceipt);
+}
+
+void AGOPlayerController::ClientReportServerTime_Implementation(float TimeOfClientRequest, float TimeServerReceivedClientRequest)
+{
+    float RoundTripTime = GetWorld()->GetTimeSeconds() - TimeOfClientRequest;
+    SingleTripTime = 0.5f * RoundTripTime;
+    float CurrentServerTime = TimeServerReceivedClientRequest + SingleTripTime; // 서버가 정보를 전송하는 데 걸리는 시간까지 고려
+    ClientServerDelta = CurrentServerTime - GetWorld()->GetTimeSeconds();
+}
+
+void AGOPlayerController::CheckTimeSync(float DeltaTime)
+{
+    TimeSyncRunningTime += DeltaTime;
+    if (IsLocalController() && TimeSyncRunningTime > TimeSyncFrequency)
+    {
+        ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+        TimeSyncRunningTime = 0.f;
+    }
 }
 
 void AGOPlayerController::SetHUDScore(float Score)
@@ -147,6 +209,41 @@ void AGOPlayerController::SetHUDDefeats(int32 Defeats)
             GOHUDWidget->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
         }
     }
+}
+
+void AGOPlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->MatchCountdownText;
+
+        if (bHUDVaild)
+        {
+            if (CountdownTime < 0.f)
+            {
+                GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText());
+                return;
+            }
+
+            int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+            int32 Seconds = CountdownTime - Minutes * 60;
+
+            FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+            GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+        }
+    }
+}
+
+void AGOPlayerController::SetHUDTime()
+{
+    uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+    if (CountdownInt != SecondsLeft)
+    {
+        SetHUDMatchCountdown(MatchTime - GetServerTime());
+    }
+    CountdownInt = SecondsLeft;
 }
 
 void AGOPlayerController::InitializeSkills()

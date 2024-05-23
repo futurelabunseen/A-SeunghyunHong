@@ -44,7 +44,7 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		// Display the player's name on the screen
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
 				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"),
 					*PlayerName, *PlayerControllerName));
 		}
@@ -340,19 +340,19 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 
 			if (GEngine)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 					FString::Printf(TEXT("SelectHero - PlayerId: %d, HeroType: %d"), PlayerId, static_cast<int32>(HeroType)));
 			}
 
 			for (const FHeroSelectionInfo& Hero : GS->RedTeamHeroes)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 					FString::Printf(TEXT("RedTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
 			}
 
 			for (const FHeroSelectionInfo& Hero : GS->BlueTeamHeroes)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 					FString::Printf(TEXT("BlueTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
 			}
 

@@ -19,5 +19,8 @@ public:
 	class UCommonTextBlock* ScoreAmount;	
 	
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* DefeatsAmount;
+	class UCommonTextBlock* DefeatsAmount; 	
+
+	UPROPERTY(meta=(BindWidget))
+	class UCommonTextBlock* MatchCountdownText;
 };

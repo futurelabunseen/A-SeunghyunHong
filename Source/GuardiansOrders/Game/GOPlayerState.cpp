@@ -142,7 +142,7 @@ void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 	if (GEngine)
 	{
 		FColor TeamColor = (TeamToSet == ETeamType::ET_RedTeam) ? FColor::Red : FColor::Blue;
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, TeamColor,
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, TeamColor,
 			FString::Printf(TEXT("[AGOPlayerState] Team %d"), TeamToSet));
 	}
 }

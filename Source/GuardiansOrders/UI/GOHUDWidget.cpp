@@ -77,12 +77,24 @@ void UGOHUDWidget::UpdateManaBar(float NewCurrentMana, float NewMaxMana)
 
 void UGOHUDWidget::AddCharacterOverlay()
 {
+	UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay 0"));
+
 	APlayerController* BasePlayerController = GetWorld()->GetFirstPlayerController();
 	AGOPlayerController* PlayerController = Cast<AGOPlayerController>(BasePlayerController);
 
+	if (PlayerController == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerController is null"));
+	}
+
 	if (PlayerController && CharacterOverlayClass)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay 1"));
+
 		CharacterOverlay = CreateWidget<UGOBattleCharacterOverlayWidget>(PlayerController, CharacterOverlayClass);
-		CharacterOverlay->AddToViewport();
+		CharacterOverlay->AddToViewport();		
+		
+		UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay 2"));
+
 	}
 }

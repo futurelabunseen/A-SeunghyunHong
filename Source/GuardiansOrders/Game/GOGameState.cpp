@@ -61,7 +61,7 @@ void AGOGameState::OnRep_CharacterSelected()
 		// Red Team
 		for (const FHeroSelectionInfo& HeroInfo : RedTeamHeroes)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Red Team - PlayerId: %d, HeroType: %d"),
 					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
 		}
@@ -69,7 +69,7 @@ void AGOGameState::OnRep_CharacterSelected()
 		// Blue Team
 		for (const FHeroSelectionInfo& HeroInfo : BlueTeamHeroes)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Cyan,
+			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Blue Team - PlayerId: %d, HeroType: %d"),
 					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
 		}
@@ -208,7 +208,7 @@ void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerControlle
 
 			if (GEngine)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
+				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
 					FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName()));
 			}
 		}

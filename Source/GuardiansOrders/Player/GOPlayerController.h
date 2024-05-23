@@ -36,6 +36,37 @@ protected:
 	*/
 	virtual void OnPossess(APawn* InPawn) override;
 
+	virtual void Tick(float DeltaTime) override;
+
+
+protected:
+	/**
+	 * Sync time between client and server
+	 */
+
+	virtual float GetServerTime(); // Synced with server world clock
+	virtual void ReceivedPlayer() override; // Sync with server clock as soon as possible
+
+	// Requests the current server time, passing in the client's time when the request was sent
+	UFUNCTION(Server, Reliable)
+	void ServerRequestServerTime(float TimeOfClientRequest);
+
+	// Reports the current server time to the client in response to ServerRequestServerTime
+	UFUNCTION(Client, Reliable)
+	void ClientReportServerTime(float TimeOfClientRequest, float TimeServerReceivedClientRequest);
+
+	float ClientServerDelta = 0.f; // difference between client and server time
+
+	UPROPERTY(EditAnywhere, Category = Time)
+	float TimeSyncFrequency = 5.f; // 5초마다 서버와 동기화
+
+	float TimeSyncRunningTime = 0.f;
+
+	void CheckTimeSync(float DeltaTime);
+
+	float SingleTripTime = 0.f;
+
+
 // HUD Section
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=HUD)
@@ -47,6 +78,18 @@ public:
 	void SetHUDScore(float Score);
 
 	void SetHUDDefeats(int32 Defeats);
+
+	void SetHUDMatchCountdown(float CountdownTime);
+
+	void SetHUDTime();
+
+	void AddCharacterOverlayDelayed();
+
+private:
+	float MatchTime = 120.f; //120 seconds 
+	uint32 CountdownInt = 0;
+
+	FTimerHandle CharacterOverlayTimerHandle;
 
 // ======== SkillSetBar UI ======== 
 protected:
