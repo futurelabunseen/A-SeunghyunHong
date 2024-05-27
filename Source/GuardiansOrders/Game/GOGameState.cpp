@@ -13,6 +13,7 @@
 #include "UI/GOLobbyHUDWidget.h"
 #include "CommonTextBlock.h"
 #include "Player/GOPlayerController.h"
+#include "GameData/GOGameSubsystem.h"
 
 AGOGameState::AGOGameState()
 {
@@ -27,6 +28,16 @@ void AGOGameState::HandleBeginPlay()
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 
 	Super::HandleBeginPlay();
+
+	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+	if (Subsystem)
+	{
+		FHeroSelectionData HeroSelectionData = Subsystem->GetHeroSelectionData();
+		RedTeamHeroes = HeroSelectionData.RedTeamHeroes;
+		BlueTeamHeroes = HeroSelectionData.BlueTeamHeroes;
+
+		//OnRep_CharacterSelected();  // Ensure UI updates on clients
+	}
 
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
@@ -76,9 +87,12 @@ void AGOGameState::OnRep_CharacterSelected()
 					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
 		}
 	}
+	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
 
-
-
+	FHeroSelectionData HeroSelectionData;
+	HeroSelectionData.RedTeamHeroes = this->RedTeamHeroes;
+	HeroSelectionData.BlueTeamHeroes = this->BlueTeamHeroes;
+	Subsystem->SetHeroSelectionData(HeroSelectionData);
 }
 
 void AGOGameState::OnRep_CountDownForTravelReadyTime()
@@ -185,9 +199,16 @@ void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerControlle
 	if (PlayerController)
 	{
 		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+
 		if (LobbyController && LobbyController->GOLobbyHUDWidget)
 		{
 			LobbyController->GOLobbyHUDWidget->ShowHeroSelectionWidget();
+			if (HasAuthority())
+			{
+				LobbyController->SetLobbyTeamInfo(LobbyController->GetPlayerState<AGOPlayerState>()->GetTeamType());
+			}
+			
+
 			UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName());
 
 			if (GEngine)

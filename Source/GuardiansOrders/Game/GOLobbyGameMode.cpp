@@ -72,11 +72,15 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 			{
 				BGameState->RedTeam.AddUnique(BPState);
 				BPState->SetTeam(ETeamType::ET_RedTeam);
+				UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] SetTeam 00 ET_RedTeam "));
+
 			}
 			else
 			{
 				BGameState->BlueTeam.AddUnique(BPState);
 				BPState->SetTeam(ETeamType::ET_BlueTeam);
+				UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] SetTeam 00 ET_BlueTeam "));
+
 			}
 		}
 	}
@@ -312,6 +316,8 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 
 		AGOPlayerState* PS = PlayerController->GetPlayerState<AGOPlayerState>();
 		AGOGameState* GS = GetWorld()->GetGameState<AGOGameState>();
+		UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+		FHeroSelectionData HeroSelectionData;
 
 		if (PS && GS)
 		{
@@ -332,10 +338,14 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 			if (PS->GetTeamType() == ETeamType::ET_RedTeam)
 			{
 				GS->RedTeamHeroes.Add(PS->SelectedHero);
+				HeroSelectionData.RedTeamHeroes.Add(PS->SelectedHero);
+				UE_LOG(LogTemp, Warning, TEXT("AGOLobbyGameMode GS->RedTeamHeroes: %d"), GS->RedTeamHeroes.Num());
+
 			}
 			else if (PS->GetTeamType() == ETeamType::ET_BlueTeam)
 			{
 				GS->BlueTeamHeroes.Add(PS->SelectedHero);
+				HeroSelectionData.BlueTeamHeroes.Add(PS->SelectedHero);
 			}
 
 			if (GEngine)
@@ -355,6 +365,10 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
 					FString::Printf(TEXT("BlueTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
 			}
+
+			// Save hero selection data to the subsystem
+
+			Subsystem->SetHeroSelectionData(HeroSelectionData);
 
 			GS->OnRep_CharacterSelected();
 

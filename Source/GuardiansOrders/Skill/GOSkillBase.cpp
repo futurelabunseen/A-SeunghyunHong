@@ -248,7 +248,7 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& Out
 
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
 	FVector Forward = OwnerActor->GetActorForwardVector();
-	FVector Start = FVector(150,0,0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Start = FVector(0,150,0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
 	//FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
 	FVector End = Start + Forward * Stats.DamageRange;  // 무의미한 벡터, 스위프의 시작점만 중요
 

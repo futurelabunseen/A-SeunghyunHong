@@ -39,6 +39,9 @@ protected:
     UFUNCTION()
     void OnReadyButtonClicked(); // Ready 버튼 클릭 이벤트 핸들러
 
+    UFUNCTION()
+    void EnableReadyButton();
+
     // UMG widget bindings
     UPROPERTY(meta = (BindWidget))
     UButton* RogersButton;

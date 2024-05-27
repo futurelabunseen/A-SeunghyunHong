@@ -51,6 +51,8 @@ void AGOTeamBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 void AGOTeamBattleGameMode::StartPlay()
 {
 	Super::StartPlay();
+	UE_LOG(LogTemp, Warning, TEXT("AGOTeamBattleGameMode StartPlay")); // O
+
 }
 
 float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)

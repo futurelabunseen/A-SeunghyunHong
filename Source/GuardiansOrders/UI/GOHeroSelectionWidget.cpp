@@ -36,54 +36,30 @@ void UGOHeroSelectionWidget::NativeConstruct()
     if (ReadyButton)
     {
         ReadyButton->OnClicked.AddDynamic(this, &UGOHeroSelectionWidget::OnReadyButtonClicked);
+        ReadyButton->SetIsEnabled(false);
     }
 }
 
 void UGOHeroSelectionWidget::OnRogersButtonClicked()
 {
-    // SelectCharacter(AGORogersCharacter::StaticClass());
     SelectCharacter(EHeroType::Rogers);
 }
 
 void UGOHeroSelectionWidget::OnKatnissButtonClicked()
 {
-    // SelectCharacter(AGOKatnissCharacter::StaticClass());
     SelectCharacter(EHeroType::Katniss);
 }
 
 
 void UGOHeroSelectionWidget::OnBeastButtonClicked()
 {
-    // SelectCharacter(AGOBeastCharacter::StaticClass());
     SelectCharacter(EHeroType::Beast);
 }
 
 void UGOHeroSelectionWidget::OnBrideButtonClicked()
 {
-    // SelectCharacter(AGOBrideCharacter::StaticClass());
     SelectCharacter(EHeroType::Bride);
 }
-
-
-//void UGOHeroSelectionWidget::SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
-//{
-//    //APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-//    //if (PlayerController)
-//    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-//    if (PlayerController && PlayerController->IsLocalController())
-//    {
-//        AGOPlayerState* PlayerState = PlayerController->GetPlayerState<AGOPlayerState>();
-//        if (PlayerState)
-//        {
-//            //PlayerState->SelectCharacter(CharacterClass);
-//
-//            GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Green,
-//                FString::Printf(TEXT("[UGOHeroSelectionWidget] Player %s selected ! "),
-//                    *PlayerController->GetName()));
-//        }
-//    }
-//}
-
 
 void UGOHeroSelectionWidget::SelectCharacter(EHeroType HeroType)
 {
@@ -96,6 +72,7 @@ void UGOHeroSelectionWidget::SelectCharacter(EHeroType HeroType)
             GOPlayerController->ServerSelectHero(HeroType);
         }
     }
+    EnableReadyButton();
 }
 
 void UGOHeroSelectionWidget::OnReadyButtonClicked()
@@ -106,7 +83,17 @@ void UGOHeroSelectionWidget::OnReadyButtonClicked()
         AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
         if (GOPlayerController)
         {
+            GOPlayerController->DisableAllUI();
             GOPlayerController->ServerReady(); // Ready 상태를 서버에 전송
         }
+    }
+    this->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UGOHeroSelectionWidget::EnableReadyButton()
+{
+    if (ReadyButton)
+    {
+        ReadyButton->SetIsEnabled(true);
     }
 }

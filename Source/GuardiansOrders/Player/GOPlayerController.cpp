@@ -7,10 +7,13 @@
 #include "CommonActivatableWidget.h"
 #include "UI/SkillWidget/GOSkillSetBarWidget.h"
 #include <Game/GOPlayerState.h>
+#include "Game/GOGameState.h"
 #include <GameData/GOGameSubsystem.h>
 #include <Character/GOPlayerCharacter.h>
 #include "UI/GOBattleCharacterOverlayWidget.h"
 #include "CommonTextBlock.h"
+#include "UI/GOTeamMemberWidget.h"
+#include <Kismet/GameplayStatics.h>
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -88,7 +91,8 @@ void AGOPlayerController::BeginPlay()
     InputModeData.SetHideCursorDuringCapture(false);
     SetInputMode(InputModeData);
 
-    
+    GOBattleGameState = GetWorld()->GetGameState<AGOGameState>();
+
     if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
     {
         GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
@@ -104,6 +108,7 @@ void AGOPlayerController::BeginPlay()
 
                 // GOHUDWidget->AddCharacterOverlay();
                 GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
+                
                 InitTeamScores(); // TODO : ±¸Á¶
             }
 
@@ -118,8 +123,30 @@ void AGOPlayerController::AddCharacterOverlayDelayed()
     {
         UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
         GOHUDWidget->AddCharacterOverlay();
+
+        if (GOBattleGameState)
+        {
+            int32 PlayerArrayNum = GOBattleGameState->PlayerArray.Num();
+            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num: %d"), PlayerArrayNum);
+
+            if (PlayerArrayNum > 0)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num!!: %d"), PlayerArrayNum);
+
+                SetHUDMatchMembers(PlayerArrayNum);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray is empty."));
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay GOBattleGameState is null."));
+        }
     }
 }
+
 
 void AGOPlayerController::HideTeamScores()
 {
@@ -184,6 +211,51 @@ void AGOPlayerController::SetHUDBlueTeamScore(int32 BlueScore)
         {
             FString ScoreText = FString::Printf(TEXT("%d"), BlueScore);
             GOHUDWidget->CharacterOverlay->BlueTeamScore->SetText(FText::FromString(ScoreText));
+        }
+    }
+}
+
+void AGOPlayerController::SetHUDMatchMembers(int32 MatchMemberNum)
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->CharacterOverlay &&
+            GOHUDWidget->CharacterOverlay->RedTeamMember01 &&
+            GOHUDWidget->CharacterOverlay->RedTeamMember02 &&
+            GOHUDWidget->CharacterOverlay->BlueTeamMember01 &&
+            GOHUDWidget->CharacterOverlay->BlueTeamMember02;
+
+        if (bHUDVaild)
+        {
+            if (MatchMemberNum == 2)
+            {
+                UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+                if (Subsystem)
+                {
+                    FHeroSelectionData HeroSelectionData = Subsystem->GetHeroSelectionData();
+
+                    UE_LOG(LogTemp, Warning, TEXT("GOBattleGameState->RedTeamHeroes: %d"), HeroSelectionData.RedTeamHeroes.Num());
+                    GOHUDWidget->CharacterOverlay->RedTeamMember01->SetTeamMemberWidgetVisible(HeroSelectionData.RedTeamHeroes[0]);
+                    GOHUDWidget->CharacterOverlay->BlueTeamMember01->SetTeamMemberWidgetVisible(HeroSelectionData.BlueTeamHeroes[0]);
+                }
+            }
+
+            if (MatchMemberNum == 4)
+            {
+
+                UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+                if (Subsystem)
+                {
+                    FHeroSelectionData HeroSelectionData = Subsystem->GetHeroSelectionData();
+                    
+                    UE_LOG(LogTemp, Warning, TEXT("GOBattleGameState->RedTeamHeroes: %d"), HeroSelectionData.RedTeamHeroes.Num());
+                    GOHUDWidget->CharacterOverlay->RedTeamMember01->SetTeamMemberWidgetVisible(HeroSelectionData.RedTeamHeroes[0]);
+                    GOHUDWidget->CharacterOverlay->BlueTeamMember01->SetTeamMemberWidgetVisible(HeroSelectionData.BlueTeamHeroes[0]);
+                    GOHUDWidget->CharacterOverlay->RedTeamMember02->SetTeamMemberWidgetVisible(HeroSelectionData.RedTeamHeroes[1]);
+                    GOHUDWidget->CharacterOverlay->BlueTeamMember02->SetTeamMemberWidgetVisible(HeroSelectionData.BlueTeamHeroes[1]);
+                }
+            }
         }
     }
 }

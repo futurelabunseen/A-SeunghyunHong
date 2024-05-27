@@ -6,6 +6,9 @@
 #include "CommonUserWidget.h"
 #include "GOBattleCharacterOverlayWidget.generated.h"
 
+class UGOTeamMemberWidget;
+class UCommonTextBlock;
+
 /**
  * 
  */
@@ -16,17 +19,29 @@ class GUARDIANSORDERS_API UGOBattleCharacterOverlayWidget : public UCommonUserWi
 	
 public:
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* ScoreAmount;	
+	UCommonTextBlock* ScoreAmount;	
 	
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* DefeatsAmount; 	
+	UCommonTextBlock* DefeatsAmount; 	
 
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* MatchCountdownText;
+	UCommonTextBlock* MatchCountdownText;
 	
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* BlueTeamScore;
+	UCommonTextBlock* BlueTeamScore;
 
 	UPROPERTY(meta=(BindWidget))
-	class UCommonTextBlock* RedTeamScore;
+	UCommonTextBlock* RedTeamScore;
+
+	UPROPERTY(meta=(BindWidget))
+	UGOTeamMemberWidget* BlueTeamMember01;
+
+	UPROPERTY(meta = (BindWidget))
+	UGOTeamMemberWidget* BlueTeamMember02;
+
+	UPROPERTY(meta = (BindWidget))
+	UGOTeamMemberWidget* RedTeamMember01;
+
+	UPROPERTY(meta = (BindWidget))
+	UGOTeamMemberWidget* RedTeamMember02;
 };

@@ -8,6 +8,7 @@
 #include "Skill/GOSkillBase.h"
 #include "Skill/GOSpellBase.h"
 #include "GOHeroCharacterData.h"
+#include "Engine/Texture2D.h"
 
 UGOGameSubsystem::UGOGameSubsystem()
 {
@@ -349,6 +350,33 @@ FName UGOGameSubsystem::GetSpellTypeFName(ESpellType SpellType)
 	}
 }
 
+UTexture2D* UGOGameSubsystem::GetHeroImageByEHeroType(EHeroType HeroType)
+{
+	FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
+	FGOCharacterData* CharacterData = this->GetCharacterData(HeroName);
+	if (CharacterData)
+	{
+		return CharacterData->HeroIcon;
+	}
+	return nullptr;
+}
+
+
+//void UGOGameSubsystem::GetHeroImageByEHeroType(EHeroType HeroType, UTexture2D*& OutTexture)
+//{
+//	FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
+//	FGOCharacterData* CharacterData = this->GetCharacterData(HeroName);
+//	if (CharacterData)
+//	{
+//		OutTexture = CharacterData->HeroIcon;
+//	}
+//	else
+//	{
+//		OutTexture = nullptr;
+//	}
+//}
+
+
 TSubclassOf<AGOPlayerCharacter> UGOGameSubsystem::GetCharacterClassByHeroType(EHeroType HeroType) const
 {
 	const TSubclassOf<AGOPlayerCharacter>* FoundClass = HeroCharacterMap.Find(HeroType);
@@ -378,4 +406,14 @@ void UGOGameSubsystem::InitializeHeroCharacterMap()
 		HeroCharacterMap.Add(EHeroType::Beast, HeroCharacterData->BeastCharacterClass);
 		HeroCharacterMap.Add(EHeroType::Bride, HeroCharacterData->BrideCharacterClass);
 	}
+}
+
+void UGOGameSubsystem::SetHeroSelectionData(const FHeroSelectionData& Data)
+{
+	HeroSelectionData = Data;
+}
+
+FHeroSelectionData UGOGameSubsystem::GetHeroSelectionData() const
+{
+	return HeroSelectionData;
 }

@@ -18,6 +18,8 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "GOGameSubsystem.generated.h"
 
+class UImage;
+
 // Skill
 USTRUCT(BlueprintType)
 struct FSkillInfo
@@ -120,6 +122,18 @@ struct FHeroSpellKey
     }
 };
 
+USTRUCT(BlueprintType)
+struct FHeroSelectionData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    TArray<FHeroSelectionInfo> RedTeamHeroes;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    TArray<FHeroSelectionInfo> BlueTeamHeroes;
+};
+
 UCLASS()
 class GUARDIANSORDERS_API UGOGameSubsystem : public UGameInstanceSubsystem
 {
@@ -162,8 +176,13 @@ public:
 
     FName GetSpellTypeFName(ESpellType SpellType);
 
+    UTexture2D* GetHeroImageByEHeroType(EHeroType HeroType);
+    // void GetHeroImageByEHeroType(EHeroType HeroType, UTexture2D*& OutTexture);
+
     TSubclassOf<class AGOPlayerCharacter> GetCharacterClassByHeroType(EHeroType HeroType) const;
 
+    void SetHeroSelectionData(const FHeroSelectionData& Data);
+    FHeroSelectionData GetHeroSelectionData() const;
 protected:
     void InitializeHeroCharacterMap();
 
@@ -201,6 +220,8 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character")
     TMap<EHeroType, TSubclassOf<class AGOPlayerCharacter>> HeroCharacterMap;
+
+    FHeroSelectionData HeroSelectionData;
 
 public:
     int32 CharacterMaxCnt;

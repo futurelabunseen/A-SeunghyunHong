@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Share/ShareEnums.h"
+#include "Share/EGOTeam.h"
 #include "Interface/GOLobbyHUDInterface.h"
 #include "GOLobbyPlayerController.generated.h"
 
@@ -29,6 +30,10 @@ public:
     void ServerReady();
 
     void EnableMouseCursor();
+
+    void DisableAllUI();
+
+    void SetLobbyTeamInfo(ETeamType TeamType);
 
 // HUD Section
 public:

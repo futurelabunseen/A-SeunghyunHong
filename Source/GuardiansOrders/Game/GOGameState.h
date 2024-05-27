@@ -24,11 +24,11 @@ class GUARDIANSORDERS_API AGOGameState : public AGameState
 	
 public:
 	AGOGameState();
+	
 	/** 
 	GameMode가 StartPlay를 호출하면 이 함수를 통해 월드에 있는 모든 액터가 BeginPlay를 실행하고 게임을 시작하도록 명령합니다.
 	*/
 	virtual void HandleBeginPlay() override;
-
 	/**
 	클라이언트에 복제된 GameState에 의해서 호출되는 함수입니다.
 	bReplicatedHasBegunPlay 속성이 변경되었을 때 호출되고, 

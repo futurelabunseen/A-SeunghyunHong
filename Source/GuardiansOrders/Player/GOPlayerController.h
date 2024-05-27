@@ -67,6 +67,9 @@ protected:
 	float SingleTripTime = 0.f;
 
 
+	UPROPERTY()
+	class AGOGameState* GOBattleGameState;
+
 // HUD Section
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=HUD)
@@ -89,8 +92,11 @@ public:
 	void InitTeamScores();
 	void SetHUDRedTeamScore(int32 RedScore);
 	void SetHUDBlueTeamScore(int32 BlueScore);
+
+	void SetHUDMatchMembers(int32 MatchMemberNum);
+
 private:
-	float MatchTime = 120.f; //120 seconds 
+	float MatchTime = 200.f; //200 seconds 
 	uint32 CountdownInt = 0;
 
 	FTimerHandle CharacterOverlayTimerHandle;

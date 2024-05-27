@@ -8,6 +8,7 @@
 #include "Character/GOPlayerCharacter.h"
 #include "Player/GOLobbyPlayerController.h"
 #include "Player/GOPlayerController.h"
+#include "UI/GOLobbyHUDWidget.h"
 
 AGOPlayerState::AGOPlayerState()
 {
@@ -15,6 +16,8 @@ AGOPlayerState::AGOPlayerState()
 	//bCharacterSelected = false;
 
 	// SetPlayerId()
+
+	//PlayerName = GetPlayerName();
 }
 
 void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -24,6 +27,8 @@ void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AGOPlayerState, SelectedHero);
 	DOREPLIFETIME(AGOPlayerState, Team); 
 	DOREPLIFETIME(AGOPlayerState, Defeats);
+	//DOREPLIFETIME(AGOPlayerState, PlayerName);
+	
 	//DOREPLIFETIME(AGOPlayerState, bCharacterSelected);
 }
 
@@ -38,39 +43,10 @@ void AGOPlayerState::CopyProperties(APlayerState* PlayerState)
 		MyPlayerState->SelectedCharacterClass = SelectedCharacterClass;
 		MyPlayerState->SelectedHero = SelectedHero;
 		MyPlayerState->Team = Team;
+		//MyPlayerState->PlayerName = PlayerName;
 		//MyPlayerState->bCharacterSelected = bCharacterSelected;
 	}
 }
-
-//void AGOPlayerState::OnRep_CharacterSelected()
-//{
-//	if (bCharacterSelected)
-//	{
-//		AGOGameState* GameState = GetWorld()->GetGameState<AGOGameState>();
-//		if (GameState)
-//		{
-//			GameState->CheckAllPlayersSelected();
-//		}
-//	}
-//}
-
-//void AGOPlayerState::SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass)
-//{
-//	//if (HasAuthority())
-//	{
-//		SelectedCharacterClass = CharacterClass;
-//		bCharacterSelected = true;
-//		OnRep_CharacterSelected();
-//
-//		if (GEngine)
-//		{
-//			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Blue,
-//				FString::Printf(TEXT("[AGOPlayerState] selected %s"),
-//					
-//					*SelectedCharacterClass->GetName()));
-//		}
-//	}
-//}
 
 void AGOPlayerState::OnRep_Score()
 {
@@ -132,7 +108,40 @@ void AGOPlayerState::AddToDefeats(int32 DefeatsAmount)
 void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 {
 	Team = TeamToSet;
+	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d "), Team);
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+	if (PlayerController)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d PlayerController not null"), Team);
 
+		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+		if (LobbyController)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d LobbyController not null"), Team);
+
+			if (LobbyController)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d GOLobbyHUDWidget not null"), Team);
+
+				LobbyController->SetLobbyTeamInfo(GetTeamType());
+				UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 01 %d "), TeamToSet);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d GOLobbyHUDWidget  null"), Team);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d LobbyController null"), Team);
+
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 00 %d PlayerController null"), Team);
+
+	}
 	// 팀에 따른 설정 (예: 매터리얼)
 	AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
 	if (BCharacter)
@@ -146,14 +155,37 @@ void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, TeamColor,
 			FString::Printf(TEXT("[AGOPlayerState] Team %d"), TeamToSet));
 	}
+
 }
 
 void AGOPlayerState::OnRep_Team()
 {
-	// 팀에 따른 설정 (예: 매터리얼)
-	AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
-	if (BCharacter)
+	// PlayerController를 통해 GOLobbyHUDWidget의 SetLobbyTeamInfo 호출
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+	if (PlayerController)
 	{
-		//BCharacter->SetTeamColor(Team);
+		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+		if (LobbyController && LobbyController->GOLobbyHUDWidget)
+		{
+			LobbyController->SetLobbyTeamInfo(GetTeamType());
+			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam 11 %d "), GetTeamType());
+		}
 	}
+	//// 팀에 따른 설정 (예: 매터리얼)
+	//AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
+	//if (BCharacter)
+	//{
+	//	//BCharacter->SetTeamColor(Team);
+
+	//	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+	//	if (PlayerController)
+	//	{
+	//		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+	//		if (LobbyController && LobbyController->GOLobbyHUDWidget)
+	//		{
+	//			LobbyController->SetLobbyTeamInfo(GetTeamType());
+	//			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] GetTeamType() : %d"), GetTeamType());
+	//		}
+	//	}
+	//}
 }

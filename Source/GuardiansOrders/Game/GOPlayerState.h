@@ -64,6 +64,8 @@ public:
 
 	void AddToDefeats(int32 DefeatsAmount);
 
+	FORCEINLINE FString GetPlayerName() { return PlayerName; }
+
 private:
 	UPROPERTY()
 	AGOPlayerCharacter* Character;
@@ -87,4 +89,7 @@ private:
 	// ÆÀ Á¤º¸ (Red, Blue)
 	UPROPERTY(ReplicatedUsing = OnRep_Team)
 	ETeamType Team = ETeamType::ET_NoTeam;
+
+	// Name
+	FString PlayerName;
 };
