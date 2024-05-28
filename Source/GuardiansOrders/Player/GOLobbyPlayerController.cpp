@@ -5,6 +5,7 @@
 #include "Game/GOPlayerState.h"
 #include "Game/GOLobbyGameMode.h"
 #include "UI/GOLobbyHUDWidget.h"
+#include "UI/GOLobbyTeamMemberWidget.h"
 #include "UI/GOLobbyTeamMembersWidget.h"
 
 AGOLobbyPlayerController::AGOLobbyPlayerController()

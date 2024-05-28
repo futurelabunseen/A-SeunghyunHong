@@ -17,17 +17,22 @@ void UGOLobbyTeamMembersWidget::SetTeamText(ETeamType TeamType)
 {
     if (TeamText)
     {
-        UE_LOG(LogTemp, Warning, TEXT("UGOLobbyTeamMembersWidget SetTeamText %d"), TeamType); // O
+        FText NewTeamText;
+        FSlateColor NewColor;
 
         if (TeamType == ETeamType::ET_RedTeam)
         {
-            FText NewTeamText = FText::FromString(TEXT("Red"));
-            TeamText->SetText(NewTeamText);
+            NewTeamText = FText::FromString(TEXT("Red"));
+            NewColor = FSlateColor(FLinearColor::White);
         }
         else if (TeamType == ETeamType::ET_BlueTeam)
         {
-            FText NewTeamText = FText::FromString(TEXT("Blue"));
-            TeamText->SetText(NewTeamText);
+            NewTeamText = FText::FromString(TEXT("Blue"));
+            NewColor = FSlateColor(FLinearColor::White);
         }
+
+        TeamText->SetText(NewTeamText);
+        TeamText->SetColorAndOpacity(NewColor);
     }
 }
+

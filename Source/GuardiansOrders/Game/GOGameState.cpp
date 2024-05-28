@@ -14,6 +14,9 @@
 #include "CommonTextBlock.h"
 #include "Player/GOPlayerController.h"
 #include "GameData/GOGameSubsystem.h"
+#include "UI/GOLobbyTeamMemberWidget.h"
+#include "UI/GOLobbyTeamMembersWidget.h"
+#include "Share/ShareEnums.h"
 
 AGOGameState::AGOGameState()
 {
@@ -68,6 +71,42 @@ void AGOGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 void AGOGameState::OnRep_CharacterSelected()
 {
 	// Update UI 
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController && PlayerController->IsLocalController())
+	{
+		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+
+		if (LobbyController && LobbyController->GOLobbyHUDWidget)
+		{
+			ETeamType PlayerTeam = LobbyController->GetPlayerState<AGOPlayerState>()->GetTeamType();
+			if (PlayerTeam == ETeamType::ET_RedTeam)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] OnRep_CharacterSelected RED "));
+
+				if (RedTeamHeroes.IsValidIndex(0))
+				{
+					LobbyController->GOLobbyHUDWidget->WidgetTeamMembers->HeroMemeber01->SetTeamMemberUI(RedTeamHeroes[0]);
+				}
+				if (RedTeamHeroes.IsValidIndex(1))
+				{
+					LobbyController->GOLobbyHUDWidget->WidgetTeamMembers->HeroMemeber02->SetTeamMemberUI(RedTeamHeroes[1]);
+				}
+			}
+			else if (PlayerTeam == ETeamType::ET_BlueTeam)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] OnRep_CharacterSelected BLUE "));
+
+				if (BlueTeamHeroes.IsValidIndex(0))
+				{
+					LobbyController->GOLobbyHUDWidget->WidgetTeamMembers->HeroMemeber01->SetTeamMemberUI(BlueTeamHeroes[0]);
+				}
+				if (BlueTeamHeroes.IsValidIndex(1))
+				{
+					LobbyController->GOLobbyHUDWidget->WidgetTeamMembers->HeroMemeber02->SetTeamMemberUI(BlueTeamHeroes[1]);
+				}
+			}
+		}
+	}
 
 	if (GEngine)
 	{
@@ -87,13 +126,14 @@ void AGOGameState::OnRep_CharacterSelected()
 					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
 		}
 	}
-	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
 
+	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
 	FHeroSelectionData HeroSelectionData;
 	HeroSelectionData.RedTeamHeroes = this->RedTeamHeroes;
 	HeroSelectionData.BlueTeamHeroes = this->BlueTeamHeroes;
 	Subsystem->SetHeroSelectionData(HeroSelectionData);
 }
+
 
 void AGOGameState::OnRep_CountDownForTravelReadyTime()
 {

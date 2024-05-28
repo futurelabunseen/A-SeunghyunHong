@@ -35,6 +35,7 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<UGOLobbyTeamMembersWidget> WidgetTeamMembers;
+
 protected:
 	virtual void NativeConstruct() override;
 

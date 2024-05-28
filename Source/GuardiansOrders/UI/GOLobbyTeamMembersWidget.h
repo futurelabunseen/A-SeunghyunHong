@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 #include "Share/EGOTeam.h"
+#include "Share/ShareEnums.h"
 #include "GOLobbyTeamMembersWidget.generated.h"
 
 class UGOLobbyTeamMemberWidget;
@@ -25,7 +26,7 @@ public:
 
 	void SetTeamText(ETeamType TeamType);
 
-protected:
+
 	UPROPERTY(meta = (BindWidget))
 	UGOLobbyTeamMemberWidget* HeroMemeber01;
 
