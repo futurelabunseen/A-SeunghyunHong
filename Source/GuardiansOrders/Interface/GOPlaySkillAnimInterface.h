@@ -27,7 +27,6 @@ public:
 	// virtual void PlaySkillAnim() = 0;
 	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill) = 0;
 	virtual void PlaySkillAnimByKey(FHeroSkillKey Key) = 0;
-	virtual void ActivateSkill(UGOSkillBase* CurrentSkill) = 0;
 	virtual void ActivateSkillByKey(FHeroSkillKey Key) = 0;
 	//virtual void ActivateSkill(ASkillSlot* CurrentSkillSlot) = 0;
 };

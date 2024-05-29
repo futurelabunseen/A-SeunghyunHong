@@ -93,7 +93,7 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_StatsBar.WBP_StatsBar_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C"));
 	if (StatsBarWidgetRef.Succeeded())
 	{
 		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);

@@ -51,7 +51,7 @@ AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	// Camera
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 750.0f;
+	CameraBoom->TargetArmLength = 800.0f;
 	CameraBoom->CameraLagSpeed = 5.0f;
 	CameraBoom->bUsePawnControlRotation = false;
 	CameraBoom->SetRelativeRotation(FRotator(-45.0f, 0.0f, 0.0f));
@@ -1369,69 +1369,6 @@ void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
 	}
 }
 
-// 새로 만든: 스킬시스템용 
-bool AGOPlayerCharacter::ServerRPCAttackNew_Validate(float AttackStartTime, UGOSkillBase* CurrentSkill)
-{
-	//if (LastAttakStartTime == 0.0f)
-	//{
-	//	return true;
-	//}
-
-	//// return (AttackStartTime - LastAttakStartTime) > (AttackTime - 0.4f);
-	return true;
-}
-
-// 새로 만든: 스킬시스템용 
-void AGOPlayerCharacter::ServerRPCAttackNew_Implementation(float AttackStartTime, UGOSkillBase* CurrentSkill)
-{
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-	Stat->UseSkill(Stat->GetTotalStat().BaseDamage); // TODO: ManaCost
-
-	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
-	////OnRep_CanAttack();
-
-	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
-	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
-	AttackTimeDifference = FMath::Clamp(AttackTimeDifference, 0.0f, AttackTime - 0.01f);
-
-	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
-
-	//FTimerHandle Handle;
-	//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
-	//	{
-	//		bCanAttack = true;
-	//		OnRep_CanAttack();
-	//	}
-	//), AttackTime - AttackTimeDifference, false, -1.0f);
-
-	LastAttakStartTime = AttackStartTime;
-
-	// PlayAttackAnimation(); //요기
-
-	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ServerRPCAttackNew] Actor %s is "), *CurrentSkill->GetName());
-
-	PlaySkillAnim(CurrentSkill); // 여기서도 null...
-
-	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
-
-	// MulticastRPCAttackNew(InSkillSlot);
-	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
-	{
-		if (PlayerController && GetController() != PlayerController)
-		{
-			if (!PlayerController->IsLocalController())
-			{
-				// 이 조건문을 통과한 컨트롤러는 simulated proxy로 캐릭터를 재생하는 다른 플레이어 컨트롤러입니다.
-				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
-				if (OtherPlayer)
-				{
-					OtherPlayer->ClientRPCPlaySkillAnimation(this, CurrentSkill); // 여기가 안됨
-				}
-			}
-		}
-	}
-}
-
 // 새로 구조체
 bool AGOPlayerCharacter::ServerRPCActivateSkill_Validate(float AttackStartTime, FHeroSkillKey Key)
 {
@@ -1449,11 +1386,7 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	{
 		// ManaCost
 		Stat->UseSkill(GOGameInstance->GetSkillByHeroSkillKey(Key)->GetTotalSkillStat().ManaCost);
-
 	}
-
-	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
-	////OnRep_CanAttack();
 
 	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
 	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
@@ -1461,26 +1394,15 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 
 	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
 
-	//FTimerHandle Handle;
-	//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
-	//	{
-	//		bCanAttack = true;
-	//		OnRep_CanAttack();
-	//	}
-	//), AttackTime - AttackTimeDifference, false, -1.0f);
-
 	LastAttakStartTime = AttackStartTime;
 
-	// PlayAttackAnimation(); //요기
-
-	//UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus ServerRPCAttackNew] Actor %s is "), *CurrentSkill->GetName());
-
-	//PlaySkillAnim(CurrentSkill); // 여기서도 null...
 	PlaySkillAnimByKey(Key);
 
 	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
 
-	// MulticastRPCAttackNew(InSkillSlot);
+	// 스킬 이펙트 효과
+	MulticastRPCActivateSkil(Key);
+	
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
 		if (PlayerController && GetController() != PlayerController)
@@ -1510,26 +1432,25 @@ void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 	}
 }
 
-// 지금 코드에서는 사용하고 있지 않습니다.
-void AGOPlayerCharacter::MulticastRPCAttackNew_Implementation(UGOSkillBase* CurrentSkill)
+// 스킬 이펙트 효과 MulticastRPCActivateSkil
+void AGOPlayerCharacter::MulticastRPCActivateSkil_Implementation(FHeroSkillKey Key)
 {
 	if (!IsLocallyControlled())
 	{
-		if (CurrentSkill == nullptr)
-		{
-			//  왜 NULL 이지?
-			UE_LOG(LogTemp, Log, TEXT("CurrentSkill 0 null"));
-		}
+		//if (Key != nullptr)
+		//{
+		//	//  왜 NULL 이지?
+		//	UE_LOG(LogTemp, Log, TEXT("CurrentSkill 0 null"));
+		//}
 
 		//UE_LOG(LogTemp, Log, TEXT("InSkillSlot 0: %s "), *InSkillSlot->GetSkillInstance()->GetName());
 
 		// 현재 클라이언트는 이미 모션을 재생했으므로
 		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-		PlaySkillAnim(CurrentSkill); //요기
+		
+		// PlaySkillAnim(CurrentSkill); //요기
 	}
 }
-
-
 
 void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
 {
@@ -1598,17 +1519,7 @@ void AGOPlayerCharacter::ActivateSkillByKey(FHeroSkillKey Key)
 	ServerRPCActivateSkill(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Key);
 }
 
-// no use
-void AGOPlayerCharacter::ActivateSkill(UGOSkillBase* CurrentSkill)
-{
-	if (!HasAuthority())
-	{
-		PlaySkillAnim(CurrentSkill);
-	}
 
-	// 서버에게 명령을 보냅니다.
-	ServerRPCAttackNew(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), CurrentSkill);
-}
 
 void AGOPlayerCharacter::OnRep_Rotation()
 {

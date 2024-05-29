@@ -249,10 +249,7 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCAttack(float AttackStartTime);
 
-	// 새로 만든: 스킬시스템용 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCAttackNew(float AttackStartTime, UGOSkillBase* CurrentSkill);	
-	
+
 	// 새로 만든: 스킬시스템용 구조체
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCActivateSkill(float AttackStartTime, FHeroSkillKey Key);
@@ -263,12 +260,9 @@ protected:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCAttack();	
 	
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttackNew(UGOSkillBase* CurrentSkill);	
-	
 	// 새로 만든: 스킬시스템용 구조체
-	//UFUNCTION(NetMulticast, Unreliable)
-	//void MulticastRPCActivateSkil(FHeroSkillKey Key);
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastRPCActivateSkil(FHeroSkillKey Key);
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
@@ -510,8 +504,6 @@ public:
 
 	// 새로 만든: 스킬시스템용 구조체
 	virtual void ActivateSkillByKey(FHeroSkillKey Key);
-
-	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
 
 // ======== IGOSpellFlashInterface ========
 	

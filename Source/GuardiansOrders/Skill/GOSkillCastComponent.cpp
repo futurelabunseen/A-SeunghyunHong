@@ -195,7 +195,7 @@ TObjectPtr<class AGOCharacterBase> UGOSkillCastComponent::DetectClosestTarget(fl
 			}
 		}
 	}
-	DrawDebugSphere(GetWorld(), Location, Radius, 32, FColor::Yellow, false, 10.0f);
+	DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
 
 	return ClosestCharacter;
 }
@@ -232,7 +232,7 @@ TObjectPtr<AGOCharacterBase> UGOSkillCastComponent::DetectClosestTargetRadiusDeg
 			}
 		}
 	}
-	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 32, FColor::Yellow, false, 10.0f);
+	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
 
 	return ClosestCharacter;
 }
