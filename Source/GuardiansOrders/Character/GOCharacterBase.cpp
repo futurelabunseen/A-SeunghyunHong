@@ -92,13 +92,13 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
-	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 215.0f));
+	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C"));
 	if (StatsBarWidgetRef.Succeeded())
 	{
 		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
 		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
-		StatsBar->SetDrawSize(FVector2D(130.0f, 30.0f));
+		StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	 }
 
@@ -201,7 +201,17 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
 			Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : HpBarWidget ManaBarWidget okkkk"));
+
 		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : No HpBarWidget or No ManaBarWidget"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : No StatsBarWidget"));
 	}
 }
 
