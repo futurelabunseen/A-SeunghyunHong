@@ -87,7 +87,7 @@ void UGOHeroSelectionWidget::OnReadyButtonClicked()
             GOPlayerController->ServerReady(); // Ready 상태를 서버에 전송
         }
     }
-    //this->SetVisibility(ESlateVisibility::Hidden);
+    this->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UGOHeroSelectionWidget::EnableReadyButton()

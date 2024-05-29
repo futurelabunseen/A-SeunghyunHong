@@ -86,12 +86,12 @@ void AGOLobbyPlayerController::ServerSelectHero_Implementation(EHeroType HeroTyp
 		int32 PlayerId = PS->GetPlayerId();
 		PS->SelectedHero = FHeroSelectionInfo(PlayerId, HeroType);
 
-		// 확인함
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Yellow,
-				FString::Printf(TEXT("[Controller] ServerSelectHero - PlayerId: %d, HeroType: %d"), PlayerId, static_cast<int32>(PS->SelectedHero.SelectedHero)));
-		}
+		//// 확인함
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Yellow,
+		//		FString::Printf(TEXT("[Controller] ServerSelectHero - PlayerId: %d, HeroType: %d"), PlayerId, static_cast<int32>(PS->SelectedHero.SelectedHero)));
+		//}
 	}
 }
 

@@ -64,11 +64,11 @@ void AGOPlayerController::PostSeamlessTravel()
     if (PS)
     {
         int32 PlayerId = PS->GetPlayerId();
-        if (GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
-                FString::Printf(TEXT("PostSeamlessTravel - PlayerId: %d"), PlayerId));
-        }
+        //if (GEngine)
+        //{
+        //    GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green,
+        //        FString::Printf(TEXT("PostSeamlessTravel - PlayerId: %d"), PlayerId));
+        //}
     }
 
     //SpawnAndPossessCharacter();

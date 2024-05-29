@@ -26,10 +26,6 @@ void AGOLobbyGameMode::BeginPlay()
 	Super::BeginPlay();
 }
 
-// 폰이 잇으면 제거하고 월드에 스폰해서 한다
-// 들어오는 애마다
-// 한명씩 되자나요 
-// 선택한 정보로 그거를 빙의하도록 해요 
 void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
@@ -42,12 +38,12 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		FString PlayerControllerName = NewPlayer->GetName();
 
 		// Display the player's name on the screen
-		if (GEngine)
+		/*if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
 				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"),
 					*PlayerName, *PlayerControllerName));
-		}
+		}*/
 	}
 
 	if (HasAuthority())
@@ -348,23 +344,23 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 				HeroSelectionData.BlueTeamHeroes.Add(PS->SelectedHero);
 			}
 
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
-					FString::Printf(TEXT("SelectHero - PlayerId: %d, HeroType: %d"), PlayerId, static_cast<int32>(HeroType)));
-			}
+			//if (GEngine)
+			//{
+			//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+			//		FString::Printf(TEXT("SelectHero - PlayerId: %d, HeroType: %d"), PlayerId, static_cast<int32>(HeroType)));
+			//}
 
-			for (const FHeroSelectionInfo& Hero : GS->RedTeamHeroes)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
-					FString::Printf(TEXT("RedTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
-			}
+			//for (const FHeroSelectionInfo& Hero : GS->RedTeamHeroes)
+			//{
+			//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+			//		FString::Printf(TEXT("RedTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
+			//}
 
-			for (const FHeroSelectionInfo& Hero : GS->BlueTeamHeroes)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
-					FString::Printf(TEXT("BlueTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
-			}
+			//for (const FHeroSelectionInfo& Hero : GS->BlueTeamHeroes)
+			//{
+			//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+			//		FString::Printf(TEXT("BlueTeam - PlayerId: %d, HeroType: %d"), Hero.PlayerId, static_cast<int32>(Hero.SelectedHero)));
+			//}
 
 			// Save hero selection data to the subsystem
 

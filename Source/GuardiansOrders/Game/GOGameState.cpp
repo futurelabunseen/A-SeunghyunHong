@@ -110,21 +110,21 @@ void AGOGameState::OnRep_CharacterSelected()
 
 	if (GEngine)
 	{
-		// Red Team
-		for (const FHeroSelectionInfo& HeroInfo : RedTeamHeroes)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
-				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Red Team - PlayerId: %d, HeroType: %d"),
-					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
-		}
+		//// Red Team
+		//for (const FHeroSelectionInfo& HeroInfo : RedTeamHeroes)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+		//		FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Red Team - PlayerId: %d, HeroType: %d"),
+		//			HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
+		//}
 
-		// Blue Team
-		for (const FHeroSelectionInfo& HeroInfo : BlueTeamHeroes)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Cyan,
-				FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Blue Team - PlayerId: %d, HeroType: %d"),
-					HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
-		}
+		//// Blue Team
+		//for (const FHeroSelectionInfo& HeroInfo : BlueTeamHeroes)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
+		//		FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Blue Team - PlayerId: %d, HeroType: %d"),
+		//			HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
+		//}
 	}
 
 	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
@@ -251,11 +251,11 @@ void AGOGameState::DisplayHeroSelectionWidget(APlayerController* PlayerControlle
 
 			UE_LOG(LogTemp, Warning, TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName());
 
-			if (GEngine)
+			/*if (GEngine)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
+				GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green,
 					FString::Printf(TEXT("[GAME STATE] HeroSelectionWidget set to visible for player %s"), *PlayerController->GetName()));
-			}
+			}*/
 		}
 		else
 		{
