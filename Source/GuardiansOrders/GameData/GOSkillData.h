@@ -22,7 +22,7 @@ struct FGOSkillData : public FTableRowBase
         SkillTriggerType(ESkillTriggerType::None),
         SkillAffectType(ESkillAffectType::None),
         SkillAnim(nullptr),
-        SkillEffectAsset(nullptr),
+        SkillEffect(nullptr),
         SkillIcon(nullptr)
     {}
 
@@ -45,11 +45,9 @@ struct FGOSkillData : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
-    // 스킬 효과 애셋을 위한 참조입니다. (미정: 애셋 또는 테이블)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
-    TObjectPtr<UGOSkillEffectAsset> SkillEffectAsset;
+    TObjectPtr<UParticleSystem> SkillEffect;
 
-    // 스킬 아이콘의 텍스쳐입니다.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
 };
