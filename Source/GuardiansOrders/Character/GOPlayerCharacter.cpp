@@ -43,6 +43,7 @@
 #include "GOCharacterMovementComponent.h"
 #include "Share/EGOSkill.h"
 #include <Game/GOBattleGameMode.h>
+#include "GameData/GOSkillData.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -963,6 +964,7 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 			break;
 
 		case ESkillAffectType::Defense:
+			// TODO
 			UE_LOG(LogTemp, Warning, TEXT("AGOPlayerCharacter::HandleDefenseSkill: %f"), SkillAffectAmount);
 			break;
 
@@ -1357,7 +1359,7 @@ void AGOPlayerCharacter::SimulateStateUpdateOnServer(float DeltaTime)
 	//}
 }
 
-void AGOPlayerCharacter::SetActionState(EGOPlayerActionState State, bool bEnabled)
+void AGOPlayerCharacter::SetActionState(EGOPlayerActionState::State State, bool bEnabled)
 {
 	if (bEnabled)
 	{
@@ -1367,6 +1369,14 @@ void AGOPlayerCharacter::SetActionState(EGOPlayerActionState State, bool bEnable
 	{
 		ActionStateBitMask &= ~State;
 	}
+}
+
+void AGOPlayerCharacter::StartState(EGOPlayerActionState::State State, float Duration)
+{
+}
+
+void AGOPlayerCharacter::EndState(EGOPlayerActionState::State State)
+{
 }
 
 
@@ -1470,6 +1480,7 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	LastAttakStartTime = AttackStartTime;
 
 	PlaySkillAnimByKey(Key);
+	PlayEffectParticleAnimByKey(Key);
 
 	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
 
@@ -1522,7 +1533,8 @@ void AGOPlayerCharacter::MulticastRPCActivateSkil_Implementation(FHeroSkillKey K
 		// 현재 클라이언트는 이미 모션을 재생했으므로
 		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
 		
-		// PlaySkillAnim(CurrentSkill); //요기
+		// PlaySkillAnimByKey(Key); //요기
+		PlayEffectParticleAnimByKey(Key);
 	}
 }
 
@@ -1661,4 +1673,22 @@ void AGOPlayerCharacter::ActivateSpellFlash()
 	// 캐릭터를 회전시킨 후 순간이동
 	SetActorRotation(NewRotation);
 	TeleportTo(TargetLocation, NewRotation, false, true);
+}
+
+// ======== IGOPlaySkillEffectInterface ========
+void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+
+	UGOSkillBase* CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+
+	UParticleSystem* DefenseSkillEffect = CurrentSkill->GetTotalSkillData().SkillEffect;
+	if (DefenseSkillEffect)
+	{
+		FVector SpawnLocation = GetActorLocation();
+		FRotator SpawnRotation = GetActorRotation();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefenseSkillEffect, SpawnLocation, SpawnRotation);
+	}
 }

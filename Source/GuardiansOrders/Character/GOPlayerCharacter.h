@@ -7,6 +7,7 @@
 #include "Interface/GOCharacterHUDInterface.h"
 #include "Interface/GOPlaySkillAnimInterface.h"
 #include "Interface/GOSpellFlashInterface.h"
+#include "Interface/GOPlaySkillEffectInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -27,7 +28,7 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
 {
 	GENERATED_BODY()
 	
@@ -402,7 +403,10 @@ private:
 public:
 	void SimulateStateUpdateOnServer(float DeltaTime);
 
-	void SetActionState(EGOPlayerActionState State, bool bEnabled);
+	void SetActionState(EGOPlayerActionState::State State, bool bEnabled);
+	void StartState(EGOPlayerActionState::State State, float Duration);
+	void EndState(EGOPlayerActionState::State State);
+	FTimerHandle StateTimerHandle;
 
 	/**
 	 * 현재 Impacted, Cast, Died  상태라면 
@@ -508,7 +512,8 @@ public:
 	virtual void ActivateSkillByKey(FHeroSkillKey Key);
 
 // ======== IGOSpellFlashInterface ========
-	
 	virtual void ActivateSpellFlash();
 
+// ======== IGOPlaySkillEffectInterface ========
+	virtual void PlayEffectParticleAnimByKey(FHeroSkillKey Key);
 };
