@@ -90,7 +90,10 @@ public:
 	  */
 	virtual void ActivateEffect();
 
-
+// Trigger & Affect
+public:
+	virtual void HandleSkillTrigger();
+	virtual void HandleSkillAffect();
 
 // Stat & Data Section
 public:
@@ -132,6 +135,10 @@ public:
 	void PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverlapResult>& OutOverlaps);
 
 	FORCEINLINE bool GetHitDetected() { return HitDetected; }
+
+	// AutoTarget
+	TObjectPtr<AGOCharacterBase> DetectClosestTarget(float Radius);
+	TObjectPtr<AGOCharacterBase> DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree);
 
 protected:
 

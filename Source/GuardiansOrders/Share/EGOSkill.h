@@ -76,6 +76,8 @@ enum class ESpellType : uint8
 	* AutoTarget: 스킬이 자동으로 가장 가까운 적을 타겟팅하여 활성화됩니다.
 		->	Target은 사용자가 직접적으로 대상을 선택해야 하지만,
 		->	AutoTarget은 그러한 필요 없이 자동으로 타겟이 결정됩니다.
+		->  AutoTargetRadius은 일정 범위 내 누군가 이싿면 타켓으로 결정하고
+		->  AutoTargetRadiusDegree은 일정 범위의 일정 각도 내 누군가 이싿면 타켓으로 결정합니다.
 	* NonTargetDirection: 사용자가 결정한 방향으로 스킬이 활성화되지만 특정 대상이 필요하지 않습니다.
 	* NonTargetRange: 방향이나 대상 선택을 요구하지 않고 사용자 주변 특정 범위에 영향을 미치는 스킬입니다.
 	*
@@ -86,7 +88,8 @@ enum class ESkillTriggerType : uint8
 	None UMETA(Hidden),
 
 	Target UMETA(DisplayName = "Target"),
-	AutoTarget UMETA(DisplayName = "AutoTarget"),
+	AutoTargetRadius UMETA(DisplayName = "AutoTargetRadius"),
+	AutoTargetRadiusDegree UMETA(DisplayName = "AutoTargetRadiusDegree"),
 	NonTargetDirection UMETA(DisplayName = "NonTargetDirection"),
 	NonTargetRange UMETA(DisplayName = "NonTargetRange"),
 

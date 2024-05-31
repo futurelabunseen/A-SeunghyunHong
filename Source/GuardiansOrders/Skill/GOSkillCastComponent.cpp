@@ -65,25 +65,26 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	// Auto Targeting
 	if (CurrentSkill)
 	{
-		AGOCharacterBase* Target = nullptr;
-		FVector ForwardVector = GetOwner()->GetActorForwardVector();
-		FVector2D AttackDirection(ForwardVector.X, ForwardVector.Y); // Z 무시
+		//AGOCharacterBase* Target = nullptr;
+		//FVector ForwardVector = GetOwner()->GetActorForwardVector();
+		//FVector2D AttackDirection(ForwardVector.X, ForwardVector.Y); // Z 무시
 
-		switch (CurrentSkill->GetAutoDetectionType())
-		{
-		case EAutoDetectionType::Radius:
-			Target = DetectClosestTarget(CurrentSkill->GetAutoDetectionRadius());
-			break;
-		case EAutoDetectionType::RadiusDegree:
-			Target = DetectClosestTargetRadiusDegreeBase(AttackDirection, CurrentSkill->GetAutoDetectionRadius(), CurrentSkill->GetAutoDetectionDegree());
-			break;
-		case EAutoDetectionType::None:
-		default:
-			Target = nullptr;
-			break;
-		}
+		//switch (CurrentSkill->GetAutoDetectionType())
+		//{
+		//case EAutoDetectionType::Radius:
+		//	Target = DetectClosestTarget(CurrentSkill->GetAutoDetectionRadius());
+		//	break;
+		//case EAutoDetectionType::RadiusDegree:
+		//	Target = DetectClosestTargetRadiusDegreeBase(AttackDirection, CurrentSkill->GetAutoDetectionRadius(), CurrentSkill->GetAutoDetectionDegree());
+		//	break;
+		//case EAutoDetectionType::None:
+		//default:
+		//	Target = nullptr;
+		//	break;
+		//}
 		CurrentSkill->SetSkillOwner(GetOwner());
-		CurrentSkill->SetTarget(Target);  // UGOSkillBase에 추가한 SetTarget 메소드를 가정
+		//CurrentSkill->SetTarget(Target);  // UGOSkillBase에 추가한 SetTarget 메소드를 가정
+		CurrentSkill->HandleSkillTrigger();  // Trigger 처리
 		CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
 	}
 
@@ -122,6 +123,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 			{
 				// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
 				GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
+				CurrentSkill->HandleSkillAffect();  // 효과 처리
 				CurrentSkill->ActivateSkill();
 				bIsOnCasting = false;
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));

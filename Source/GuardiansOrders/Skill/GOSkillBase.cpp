@@ -99,7 +99,7 @@ void UGOSkillBase::UpdateCast(float DeltaTime)
 	//}
 }
 
-void UGOSkillBase::ActivateSkill()
+void UGOSkillBase::ActivateSkill() // UGOSkillCastComponent::OnUpdateCast 에서 불림
 {
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
 	ExecuteSkill(GetSkillCollisionType());
@@ -126,6 +126,76 @@ void UGOSkillBase::InterruptedCast()
 void UGOSkillBase::ActivateEffect()
 {
 
+}
+
+void UGOSkillBase::HandleSkillTrigger()
+{
+	switch (GetSkillTriggerType())
+	{
+	case ESkillTriggerType::Target:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: Target"));
+		break;
+	case ESkillTriggerType::NonTargetDirection:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetDirection"));
+		break;
+	case ESkillTriggerType::NonTargetRange:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetRange"));
+		break;
+	case ESkillTriggerType::AutoTargetRadius:
+	{
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadius"));
+		float Radius = GetAutoDetectionRadius();
+		AGOCharacterBase* ClosestTarget = DetectClosestTarget(Radius);
+		SetTarget(ClosestTarget);
+		break;
+	}
+	case ESkillTriggerType::AutoTargetRadiusDegree:
+	{
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadiusDegree"));
+		float Radius = GetAutoDetectionRadius();
+		float Degree = GetAutoDetectionDegree();
+		FVector ForwardVector = GetSkillOwner()->GetActorForwardVector();
+		FVector2D Direction(ForwardVector.X, ForwardVector.Y);
+		AGOCharacterBase* ClosestTarget = DetectClosestTargetRadiusDegreeBase(Direction, Radius, Degree);
+		SetTarget(ClosestTarget);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::HandleSkillAffect()
+{
+	switch (GetSkillAffectType())
+	{
+	case ESkillAffectType::Damage:
+		// Damage 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Damage"));
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			// Target에게 Damage 처리 로직
+		}
+		break;
+	case ESkillAffectType::Block:
+		// Block 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Block"));
+		break;
+	case ESkillAffectType::Heal:
+		// Heal 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Heal"));
+		break;
+	case ESkillAffectType::Buff:
+		// Buff 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Buff"));
+		break;
+	case ESkillAffectType::Debuff:
+		// Debuff 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Debuff"));
+		break;
+	default:
+		break;
+	}
 }
 
 void UGOSkillBase::CheckCooldownTick()
@@ -331,4 +401,72 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
 	FColor TraceColor = OutOverlaps.Num() > 0 ? FColor::Green : FColor::Red;
 	DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetSkillOwner());  // 자기 자신은 무시
+
+	FVector Location = GetSkillOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);  // GOCharacterBase 타입으로 캐스트
+		if (GOCharacter && GOCharacter != GetSkillOwner())
+		{
+			float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+			if (Distance < MinDistance)
+			{
+				MinDistance = Distance;
+				ClosestCharacter = GOCharacter;
+			}
+		}
+	}
+	DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
+
+	return ClosestCharacter;
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetSkillOwner());  // 자기 자신은 무시
+
+	FVector Location = GetSkillOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);
+		if (GOCharacter && GOCharacter != GetSkillOwner())
+		{
+			FVector2D HitDir = FVector2D(GOCharacter->GetActorLocation() - Location);
+			HitDir.Normalize();
+			float CosTheta = FMath::Cos(FMath::DegreesToRadians(Degree));
+			if (FVector2D::DotProduct(Dir, HitDir) >= CosTheta)
+			{
+				float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+				if (Distance < MinDistance)
+				{
+					MinDistance = Distance;
+					ClosestCharacter = GOCharacter;
+				}
+			}
+		}
+	}
+	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
+
+	return ClosestCharacter;
 }
