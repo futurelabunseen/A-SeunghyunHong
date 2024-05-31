@@ -30,6 +30,7 @@
 #include "Engine/DamageEvents.h"
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
+#include <Game/GOPlayerState.h>
 
 AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -94,6 +95,17 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C"));
+	
+	// hp bar images (Red, Green, Blue)
+	static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> RedTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Red.LOL-StatsBar-Short-HP-Red"));
+
+	// Assign textures to class members
+	BlueTexture = BlueTextureObj.Object;
+	GreenTexture = GreenTextureObj.Object;
+	RedTexture = RedTextureObj.Object;
+
 	if (StatsBarWidgetRef.Succeeded())
 	{
 		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
@@ -201,8 +213,32 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
 			Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
-			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : HpBarWidget ManaBarWidget okkkk"));
 
+			AGOPlayerState* GOPlayerState = GetPlayerState<AGOPlayerState>();
+			if (GOPlayerState)
+			{
+				UTexture2D* BarTexture = nullptr;
+				if (GOPlayerState->GetTeamType() == ETeamType::ET_RedTeam)
+				{
+					BarTexture = RedTexture;
+					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : RedTexture"));
+
+				}
+				else if (GOPlayerState->GetTeamType() == ETeamType::ET_BlueTeam)
+				{
+					BarTexture = BlueTexture;
+					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : BlueTexture"));
+				}
+				else
+				{
+					BarTexture = GreenTexture;
+					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : GreenTexture"));
+
+				}
+				HpBarWidget->SetHpBarTexture(BarTexture);
+			}
+
+			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : HpBarWidget ManaBarWidget okkkk"));
 		}
 		else
 		{
