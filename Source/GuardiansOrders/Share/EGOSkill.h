@@ -168,6 +168,58 @@ enum class ESkillCollisionType : uint8
 	OverlapMulti      UMETA(DisplayName = "Overlap Multi")
 };
 
-////////////////////////////////////////////////////////////////////////
-// FGOOutHitCollisionStructure
-////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+// ESkillCastType 
+// 스킬의 시전 방식을 나타내며, 각 스킬이 어떻게 발동되는지를 설명합니다.
+////////////////////////////////////////////////////////////////
+
+/**
+	* Instant:		즉발형 스킬		스킬 버튼을 누르자마자 즉시 효과가 발생합니다.
+	* Projectile:	발사형 스킬		스킬 사용 시 발사체가 발사되어 목표물에 도달합니다.
+	* Channeling:	채널링 스킬		일정 시간 동안 시전해야 효과가 발생합니다.
+	* Delayed:		지연형 스킬		시전 후 일정 시간이 지나야 효과가 발생합니다.
+	* AreaOfEffect:	범위형 스킬		특정 영역에 영향을 미치는 스킬입니다.
+	* Toggle:		토글형 스킬		켜고 끌 수 있는 스킬입니다.
+	* Charge:		차징형 스킬		시전 시간을 길게 가져갈수록 더 큰 효과를 발휘합니다.
+*/
+UENUM(BlueprintType)
+enum class ESkillCastType : uint8
+{
+	Instant UMETA(DisplayName = "Instant"),
+	Projectile UMETA(DisplayName = "Projectile"),
+	Channeling UMETA(DisplayName = "Channeling"),
+	Delayed UMETA(DisplayName = "Delayed"),
+	AreaOfEffect UMETA(DisplayName = "Area of Effect"),
+	Toggle UMETA(DisplayName = "Toggle"),
+	Charge UMETA(DisplayName = "Charge"),
+
+	Max UMETA(Hidden)
+};
+
+////////////////////////////////////////////////////////////////
+// EParticleSpawnLocation 
+// Particle이 생성되는 위치를 나타내며, 스킬 효과의 위치를 설명합니다.
+////////////////////////////////////////////////////////////////
+
+/**
+	* Caster:			시전자 위치		Particle이 스킬 시전자의 위치에서 생성됩니다.
+	* Target:			대상 위치		Particle이 스킬 대상의 위치에서 생성됩니다.
+	* Projectile:		발사체 위치		Particle이 스킬 발사체의 위치에서 생성됩니다.
+	* Ground:			지면 위치		Particle이 지면의 특정 위치에서 생성됩니다.
+	* AroundCaster:		시전자 주변		Particle이 시전자 주변에서 생성됩니다.
+	* AroundTarget:		대상 주변		Particle이 대상 주변에서 생성됩니다.
+	* CustomLocation:	사용자 정의 위치	Particle이 특정 사용자 정의 위치에서 생성됩니다.
+*/
+UENUM(BlueprintType)
+enum class EParticleSpawnLocation : uint8
+{
+	Caster UMETA(DisplayName = "Caster"),
+	Target UMETA(DisplayName = "Target"),
+	Projectile UMETA(DisplayName = "Projectile"),
+	Ground UMETA(DisplayName = "Ground"),
+	AroundCaster UMETA(DisplayName = "Around Caster"),
+	AroundTarget UMETA(DisplayName = "Around Target"),
+	CustomLocation UMETA(DisplayName = "Custom Location"),
+
+	Max UMETA(Hidden)
+};
