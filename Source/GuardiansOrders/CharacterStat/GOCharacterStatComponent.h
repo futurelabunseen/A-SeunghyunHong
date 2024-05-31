@@ -58,10 +58,10 @@ public:
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
 
-	void HealHp();
+	void HealHp(float HealAmount);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerHealHp();
+	void ServerHealHp(float HealHpAmount);
 
 	// 내 캐릭터가 대미지를 받으면 적용하는 함수입니다.
 	float ApplyDamage(float InDamage);

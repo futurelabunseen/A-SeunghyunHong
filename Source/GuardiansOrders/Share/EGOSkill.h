@@ -105,7 +105,7 @@ enum class ESkillTriggerType : uint8
 
 /**
 	* Damage: 스킬이 적에게 피해를 입힙니다.
-	* Block: 스킬이 방어 기능을 제공하여 오는 공격의 피해를 막거나 줄입니다.
+	* Defense: 스킬이 방어 기능을 제공하여 오는 공격의 피해를 막거나 줄입니다.
 	* Heal:	스킬이 플레이어나 팀원의 건강을 회복합니다.
 	* Buff: 스킬이 플레이어나 팀원에게 일시적인 강화나 유익한 효과를 제공합니다.
 	* Debuff: 스킬이 적에게 일시적인 약화 효과를 부여합니다.
@@ -116,7 +116,7 @@ enum class ESkillAffectType : uint8
 	None UMETA(Hidden),
 
 	Damage UMETA(DisplayName = "Damage"),
-	Block UMETA(DisplayName = "Block"),
+	Defense UMETA(DisplayName = "Defense"),
 	Heal UMETA(DisplayName = "Heal"),
 	Buff UMETA(DisplayName = "Buff"),
 	Debuff UMETA(DisplayName = "Debuff"),

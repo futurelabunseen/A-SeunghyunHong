@@ -22,7 +22,8 @@ public:
 		DamageSpeed(0.0f),
 		MaxMana(0.0f),
 		ManaRegenerationRate(0.0f),
-		BaseDefense(0.0f) {}
+		BaseDefense(0.0f),
+		BaseHeal(0.0f) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float MaxHp;
@@ -56,6 +57,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
 	float BaseDefense;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+	float BaseHeal;
 
 	FGOCharacterStat operator+(const FGOCharacterStat& Other) const
 	{

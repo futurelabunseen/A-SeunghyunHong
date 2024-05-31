@@ -85,7 +85,6 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 
 	if (bIsOnCasting) 
 	{
-		//if (AActor* Owner = GetOwner())
 		if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetOwner()))
 		{
 			if (CurrentSkill->GetTarget() != nullptr)
@@ -102,9 +101,8 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 
 			if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
 			{
-				// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
 				GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
-				CurrentSkill->HandleSkillAffect();  // 효과 처리
+				CurrentSkill->HandleSkillAffect();
 				CurrentSkill->ActivateSkill();
 				bIsOnCasting = false;
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));

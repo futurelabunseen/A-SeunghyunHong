@@ -227,7 +227,7 @@ protected:
 	void AttackHitConfirm(AActor* HitActor);
 
 	// 새로 만든: 스킬시스템용 
-	void AttackSkillHitConfirm(AActor* HitActor, float SkillDamage);
+	void SkillHitConfirm(AActor* HitActor, float SkillAffectAmount, ESkillAffectType SkillAffectType);
 
 	//void AttackHitConfirm(AActor* HitActor, float Damage);
 
@@ -290,23 +290,23 @@ protected:
 	/**
 	 * 새로 만든: 스킬시스템용 
 	 */
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifySkillMiss(float HitCheckTime);
 	
 	// 테스트용: 스킬시스템 FHitResult
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount);
+	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType);
 
 	// 테스트용: 스킬시스템 TArray<FHitResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount);
+	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount, ESkillAffectType SkillAffectType);
 
 	// 테스트용: 스킬시스템 TArray<FOverlapResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount);
+	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType);
 
 	/** 
 	* 현재 공격 중인가 ? 
@@ -401,6 +401,8 @@ private:
 
 public:
 	void SimulateStateUpdateOnServer(float DeltaTime);
+
+	void SetActionState(EGOPlayerActionState State, bool bEnabled);
 
 	/**
 	 * 현재 Impacted, Cast, Died  상태라면 

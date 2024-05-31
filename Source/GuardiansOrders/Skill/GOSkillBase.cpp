@@ -177,9 +177,9 @@ void UGOSkillBase::HandleSkillAffect()
 			// Target에게 Damage 처리 로직
 		}
 		break;
-	case ESkillAffectType::Block:
-		// Block 효과 처리 로직
-		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Block"));
+	case ESkillAffectType::Defense:
+		// Defense 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Defense"));
 		break;
 	case ESkillAffectType::Heal:
 		// Heal 효과 처리 로직
