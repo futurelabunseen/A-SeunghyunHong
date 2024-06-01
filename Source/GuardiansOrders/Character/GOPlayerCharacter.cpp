@@ -866,7 +866,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 			}
 			if (HitCameraShakeClass)
 			{
-				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass, CurrentSkill->GetTotalSkillData().CameraShakeIntensity);
 			}
 		}
 		// 서버에서 진행 (패킷 전송 필요없이 바로 처리)
@@ -934,7 +934,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 			}
 			if (HitCameraShakeClass)
 			{
-				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
+				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass, CurrentSkill->GetTotalSkillData().CameraShakeIntensity);
 				UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
 			}
 		}

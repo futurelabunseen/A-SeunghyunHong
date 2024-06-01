@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -23,10 +23,11 @@ struct FGOSkillData : public FTableRowBase
         SkillAffectType(ESkillAffectType::None),
         SkillAnim(nullptr),
         SkillEffect(nullptr),
-        SkillIcon(nullptr)
+        SkillIcon(nullptr),
+        CameraShakeIntensity(1.0f)
     {}
 
-    // ½ºÅ³ ½ºÅÈÀ» À§ÇÑ Å×ÀÌºí RowName ÀÔ´Ï´Ù.
+    // ìŠ¤í‚¬ ìŠ¤íƒ¯ì„ ìœ„í•œ í…Œì´ë¸” RowName ì…ë‹ˆë‹¤.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     FName SkillStatName;
 
@@ -56,5 +57,8 @@ struct FGOSkillData : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    float CameraShakeIntensity;
 };
 

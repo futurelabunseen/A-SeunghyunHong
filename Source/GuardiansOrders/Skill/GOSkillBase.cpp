@@ -131,6 +131,7 @@ void UGOSkillBase::ActivateSkill() // UGOSkillCastComponent::OnUpdateCast 에서
 {
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
 	ExecuteSkill(GetSkillCollisionType());
+
 	UE_LOG(LogTemp, Log, TEXT("[UGOSkillBase::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
