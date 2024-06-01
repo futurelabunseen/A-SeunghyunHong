@@ -43,6 +43,12 @@ struct FGOSkillData : public FTableRowBase
     ESkillAffectType SkillAffectType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    ESkillCastType SkillCastType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    EParticleSpawnLocation ParticleSpawnLocation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")

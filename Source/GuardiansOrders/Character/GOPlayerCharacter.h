@@ -261,9 +261,16 @@ protected:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCAttack();	
 	
-	// 새로 만든: 스킬시스템용 구조체
+	// 새로 만든: 스킬시스템용 구조체 !!!
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCActivateSkil(FHeroSkillKey Key);
+	void MulticastRPCActivateSkill(FHeroSkillKey Key);
+
+public:
+	UFUNCTION(Server, Reliable)
+	void ServerRPCActivateSkillWithParticles(FHeroSkillKey Key);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCActivateSkillWithParticles(FHeroSkillKey Key);
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
@@ -299,15 +306,15 @@ protected:
 	
 	// 테스트용: 스킬시스템 FHitResult
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType);
+	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	// 테스트용: 스킬시스템 TArray<FHitResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount, ESkillAffectType SkillAffectType);
+	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	// 테스트용: 스킬시스템 TArray<FOverlapResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType);
+	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	/** 
 	* 현재 공격 중인가 ? 

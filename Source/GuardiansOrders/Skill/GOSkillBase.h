@@ -17,6 +17,7 @@ class UAnimMontage;
 class UMaterial;
 class UNiagaraSystem;
 class AGOCharacterBase;
+class UParticleSystem;
 
 USTRUCT()
 struct FGOOutHitCollisionStructure {
@@ -94,6 +95,9 @@ public:
 public:
 	virtual void HandleSkillTrigger();
 	virtual void HandleSkillAffect();
+	// Particle Effect Handling
+	void SpawnParticleEffect(ESkillCastType CastType, EParticleSpawnLocation SpawnLocation);
+	void HandleSpawnParticle(EParticleSpawnLocation SpawnLocation);  
 
 // Stat & Data Section
 public:
@@ -174,27 +178,13 @@ public:
 	bool bIsOnCoolTime = false;
 
 protected:
-	/** 
-	 * 오토타겟팅 
-	 */
-	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	//EAutoDetectionType AutoDetectionType = EAutoDetectionType::None;
-
-	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	//float DetectionRadius = 200;
-
-	//UPROPERTY(EditDefaultsOnly, Category = "SkillSetting/AutoDetection")
-	//float DetectionDegree = 45;
-
 	TObjectPtr<AGOCharacterBase> TargetGOCharacter;
 
 	bool HitDetected = false;
-//	FHitResult* SkillHitResult;
-//	TArray<FHitResult>& SkillHitResults;
-//	TArray<FOverlapResult>& SkillOverlaps;
-//public:
-//	FHitResult GetSkillHitResult() { return *SkillHitResult; }
-//	TArray<FHitResult> GetSkillHitResults() { return SkillHitResults; }
-//	TArray<FOverlapResult> GetSkillOverlaps() { return SkillOverlaps; }
+
+private:
+	void SpawnParticleAtLocation(FVector Location);
+	void SpawnParticleAtActor(AActor* Actor);
+	void SpawnParticleAroundActor(AActor* Actor, float Radius);
 
 };

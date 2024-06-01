@@ -350,6 +350,18 @@ FName UGOGameSubsystem::GetSpellTypeFName(ESpellType SpellType)
 	}
 }
 
+FHeroSkillKey UGOGameSubsystem::GetKeyBySkillObject(UGOSkillBase* SkillObject) const
+{
+	for (const auto& Pair : AllPlayersSkill)
+	{
+		if (Pair.Value == SkillObject)
+		{
+			return Pair.Key;
+		}
+	}
+	return FHeroSkillKey(); // Return a default key if not found
+}
+
 UTexture2D* UGOGameSubsystem::GetHeroImageByEHeroType(EHeroType HeroType)
 {
 	FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));

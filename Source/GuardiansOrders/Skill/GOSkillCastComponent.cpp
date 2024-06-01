@@ -68,7 +68,6 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 		CurrentSkill->HandleSkillTrigger();  // Trigger 처리
 		CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
 	}
-
 }
 
 void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
@@ -103,7 +102,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 			{
 				GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
 				CurrentSkill->HandleSkillAffect();
-				CurrentSkill->ActivateSkill();
+				CurrentSkill->ActivateSkill();//사용하지않음
 				bIsOnCasting = false;
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 			}

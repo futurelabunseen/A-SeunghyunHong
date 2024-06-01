@@ -176,10 +176,8 @@ enum class ESkillCollisionType : uint8
 /**
 	* Instant:		즉발형 스킬		스킬 버튼을 누르자마자 즉시 효과가 발생합니다.
 	* Projectile:	발사형 스킬		스킬 사용 시 발사체가 발사되어 목표물에 도달합니다.
-	* Channeling:	채널링 스킬		일정 시간 동안 시전해야 효과가 발생합니다.
 	* Delayed:		지연형 스킬		시전 후 일정 시간이 지나야 효과가 발생합니다.
 	* AreaOfEffect:	범위형 스킬		특정 영역에 영향을 미치는 스킬입니다.
-	* Toggle:		토글형 스킬		켜고 끌 수 있는 스킬입니다.
 	* Charge:		차징형 스킬		시전 시간을 길게 가져갈수록 더 큰 효과를 발휘합니다.
 */
 UENUM(BlueprintType)
@@ -187,10 +185,8 @@ enum class ESkillCastType : uint8
 {
 	Instant UMETA(DisplayName = "Instant"),
 	Projectile UMETA(DisplayName = "Projectile"),
-	Channeling UMETA(DisplayName = "Channeling"),
 	Delayed UMETA(DisplayName = "Delayed"),
 	AreaOfEffect UMETA(DisplayName = "Area of Effect"),
-	Toggle UMETA(DisplayName = "Toggle"),
 	Charge UMETA(DisplayName = "Charge"),
 
 	Max UMETA(Hidden)

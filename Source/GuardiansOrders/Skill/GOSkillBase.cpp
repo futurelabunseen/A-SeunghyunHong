@@ -60,6 +60,32 @@ void UGOSkillBase::InitializeSkill(FName InSkillName)
 	}	
 }
 
+void UGOSkillBase::SpawnParticleAtLocation(FVector Location)
+{
+	if (SkillData.SkillEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SkillData.SkillEffect, Location);
+	}
+}
+
+void UGOSkillBase::SpawnParticleAtActor(AActor* Actor)
+{
+	if (Actor && SkillData.SkillEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(SkillData.SkillEffect, Actor->GetRootComponent(), NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
+	}
+}
+
+void UGOSkillBase::SpawnParticleAroundActor(AActor* Actor, float Radius)
+{
+	if (Actor && SkillData.SkillEffect)
+	{
+		FVector Location = Actor->GetActorLocation();
+		FBoxSphereBounds SphereBounds(Location, FVector(Radius), Radius);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SkillData.SkillEffect, Location, FRotator::ZeroRotator, FVector(Radius));
+	}
+}
+
 void UGOSkillBase::StartCast()
 {
 	if (IsCastable() == false)
@@ -75,6 +101,8 @@ void UGOSkillBase::StartCast()
 	SetCoolDownTimer();
 	// 델리게이트로 알려주장
 	UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	//SpawnParticleEffect(SkillData.SkillCastType, SkillData.ParticleSpawnLocation);
 	UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillBase::StartCast] Broadcast"));
 
 	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
@@ -192,6 +220,87 @@ void UGOSkillBase::HandleSkillAffect()
 	case ESkillAffectType::Debuff:
 		// Debuff 효과 처리 로직
 		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Debuff"));
+		break;
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::SpawnParticleEffect(ESkillCastType CastType, EParticleSpawnLocation SpawnLocation)
+{
+	switch (CastType)
+	{
+	case ESkillCastType::Instant:
+		// Immediate effect, spawn particles directly
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Projectile:
+		// Projectile effect, typically handled elsewhere, but for now, use the same logic as Instant
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Delayed:
+		// Delayed spawning logic, using a timer to spawn after a delay
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpawnLocation]()
+			{
+				HandleSpawnParticle(SpawnLocation);
+			});
+		break;
+	case ESkillCastType::AreaOfEffect:
+		// Area effect logic, spawn particles at the specified location
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Charge:
+		// Charged skill logic, using a timer to simulate charging time
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpawnLocation]()
+			{
+				HandleSpawnParticle(SpawnLocation);
+			});
+		break;
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::HandleSpawnParticle(EParticleSpawnLocation SpawnLocation)
+{
+	switch (SpawnLocation)
+	{
+	case EParticleSpawnLocation::Caster:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			SpawnParticleAtActor(Owner);
+		}
+		break;
+	case EParticleSpawnLocation::Target:
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			SpawnParticleAtActor(Target);
+		}
+		break;
+	case EParticleSpawnLocation::Projectile:
+		// Handle projectile particle spawning if applicable
+		break;
+	case EParticleSpawnLocation::Ground:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			FVector Location = Owner->GetActorLocation();
+			SpawnParticleAtLocation(Location);
+		}
+		break;
+	case EParticleSpawnLocation::AroundCaster:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			SpawnParticleAroundActor(Owner, 1.f); // Example radius
+		}
+		break;
+	case EParticleSpawnLocation::AroundTarget:
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			SpawnParticleAroundActor(Target, 1.f); // Example radius
+		}
+		break;
+	case EParticleSpawnLocation::CustomLocation:
+		// Handle custom location particle spawning
 		break;
 	default:
 		break;

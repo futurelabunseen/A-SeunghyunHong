@@ -176,6 +176,8 @@ public:
 
     FName GetSpellTypeFName(ESpellType SpellType);
 
+    FHeroSkillKey GetKeyBySkillObject(UGOSkillBase* SkillObject) const;
+
     UTexture2D* GetHeroImageByEHeroType(EHeroType HeroType);
     // void GetHeroImageByEHeroType(EHeroType HeroType, UTexture2D*& OutTexture);
 

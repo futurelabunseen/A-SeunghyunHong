@@ -716,14 +716,32 @@ void AGOPlayerCharacter::AttackHitCheck()
 // 새로 만든: 스킬시스템용 
 void AGOPlayerCharacter::SkillAttackHitCheck()
 {
+	TObjectPtr<UGOSkillBase> CurrentSkill = GetSkillCastComponent()->GetCurrentSkill();
+
+	UGOGameSubsystem* GameSubsystem = GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
+	FHeroSkillKey Key;
+
 	// 소유권을 가진 클라이언트가 공격 판정을 진행합니다.  
 	if (IsLocallyControlled())
 	{
+		//PlayEffectParticleAnimByKey(Key);
+
 		GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-		
+		if (GameSubsystem)
+		{
+			// Get the key for the skill object
+			Key = GameSubsystem->GetKeyBySkillObject(CurrentSkill);
+
+			//// 스킬 이펙트 효과
+			//PlayEffectParticleAnimByKey(Key);///*
+			//MulticastRPCActivateSkill(Key); ///*
+
+			ServerRPCActivateSkillWithParticles(Key);
+		}
+
 		// TODO : nullptr 오류 체크: casting time 과 관련 있음
 
-		TObjectPtr<UGOSkillBase> CurrentSkill = GetSkillCastComponent()->GetCurrentSkill();
+		//TObjectPtr<UGOSkillBase> CurrentSkill = GetSkillCastComponent()->GetCurrentSkill();
 		bool HitDetected = CurrentSkill->GetHitDetected();
 		ESkillAffectType SkillAffectType = CurrentSkill->GetSkillAffectType();
 		UE_LOG(LogTemp, Warning, TEXT("CurrentSkill Hit: %s"), *CurrentSkill->GetName());
@@ -755,6 +773,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 		}
 
 
+
 		// 공격한 시간
 		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE case ESkillCollisionType::OverlapMulti:"));
@@ -764,6 +783,8 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 		// 클라이언트에서 진행 (판정에 대한 검증을 받아야 하므로 패킷 전송 필요)
 		if (!HasAuthority())
 		{
+			PlayEffectParticleAnimByKey(Key);
+
 			if (HitDetected)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE 222 case ESkillCollisionType::OverlapMulti:"));
@@ -775,13 +796,13 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					HitActor = OutHitCollisionStructure.OutHitResult.GetActor();
 					if (IsValid(HitActor)) {
 						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
-						ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType);
+						ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
 					}
 					break;
 
 				case ESkillCollisionType::LineTraceMulti:
 
-					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType);
+					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType, Key);
 
 					for (const FHitResult& HitResult : OutHitCollisionStructure.OutHitResults) {
 						HitActor = HitResult.GetActor();
@@ -800,14 +821,14 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 					if (HitActor != nullptr) {
 						UE_LOG(LogTemp, Warning, TEXT("Hit: 5555 sweep single"));
-						 ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType);
+						 ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
 						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
 					}
 					break;
 
 				case ESkillCollisionType::SweepMulti:
 
-					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType);
+					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType, Key);
 
 					for (const FHitResult& HitResult : OutHitCollisionStructure.OutHitResults) {
 						HitActor = HitResult.GetActor();
@@ -820,7 +841,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 				case ESkillCollisionType::OverlapMulti:
 					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] case ESkillCollisionType::OverlapMulti:"));
 
-					ServerRPCNotifySkillHitOverlapResult(OutOverlaps, SkillAffectAmount, SkillAffectType);
+					ServerRPCNotifySkillHitOverlapResult(OutOverlaps, SkillAffectAmount, SkillAffectType, Key);
 
 					for (const FOverlapResult& OverlapResult : OutHitCollisionStructure.OutOverlaps) {
 						HitActor = OverlapResult.GetActor();
@@ -910,12 +931,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					UE_LOG(LogTemp, Warning, TEXT("Unknown collision type!!!"));
 					break;
 				}
-
-				//if (HitCameraShakeClass)
-				//{
-				//	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-				//	UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
-				//}
 			}
 			if (HitCameraShakeClass)
 			{
@@ -923,6 +938,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 				UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
 			}
 		}
+
 	}
 }
 
@@ -945,13 +961,6 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	UE_LOG(LogTemp, Warning, TEXT("ServerRPCNotifySkillHit_Implementation !!! AttackSkillHitConfirm SkillAffectAmount: %f"), SkillAffectAmount);
-
-	//if (HasAuthority())
-	//{
-	//	FDamageEvent DamageEvent;
-	//	HitActor->TakeDamage(SkillDamage, DamageEvent, GetController(), this);
-	//	UE_LOG(LogTemp, Warning, TEXT("ServerRPCNotifySkillHit_Implementation !!!  SkillDamage: %f"), SkillDamage);
-	//}
 	
 	if (HasAuthority())
 	{
@@ -1153,16 +1162,14 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 //}
 
 // 테스트용: 스킬시스템
-bool AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Validate(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType)
+bool AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Validate(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	return true;
 }
 
 // 테스트용: 스킬시스템
-void AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Implementation(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType)
+void AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Implementation(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-
 	AActor* HitActor = HitResult.GetActor();
 	if (::IsValid(HitActor))
 	{
@@ -1215,7 +1222,7 @@ void AGOPlayerCharacter::ServerRPCNotifySkillMiss_Implementation(float HitCheckT
 	// DrawDebugAttackRange(FColor::Red, TraceStart, TraceEnd, TraceDir);
 }
 
-void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TArray<FHitResult>& HitResult, float DamageAmount, ESkillAffectType SkillAffectType)
+void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TArray<FHitResult>& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	AActor* HitActor = nullptr;
 
@@ -1228,7 +1235,7 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TAr
 	}
 }
 
-void AGOPlayerCharacter::ServerRPCNotifySkillHitOverlapResult_Implementation(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType)
+void AGOPlayerCharacter::ServerRPCNotifySkillHitOverlapResult_Implementation(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	AActor* HitActor = nullptr;
 	UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitOverlapResult_Implementation 000 Hit: %f"), DamageAmount);
@@ -1480,12 +1487,10 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	LastAttakStartTime = AttackStartTime;
 
 	PlaySkillAnimByKey(Key);
-	PlayEffectParticleAnimByKey(Key);
-
-	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
 
 	// 스킬 이펙트 효과
-	MulticastRPCActivateSkil(Key);
+	//PlayEffectParticleAnimByKey(Key);///*
+	//MulticastRPCActivateSkill(Key); ///*
 	
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
@@ -1517,7 +1522,7 @@ void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
 }
 
 // 스킬 이펙트 효과 MulticastRPCActivateSkil
-void AGOPlayerCharacter::MulticastRPCActivateSkil_Implementation(FHeroSkillKey Key)
+void AGOPlayerCharacter::MulticastRPCActivateSkill_Implementation(FHeroSkillKey Key)
 {
 	if (!IsLocallyControlled())
 	{
@@ -1605,8 +1610,6 @@ void AGOPlayerCharacter::ActivateSkillByKey(FHeroSkillKey Key)
 	ServerRPCActivateSkill(GetWorld()->GetGameState()->GetServerWorldTimeSeconds(), Key);
 }
 
-
-
 void AGOPlayerCharacter::OnRep_Rotation()
 {
 	SetActorRotation(NetRotation);
@@ -1678,11 +1681,17 @@ void AGOPlayerCharacter::ActivateSpellFlash()
 // ======== IGOPlaySkillEffectInterface ========
 void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[Particle] PlayEffectParticleAnimByKey  start "));
+
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
 	UGOSkillBase* CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
+
+	//CurrentSkill->SpawnParticleEffect
+	//	(CurrentSkill->GetTotalSkillData().SkillCastType, 
+	//	 CurrentSkill->GetTotalSkillData().ParticleSpawnLocation);
 
 	UParticleSystem* DefenseSkillEffect = CurrentSkill->GetTotalSkillData().SkillEffect;
 	if (DefenseSkillEffect)
@@ -1691,4 +1700,25 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 		FRotator SpawnRotation = GetActorRotation();
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefenseSkillEffect, SpawnLocation, SpawnRotation);
 	}
+	UE_LOG(LogTemp, Warning, TEXT("[Particle] PlayEffectParticleAnimByKey  end"));
+
+}
+
+void AGOPlayerCharacter::ServerRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
+{
+	PlayEffectParticleAnimByKey(Key);
+	MulticastRPCActivateSkillWithParticles(Key);
+}
+
+void AGOPlayerCharacter::MulticastRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  start "));
+
+	if (!IsLocallyControlled())
+	{
+		PlayEffectParticleAnimByKey(Key);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  end"));
+
 }
