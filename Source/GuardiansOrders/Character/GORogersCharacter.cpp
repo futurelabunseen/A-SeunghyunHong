@@ -48,8 +48,23 @@ void AGORogersCharacter::OnSkillW()
 
 void AGORogersCharacter::OnSkillE()
 {
-	Super::OnSkillE();
-	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill E is triggered."));
+    Super::OnSkillE();
+    if (HasAuthority())
+    {
+        UGOSkillBase* Skill = SkillCastComponent->GetCurrentSkill();
+        if (Skill)
+        {
+            ServerActivateSkillWithMovement(FHeroSkillKey(EHeroType::Rogers, ECharacterSkills::Skill03), Skill->GetMovementDistance(), Skill->GetMovementDuration(), Skill->GetAcceleration());
+        }
+    }
+    else
+    {
+        UGOSkillBase* Skill = SkillCastComponent->GetCurrentSkill();
+        if (Skill)
+        {
+            ServerActivateSkillWithMovement(FHeroSkillKey(EHeroType::Rogers, ECharacterSkills::Skill03), Skill->GetMovementDistance(), Skill->GetMovementDuration(), Skill->GetAcceleration());
+        }
+    }
 }
 
 void AGORogersCharacter::OnSkillR()

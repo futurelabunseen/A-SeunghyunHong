@@ -47,8 +47,23 @@ void AGOBeastCharacter::OnSkillW()
 
 void AGOBeastCharacter::OnSkillE()
 {
-	Super::OnSkillE();
-	UE_LOG(LogTemp, Log, TEXT("Beast Skill E is triggered."));
+    Super::OnSkillE();
+    if (HasAuthority())
+    {
+        UGOSkillBase* Skill = SkillCastComponent->GetCurrentSkill();
+        if (Skill)
+        {
+            ServerActivateSkillWithMovement(FHeroSkillKey(EHeroType::Beast, ECharacterSkills::Skill03), Skill->GetMovementDistance(), Skill->GetMovementDuration(), Skill->GetAcceleration());
+        }
+    }
+    else
+    {
+        UGOSkillBase* Skill = SkillCastComponent->GetCurrentSkill();
+        if (Skill)
+        {
+            ServerActivateSkillWithMovement(FHeroSkillKey(EHeroType::Beast, ECharacterSkills::Skill03), Skill->GetMovementDistance(), Skill->GetMovementDuration(), Skill->GetAcceleration());
+        }
+    }
 }
 
 void AGOBeastCharacter::OnSkillR()

@@ -1704,6 +1704,51 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 
 }
 
+bool AGOPlayerCharacter::ServerActivateSkillWithMovement_Validate(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
+{
+	return true;
+}
+
+void AGOPlayerCharacter::ServerActivateSkillWithMovement_Implementation(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
+{
+	MulticastActivateSkillWithMovement(Key, Distance, Duration, Acceleration);
+}
+
+void AGOPlayerCharacter::MulticastActivateSkillWithMovement_Implementation(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
+{
+	StartMovingForward(Distance, Duration, Acceleration);
+}
+
+void AGOPlayerCharacter::StartMovingForward(float Distance, float Duration, float Acceleration)
+{
+	FVector ForwardDirection = GetActorForwardVector();
+	MovementStartLocation = GetActorLocation();
+	MovementEndLocation = MovementStartLocation + (ForwardDirection * Distance);
+	MovementDuration = Duration;
+	ElapsedTime = 0.0f;
+	InitialSpeed = 0.0f; // 초기 속도는 0
+	CurrentAcceleration = Acceleration;
+	MovementDistance = Distance; // 추가된 변수 초기화
+
+	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AGOPlayerCharacter::MoveForwardStep, 0.01f, true);
+}
+
+void AGOPlayerCharacter::MoveForwardStep()
+{
+	ElapsedTime += 0.01f;
+	if (ElapsedTime >= MovementDuration)
+	{
+		ElapsedTime = MovementDuration;
+		GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
+	}
+
+	float CurrentSpeed = InitialSpeed + (CurrentAcceleration * ElapsedTime);
+	float DistanceCovered = (InitialSpeed * ElapsedTime) + (0.5f * CurrentAcceleration * FMath::Square(ElapsedTime));
+
+	FVector NewLocation = FMath::Lerp(MovementStartLocation, MovementEndLocation, DistanceCovered / MovementDistance);
+	SetActorLocation(NewLocation);
+}
+
 void AGOPlayerCharacter::ServerRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
 {
 	PlayEffectParticleAnimByKey(Key);

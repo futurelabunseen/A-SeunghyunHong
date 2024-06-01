@@ -187,4 +187,18 @@ private:
 	void SpawnParticleAtActor(AActor* Actor);
 	void SpawnParticleAroundActor(AActor* Actor, float Radius);
 
+public:
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	float GetMovementDistance() const { return MovementDistance; }
+
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	float GetMovementDuration() const { return MovementDuration; }
+
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	float GetAcceleration() const { return Acceleration; }
+
+protected:
+	float MovementDistance;
+	float MovementDuration;
+	float Acceleration;
 };

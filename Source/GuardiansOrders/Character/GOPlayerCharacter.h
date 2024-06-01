@@ -523,4 +523,26 @@ public:
 
 // ======== IGOPlaySkillEffectInterface ========
 	virtual void PlayEffectParticleAnimByKey(FHeroSkillKey Key);
+
+// ======== Move Skill =======
+public:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
+
+	void StartMovingForward(float Distance, float Duration, float Acceleration);
+private:
+	// 이동 관련 변수와 타이머 핸들러 추가
+	FTimerHandle MovementTimerHandle;
+	FVector MovementStartLocation;
+	FVector MovementEndLocation;
+	float MovementDuration;
+	float ElapsedTime;
+	float InitialSpeed;
+	float CurrentAcceleration;
+	float MovementDistance;
+
+	void MoveForwardStep();
 };
