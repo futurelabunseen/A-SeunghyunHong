@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
@@ -22,11 +22,12 @@ struct FGOSkillData : public FTableRowBase
         SkillTriggerType(ESkillTriggerType::None),
         SkillAffectType(ESkillAffectType::None),
         SkillAnim(nullptr),
-        SkillEffectAsset(nullptr),
-        SkillIcon(nullptr)
+        SkillEffect(nullptr),
+        SkillIcon(nullptr),
+        CameraShakeIntensity(1.0f)
     {}
 
-    // ½ºÅ³ ½ºÅÈÀ» À§ÇÑ Å×ÀÌºí RowName ÀÔ´Ï´Ù.
+    // ìŠ¤í‚¬ ìŠ¤íƒ¯ì„ ìœ„í•œ í…Œì´ë¸” RowName ì…ë‹ˆë‹¤.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     FName SkillStatName;
 
@@ -43,14 +44,21 @@ struct FGOSkillData : public FTableRowBase
     ESkillAffectType SkillAffectType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    ESkillCastType SkillCastType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    EParticleSpawnLocation ParticleSpawnLocation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UAnimMontage> SkillAnim;
 
-    // ½ºÅ³ È¿°ú ¾Ö¼ÂÀ» À§ÇÑ ÂüÁ¶ÀÔ´Ï´Ù. (¹ÌÁ¤: ¾Ö¼Â ¶Ç´Â Å×ÀÌºí)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
-    TObjectPtr<UGOSkillEffectAsset> SkillEffectAsset;
+    TObjectPtr<UParticleSystem> SkillEffect;
 
-    // ½ºÅ³ ¾ÆÀÌÄÜÀÇ ÅØ½ºÃÄÀÔ´Ï´Ù.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    float CameraShakeIntensity;
 };
 

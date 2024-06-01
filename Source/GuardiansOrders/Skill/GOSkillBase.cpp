@@ -60,6 +60,32 @@ void UGOSkillBase::InitializeSkill(FName InSkillName)
 	}	
 }
 
+void UGOSkillBase::SpawnParticleAtLocation(FVector Location)
+{
+	if (SkillData.SkillEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SkillData.SkillEffect, Location);
+	}
+}
+
+void UGOSkillBase::SpawnParticleAtActor(AActor* Actor)
+{
+	if (Actor && SkillData.SkillEffect)
+	{
+		UGameplayStatics::SpawnEmitterAttached(SkillData.SkillEffect, Actor->GetRootComponent(), NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, true);
+	}
+}
+
+void UGOSkillBase::SpawnParticleAroundActor(AActor* Actor, float Radius)
+{
+	if (Actor && SkillData.SkillEffect)
+	{
+		FVector Location = Actor->GetActorLocation();
+		FBoxSphereBounds SphereBounds(Location, FVector(Radius), Radius);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SkillData.SkillEffect, Location, FRotator::ZeroRotator, FVector(Radius));
+	}
+}
+
 void UGOSkillBase::StartCast()
 {
 	if (IsCastable() == false)
@@ -75,6 +101,8 @@ void UGOSkillBase::StartCast()
 	SetCoolDownTimer();
 	// 델리게이트로 알려주장
 	UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	//SpawnParticleEffect(SkillData.SkillCastType, SkillData.ParticleSpawnLocation);
 	UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillBase::StartCast] Broadcast"));
 
 	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
@@ -99,10 +127,11 @@ void UGOSkillBase::UpdateCast(float DeltaTime)
 	//}
 }
 
-void UGOSkillBase::ActivateSkill()
+void UGOSkillBase::ActivateSkill() // UGOSkillCastComponent::OnUpdateCast 에서 불림
 {
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
 	ExecuteSkill(GetSkillCollisionType());
+
 	UE_LOG(LogTemp, Log, TEXT("[UGOSkillBase::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
@@ -126,6 +155,157 @@ void UGOSkillBase::InterruptedCast()
 void UGOSkillBase::ActivateEffect()
 {
 
+}
+
+void UGOSkillBase::HandleSkillTrigger()
+{
+	switch (GetSkillTriggerType())
+	{
+	case ESkillTriggerType::Target:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: Target"));
+		break;
+	case ESkillTriggerType::NonTargetDirection:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetDirection"));
+		break;
+	case ESkillTriggerType::NonTargetRange:
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetRange"));
+		break;
+	case ESkillTriggerType::AutoTargetRadius:
+	{
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadius"));
+		float Radius = GetAutoDetectionRadius();
+		AGOCharacterBase* ClosestTarget = DetectClosestTarget(Radius);
+		SetTarget(ClosestTarget);
+		break;
+	}
+	case ESkillTriggerType::AutoTargetRadiusDegree:
+	{
+		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadiusDegree"));
+		float Radius = GetAutoDetectionRadius();
+		float Degree = GetAutoDetectionDegree();
+		FVector ForwardVector = GetSkillOwner()->GetActorForwardVector();
+		FVector2D Direction(ForwardVector.X, ForwardVector.Y);
+		AGOCharacterBase* ClosestTarget = DetectClosestTargetRadiusDegreeBase(Direction, Radius, Degree);
+		SetTarget(ClosestTarget);
+		break;
+	}
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::HandleSkillAffect()
+{
+	switch (GetSkillAffectType())
+	{
+	case ESkillAffectType::Damage:
+		// Damage 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Damage"));
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			// Target에게 Damage 처리 로직
+		}
+		break;
+	case ESkillAffectType::Defense:
+		// Defense 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Defense"));
+		break;
+	case ESkillAffectType::Heal:
+		// Heal 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Heal"));
+		break;
+	case ESkillAffectType::Buff:
+		// Buff 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Buff"));
+		break;
+	case ESkillAffectType::Debuff:
+		// Debuff 효과 처리 로직
+		UE_LOG(LogTemp, Log, TEXT("Skill Affect Type: Debuff"));
+		break;
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::SpawnParticleEffect(ESkillCastType CastType, EParticleSpawnLocation SpawnLocation)
+{
+	switch (CastType)
+	{
+	case ESkillCastType::Instant:
+		// Immediate effect, spawn particles directly
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Projectile:
+		// Projectile effect, typically handled elsewhere, but for now, use the same logic as Instant
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Delayed:
+		// Delayed spawning logic, using a timer to spawn after a delay
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpawnLocation]()
+			{
+				HandleSpawnParticle(SpawnLocation);
+			});
+		break;
+	case ESkillCastType::AreaOfEffect:
+		// Area effect logic, spawn particles at the specified location
+		HandleSpawnParticle(SpawnLocation);
+		break;
+	case ESkillCastType::Charge:
+		// Charged skill logic, using a timer to simulate charging time
+		GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpawnLocation]()
+			{
+				HandleSpawnParticle(SpawnLocation);
+			});
+		break;
+	default:
+		break;
+	}
+}
+
+void UGOSkillBase::HandleSpawnParticle(EParticleSpawnLocation SpawnLocation)
+{
+	switch (SpawnLocation)
+	{
+	case EParticleSpawnLocation::Caster:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			SpawnParticleAtActor(Owner);
+		}
+		break;
+	case EParticleSpawnLocation::Target:
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			SpawnParticleAtActor(Target);
+		}
+		break;
+	case EParticleSpawnLocation::Projectile:
+		// Handle projectile particle spawning if applicable
+		break;
+	case EParticleSpawnLocation::Ground:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			FVector Location = Owner->GetActorLocation();
+			SpawnParticleAtLocation(Location);
+		}
+		break;
+	case EParticleSpawnLocation::AroundCaster:
+		if (AActor* Owner = GetSkillOwner())
+		{
+			SpawnParticleAroundActor(Owner, 1.f); // Example radius
+		}
+		break;
+	case EParticleSpawnLocation::AroundTarget:
+		if (AGOCharacterBase* Target = GetTarget())
+		{
+			SpawnParticleAroundActor(Target, 1.f); // Example radius
+		}
+		break;
+	case EParticleSpawnLocation::CustomLocation:
+		// Handle custom location particle spawning
+		break;
+	default:
+		break;
+	}
 }
 
 void UGOSkillBase::CheckCooldownTick()
@@ -248,7 +428,7 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& Out
 
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
 	FVector Forward = OwnerActor->GetActorForwardVector();
-	FVector Start = FVector(100,0,0) + OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * (OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius() + 50.0f);
 	//FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
 	FVector End = Start + Forward * Stats.DamageRange;  // 무의미한 벡터, 스위프의 시작점만 중요
 
@@ -278,7 +458,7 @@ void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResul
 	if (!SkillOwnerCharacter) return;
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
 	FVector Forward = OwnerActor->GetActorForwardVector();
-	FVector Start = OwnerActor->GetActorLocation() + Forward * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Start = OwnerActor->GetActorLocation() + Forward * (OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius() + 50.0f);
 	FVector End = Start + FVector(1, 0, 0);  // 무의미한 벡터, 스위프의 시작점만 중요
 
 	//TArray<FHitResult> HitResults;
@@ -308,7 +488,8 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	if (!SkillOwnerCharacter) return;
 
 	AGOCharacterBase* OwnerActor = Cast<AGOCharacterBase>(SkillOwnerCharacter);
-	FVector Location = OwnerActor->GetActorLocation() + OwnerActor->GetActorForwardVector() * OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	FVector Forward = OwnerActor->GetActorForwardVector();
+	FVector Location = OwnerActor->GetActorLocation() + Forward * (OwnerActor->GetCapsuleComponent()->GetScaledCapsuleRadius() + 50.0f);
 	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(Stats.DamageRadius);
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(OwnerActor);
@@ -330,4 +511,72 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
 	FColor TraceColor = OutOverlaps.Num() > 0 ? FColor::Green : FColor::Red;
 	DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetSkillOwner());  // 자기 자신은 무시
+
+	FVector Location = GetSkillOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);  // GOCharacterBase 타입으로 캐스트
+		if (GOCharacter && GOCharacter != GetSkillOwner())
+		{
+			float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+			if (Distance < MinDistance)
+			{
+				MinDistance = Distance;
+				ClosestCharacter = GOCharacter;
+			}
+		}
+	}
+	DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
+
+	return ClosestCharacter;
+}
+
+TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree)
+{
+	TArray<FOverlapResult> OutResults;
+	FCollisionQueryParams CollisionParams;
+	CollisionParams.AddIgnoredActor(GetSkillOwner());  // 자기 자신은 무시
+
+	FVector Location = GetSkillOwner()->GetActorLocation();
+	GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+
+	AGOCharacterBase* ClosestCharacter = nullptr;
+	float MinDistance = FLT_MAX;
+
+	for (auto& Result : OutResults)
+	{
+		AActor* HitActor = Result.GetActor();
+		AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);
+		if (GOCharacter && GOCharacter != GetSkillOwner())
+		{
+			FVector2D HitDir = FVector2D(GOCharacter->GetActorLocation() - Location);
+			HitDir.Normalize();
+			float CosTheta = FMath::Cos(FMath::DegreesToRadians(Degree));
+			if (FVector2D::DotProduct(Dir, HitDir) >= CosTheta)
+			{
+				float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+				if (Distance < MinDistance)
+				{
+					MinDistance = Distance;
+					ClosestCharacter = GOCharacter;
+				}
+			}
+		}
+	}
+	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
+
+	return ClosestCharacter;
 }

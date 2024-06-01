@@ -9,6 +9,7 @@
 
 class UProgressBar;
 class UTextBlock;
+class UImage;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOHpBarWidget : public UGOUserWidget
@@ -24,6 +25,7 @@ protected:
 public:
 	void UpdateHpBar(float NewCurrentHp, float MaxHp);
 	FString GetHpStatText();
+	void SetHpBarTexture(UTexture2D* NewTexture);  // Setting the HP bar texture
 
 protected:
 	UPROPERTY()
@@ -37,4 +39,8 @@ protected:
 	
 	UPROPERTY()
 	float MaxHp;
+
+	UPROPERTY()
+	TObjectPtr<UImage> HpBarImage;  // Image for the progress bar
+
 };

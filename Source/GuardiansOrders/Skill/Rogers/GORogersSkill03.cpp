@@ -2,10 +2,13 @@
 
 
 #include "Skill/Rogers/GORogersSkill03.h"
+#include "Character/GOPlayerCharacter.h"
 
 UGORogersSkill03::UGORogersSkill03()
 {
-
+	MovementDistance = 300.0f; // 300 units
+	MovementDuration = 2.4f;   // 2 second
+	Acceleration = 150.0f;     // 200 units/second^2
 }
 
 void UGORogersSkill03::PostInitProperties()
@@ -23,12 +26,18 @@ void UGORogersSkill03::StartCast()
 void UGORogersSkill03::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);
+
+
 }
 
 void UGORogersSkill03::ActivateSkill()
 {
 	Super::ActivateSkill();
 
+	if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
+	{
+		Owner->StartMovingForward(MovementDistance, MovementDuration, Acceleration);
+	}
 }
 
 void UGORogersSkill03::FinishCast()

@@ -8,6 +8,8 @@
 #include "Share/EGOTeam.h"
 #include "GOPlayerState.generated.h"
 
+class AGOPlayerCharacter;
+class AGOPlayerController;
 /**
  * 서버와 모든 클라이언트에 존재합니다.
  * 자신, 다른 플레이어의 상태를 파악할 수 있습니다.
@@ -27,7 +29,14 @@ public:
 
 public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Character Selection")
-	TSubclassOf<class AGOPlayerCharacter> SelectedCharacterClass;
+	TSubclassOf<AGOPlayerCharacter> SelectedCharacterClass;
+
+	// 플레이어가 선택한 영웅 정보
+	UPROPERTY(Replicated)
+	FHeroSelectionInfo SelectedHero;
+
+	UPROPERTY(Replicated)
+	bool bIsReady; // Ready 상태를 저장하는 변수 추가
 
 	// 추가
 	// 
@@ -42,11 +51,36 @@ public:
 	//void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
 
 	/**
+	 * Score, Defeats
+	 */
+
+public:
+	virtual void OnRep_Score() override;
+	void AddToScore(float ScoreAmount);
+
+	// Replication notifies
+	UFUNCTION()
+	virtual void OnRep_Defeats();
+
+	void AddToDefeats(int32 DefeatsAmount);
+
+	FORCEINLINE FString GetPlayerName() { return PlayerName; }
+
+private:
+	UPROPERTY()
+	AGOPlayerCharacter* Character;
+	UPROPERTY()
+	AGOPlayerController* Controller;
+
+	UPROPERTY(ReplicatedUsing = OnRep_Defeats)
+	int32 Defeats;
+
+	/**
 	 * Team
 	 */
+public:
 	FORCEINLINE ETeamType GetTeamType() const { return Team; }
-	FORCEINLINE void SetTeam(ETeamType TeamToSet);
-
+	void SetTeam(ETeamType TeamToSet);
 
 	UFUNCTION()
 	void OnRep_Team();
@@ -56,5 +90,6 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Team)
 	ETeamType Team = ETeamType::ET_NoTeam;
 
-
+	// Name
+	FString PlayerName;
 };

@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
+#include "Share/ShareEnums.h"
 #include "GOHeroSelectionWidget.generated.h"
+
+//UFUNCTION(Server, Reliable, WithValidation)
+//void ServerSelectHero(APlayerController* PlayerController, EHeroType HeroType);
 class UButton;
 /**
  * 
@@ -32,6 +36,12 @@ protected:
     UFUNCTION()
     void OnKatnissButtonClicked();
 
+    UFUNCTION()
+    void OnReadyButtonClicked(); // Ready 버튼 클릭 이벤트 핸들러
+
+    UFUNCTION()
+    void EnableReadyButton();
+
     // UMG widget bindings
     UPROPERTY(meta = (BindWidget))
     UButton* RogersButton;
@@ -45,7 +55,12 @@ protected:
     UPROPERTY(meta = (BindWidget))
     UButton* BrideButton;
 
+    UPROPERTY(meta = (BindWidget))
+    UButton* ReadyButton;
+
 private:
     // 추가
-    void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+    // void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
+    void SelectCharacter(EHeroType HeroType);
+
 };

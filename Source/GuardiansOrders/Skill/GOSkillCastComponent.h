@@ -46,10 +46,6 @@ public:
 	void UpdateCoolDownTime(float DeltaTime);
 
 public:
-	// 오토타겟팅
-	TObjectPtr<class AGOCharacterBase> DetectClosestTarget(float Radius);
-	TObjectPtr<AGOCharacterBase> DetectClosestTargetRadiusDegreeBase(const FVector2D& Dir, float Radius, float Degree);
-
 	// 현재 스킬 Get, Set
 	void SetCurrentSkillByKey(FHeroSkillKey Key);
 	void SetCurrentSkillKey(FHeroSkillKey Key);

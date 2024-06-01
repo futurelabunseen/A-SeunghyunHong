@@ -75,6 +75,16 @@ protected:
 
 	// virtual void SetupHUDWidget(UGOHUDWidget* InHUDWidget) override;
 
+	// Textures for HP bar
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	UTexture2D* BlueTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	UTexture2D* GreenTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	UTexture2D* RedTexture;
+
 // Attack Hit Section
 protected:
 	virtual void AttackHitCheck() override;

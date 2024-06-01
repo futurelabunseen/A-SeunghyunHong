@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ShareEnums.generated.h"
 
 ////////////////////////////////////////////////////////////////
 // 캐릭터 타입입니다. 데이터 테이블의 순서와 일치합니다. 
@@ -102,4 +103,30 @@ enum class EArchetype : uint8
     Supporter UMETA(DisplayName = "Supporter"),
 
     Max UMETA(Hidden)
+};
+
+
+/**
+ * 플레이어 ID와 선택한 직업 정보를 포함하는 구조체
+ */
+USTRUCT(BlueprintType)
+struct FHeroSelectionInfo
+{
+    GENERATED_BODY()
+
+    FHeroSelectionInfo()
+        : PlayerId(0)
+        , SelectedHero(EHeroType::None)
+    {}
+
+    FHeroSelectionInfo(int32 InPlayerId, EHeroType InSelectedHero)
+        : PlayerId(InPlayerId)
+        , SelectedHero(InSelectedHero)
+    {}
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    int32 PlayerId;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    EHeroType SelectedHero;
 };

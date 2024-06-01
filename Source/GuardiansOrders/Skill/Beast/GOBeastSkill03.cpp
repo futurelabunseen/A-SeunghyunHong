@@ -2,10 +2,13 @@
 
 
 #include "Skill/Beast/GOBeastSkill03.h"
+#include "Character/GOPlayerCharacter.h"
 
 UGOBeastSkill03::UGOBeastSkill03()
 {
-
+	MovementDistance = 300.0f; // 200 units
+	MovementDuration = 1.4f;   // 1.5 seconds
+	Acceleration = 200.0f;     // 150 units/second^2
 }
 
 void UGOBeastSkill03::PostInitProperties()
@@ -29,6 +32,10 @@ void UGOBeastSkill03::ActivateSkill()
 {
 	Super::ActivateSkill();
 
+	if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
+	{
+		Owner->StartMovingForward(MovementDistance, MovementDuration, Acceleration);
+	}
 }
 
 void UGOBeastSkill03::FinishCast()

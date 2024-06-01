@@ -34,6 +34,14 @@ public:
 	TObjectPtr<UGOSpellSetBarWidget> GetSpellSetBar() { return SpellSetBar; }
 	TObjectPtr<UGOHeroInfoWidget> GetHeroInfo() { return HeroInfo; }
 
+	UPROPERTY(EditAnywhere, Category = "Player Stats")
+	TSubclassOf<class UGOBattleCharacterOverlayWidget> CharacterOverlayClass;
+
+	void AddCharacterOverlay();
+
+	UPROPERTY()
+	class UGOBattleCharacterOverlayWidget* CharacterOverlay;
+
 protected:
 	UPROPERTY()
 	TObjectPtr<UGOStatsBarWidget> StatsBar;

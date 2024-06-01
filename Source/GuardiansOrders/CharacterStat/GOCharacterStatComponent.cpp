@@ -16,6 +16,9 @@ UGOCharacterStatComponent::UGOCharacterStatComponent()
 
 void UGOCharacterStatComponent::InitializeComponent()
 {
+	// 액터 컴포넌트 리플리케이트
+	SetIsReplicated(true);
+
 	Super::InitializeComponent();
 	// ResetStat();
 
@@ -44,19 +47,22 @@ void UGOCharacterStatComponent::SetCharacterStat(FName InCharacterName)
 	}
 }
 
-void UGOCharacterStatComponent::HealHp()
+void UGOCharacterStatComponent::HealHp(float HealHpAmount)
 {
-	CurrentHp = FMath::Clamp(CurrentHp + CurrentHp * 0.2, 0, GetTotalStat().MaxHp);
+	if(HealHpAmount == 0.f)
+		CurrentHp = FMath::Clamp(CurrentHp + CurrentHp * 0.2, 0, GetTotalStat().MaxHp);
+	if(HealHpAmount > 0.f)
+		CurrentHp = FMath::Clamp(CurrentHp + HealHpAmount, 0, GetTotalStat().MaxHp);
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 }
 
-void UGOCharacterStatComponent::ServerHealHp_Implementation()
+void UGOCharacterStatComponent::ServerHealHp_Implementation(float HealHpAmount)
 {
-	HealHp();
+	HealHp(HealHpAmount);
 	UE_LOG(LogTemp, Log, TEXT("ServerHealHp_Implementation "));
 }
 
-bool UGOCharacterStatComponent::ServerHealHp_Validate()
+bool UGOCharacterStatComponent::ServerHealHp_Validate(float HealAmount)
 {
 	return true;  // 추가적인 유효성 검사 로직이 필요할 경우 이곳에 구현
 }
@@ -110,8 +116,8 @@ void UGOCharacterStatComponent::BeginPlay()
 {
 	GO_SUBLOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::BeginPlay();
-	// 액터 컴포넌트 리플리케이트
-	SetIsReplicated(true);
+	//// 액터 컴포넌트 리플리케이트
+	//SetIsReplicated(true);
 	ResetStat();
 	GetWorld()->GetTimerManager().SetTimer(ManaRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateMana, 1.0f, true, 1.0f);
 	GetWorld()->GetTimerManager().SetTimer(HpRegenerationTimer, this, &UGOCharacterStatComponent::RegenerateHp, 1.0f, true, 1.0f);

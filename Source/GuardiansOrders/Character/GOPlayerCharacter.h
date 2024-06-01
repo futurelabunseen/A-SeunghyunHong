@@ -7,6 +7,7 @@
 #include "Interface/GOCharacterHUDInterface.h"
 #include "Interface/GOPlaySkillAnimInterface.h"
 #include "Interface/GOSpellFlashInterface.h"
+#include "Interface/GOPlaySkillEffectInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -27,7 +28,7 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
 {
 	GENERATED_BODY()
 	
@@ -227,7 +228,7 @@ protected:
 	void AttackHitConfirm(AActor* HitActor);
 
 	// 새로 만든: 스킬시스템용 
-	void AttackSkillHitConfirm(AActor* HitActor, float SkillDamage);
+	void SkillHitConfirm(AActor* HitActor, float SkillAffectAmount, ESkillAffectType SkillAffectType);
 
 	//void AttackHitConfirm(AActor* HitActor, float Damage);
 
@@ -249,10 +250,7 @@ protected:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCAttack(float AttackStartTime);
 
-	// 새로 만든: 스킬시스템용 
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCAttackNew(float AttackStartTime, UGOSkillBase* CurrentSkill);	
-	
+
 	// 새로 만든: 스킬시스템용 구조체
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCActivateSkill(float AttackStartTime, FHeroSkillKey Key);
@@ -263,12 +261,16 @@ protected:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCAttack();	
 	
+	// 새로 만든: 스킬시스템용 구조체 !!!
 	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttackNew(UGOSkillBase* CurrentSkill);	
-	
-	// 새로 만든: 스킬시스템용 구조체
-	//UFUNCTION(NetMulticast, Unreliable)
-	//void MulticastRPCActivateSkil(FHeroSkillKey Key);
+	void MulticastRPCActivateSkill(FHeroSkillKey Key);
+
+public:
+	UFUNCTION(Server, Reliable)
+	void ServerRPCActivateSkillWithParticles(FHeroSkillKey Key);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCActivateSkillWithParticles(FHeroSkillKey Key);
 
 	UFUNCTION(Client, Unreliable)
 	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
@@ -296,23 +298,23 @@ protected:
 	/**
 	 * 새로 만든: 스킬시스템용 
 	 */
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
+	//UFUNCTION(Server, Reliable, WithValidation)
+	//void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifySkillMiss(float HitCheckTime);
 	
 	// 테스트용: 스킬시스템 FHitResult
 	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount);
+	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	// 테스트용: 스킬시스템 TArray<FHitResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount);
+	void ServerRPCNotifySkillHitResults(const TArray<FHitResult>& HitResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	// 테스트용: 스킬시스템 TArray<FOverlapResult>
 	UFUNCTION(Server, Reliable)
-	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount);
+	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
 	/** 
 	* 현재 공격 중인가 ? 
@@ -408,6 +410,11 @@ private:
 public:
 	void SimulateStateUpdateOnServer(float DeltaTime);
 
+	void SetActionState(EGOPlayerActionState::State State, bool bEnabled);
+	void StartState(EGOPlayerActionState::State State, float Duration);
+	void EndState(EGOPlayerActionState::State State);
+	FTimerHandle StateTimerHandle;
+
 	/**
 	 * 현재 Impacted, Cast, Died  상태라면 
 	 * (현재 공격을 받고 있거나, 스킬을 사용 중이거나, 죽은 상태라면)
@@ -489,8 +496,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerSetRotation(FRotator NewRotation);
 
-// ======== IGOPlaySkillAnimInterface ========
+private:
+	UPROPERTY()
+	class AGOBattleGameMode* GOBattleGameMode;
 
+// ======== IGOPlaySkillAnimInterface ========
+public:
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
 	{
 		return SkillCastComponent;
@@ -507,10 +518,31 @@ public:
 	// 새로 만든: 스킬시스템용 구조체
 	virtual void ActivateSkillByKey(FHeroSkillKey Key);
 
-	virtual void ActivateSkill(UGOSkillBase* CurrentSkill);
-
 // ======== IGOSpellFlashInterface ========
-	
 	virtual void ActivateSpellFlash();
 
+// ======== IGOPlaySkillEffectInterface ========
+	virtual void PlayEffectParticleAnimByKey(FHeroSkillKey Key);
+
+// ======== Move Skill =======
+public:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
+
+	void StartMovingForward(float Distance, float Duration, float Acceleration);
+private:
+	// 이동 관련 변수와 타이머 핸들러 추가
+	FTimerHandle MovementTimerHandle;
+	FVector MovementStartLocation;
+	FVector MovementEndLocation;
+	float MovementDuration;
+	float ElapsedTime;
+	float InitialSpeed;
+	float CurrentAcceleration;
+	float MovementDistance;
+
+	void MoveForwardStep();
 };

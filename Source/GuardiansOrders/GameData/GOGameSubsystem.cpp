@@ -7,6 +7,8 @@
 #include "GOCharacterStat.h"
 #include "Skill/GOSkillBase.h"
 #include "Skill/GOSpellBase.h"
+#include "GOHeroCharacterData.h"
+#include "Engine/Texture2D.h"
 
 UGOGameSubsystem::UGOGameSubsystem()
 {
@@ -45,6 +47,12 @@ UGOGameSubsystem::UGOGameSubsystem()
 	{
 		SpellStatDataTable = SpellStatDataObj.Object;
 	}
+
+	ConstructorHelpers::FObjectFinder<UDataTable> HeroDataObj(TEXT("DataTable'/Game/GameData/HeroCharacterData/GOHeroCharacterDataTable.GOHeroCharacterDataTable'"));
+	if (HeroDataObj.Succeeded())
+	{
+		HeroCharacterDataTable = HeroDataObj.Object;
+	}
 }
 
 void UGOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -52,6 +60,7 @@ void UGOGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);
 	SetAllCharacterClassSkill();
 	SetAllClassSpell();
+	InitializeHeroCharacterMap();
 }
 
 void UGOGameSubsystem::Deinitialize()
@@ -339,4 +348,84 @@ FName UGOGameSubsystem::GetSpellTypeFName(ESpellType SpellType)
 	case ESpellType::GOSpell_Ghost: return FName(TEXT("GOSpell_Ghost"));
 	default: return FName(TEXT("None"));
 	}
+}
+
+FHeroSkillKey UGOGameSubsystem::GetKeyBySkillObject(UGOSkillBase* SkillObject) const
+{
+	for (const auto& Pair : AllPlayersSkill)
+	{
+		if (Pair.Value == SkillObject)
+		{
+			return Pair.Key;
+		}
+	}
+	return FHeroSkillKey(); // Return a default key if not found
+}
+
+UTexture2D* UGOGameSubsystem::GetHeroImageByEHeroType(EHeroType HeroType)
+{
+	FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
+	FGOCharacterData* CharacterData = this->GetCharacterData(HeroName);
+	if (CharacterData)
+	{
+		return CharacterData->HeroIcon;
+	}
+	return nullptr;
+}
+
+
+//void UGOGameSubsystem::GetHeroImageByEHeroType(EHeroType HeroType, UTexture2D*& OutTexture)
+//{
+//	FName HeroName = GetHeroTypeFName(static_cast<EHeroType>(HeroType));
+//	FGOCharacterData* CharacterData = this->GetCharacterData(HeroName);
+//	if (CharacterData)
+//	{
+//		OutTexture = CharacterData->HeroIcon;
+//	}
+//	else
+//	{
+//		OutTexture = nullptr;
+//	}
+//}
+
+
+TSubclassOf<AGOPlayerCharacter> UGOGameSubsystem::GetCharacterClassByHeroType(EHeroType HeroType) const
+{
+	const TSubclassOf<AGOPlayerCharacter>* FoundClass = HeroCharacterMap.Find(HeroType);
+	if (FoundClass)
+	{
+		return *FoundClass;
+	}
+	return nullptr;
+}
+
+void UGOGameSubsystem::InitializeHeroCharacterMap()
+{
+	if (!HeroCharacterDataTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HeroCharacterDataTable is not valid."));
+		return;
+	}
+
+	static const FString ContextString(TEXT("Hero Character Data Context"));
+	FGOHeroCharacterData* HeroCharacterData = HeroCharacterDataTable->FindRow<FGOHeroCharacterData>(FName("NewRow"), ContextString);
+
+	if (HeroCharacterData)
+	{
+		// HeroCharacterData에 따라 맵 초기화
+		HeroCharacterMap.Add(EHeroType::Rogers, HeroCharacterData->RogersCharacterClass);
+		HeroCharacterMap.Add(EHeroType::Katniss, HeroCharacterData->KatnissCharacterClass);
+		HeroCharacterMap.Add(EHeroType::Beast, HeroCharacterData->BeastCharacterClass);
+		HeroCharacterMap.Add(EHeroType::Bride, HeroCharacterData->BrideCharacterClass);
+	}
+}
+
+void UGOGameSubsystem::SetHeroSelectionData(const FHeroSelectionData& Data)
+{
+	HeroSelectionData = Data;
+}
+
+FHeroSelectionData UGOGameSubsystem::GetHeroSelectionData() const
+{
+	return HeroSelectionData;
 }
