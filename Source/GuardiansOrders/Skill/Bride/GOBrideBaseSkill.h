@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Skill/GOSkillBase.h"
+#include "Skill/Projectile/GOProjectileSkillBase.h"
 #include "GOBrideBaseSkill.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class GUARDIANSORDERS_API UGOBrideBaseSkill : public UGOSkillBase
+class GUARDIANSORDERS_API UGOBrideBaseSkill : public UGOProjectileSkillBase
 {
 	GENERATED_BODY()
 	
