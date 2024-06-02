@@ -113,6 +113,7 @@ public:
 
 	FORCEINLINE ESkillTriggerType GetSkillTriggerType() const { return GetTotalSkillData().SkillTriggerType; }
 	FORCEINLINE ESkillAffectType GetSkillAffectType() const { return GetTotalSkillData().SkillAffectType; }
+	FORCEINLINE ESkillCastType GetSkillCastType() const { return GetTotalSkillData().SkillCastType; }
 
 	FORCEINLINE bool GetIsOnCoolTime() { return bIsOnCoolTime; }
 	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }

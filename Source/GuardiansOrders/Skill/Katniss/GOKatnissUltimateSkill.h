@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Skill/GOSkillBase.h"
+#include "Skill/Projectile/GOProjectileSkillBase.h"
 #include "GOKatnissUltimateSkill.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class GUARDIANSORDERS_API UGOKatnissUltimateSkill : public UGOSkillBase
+class GUARDIANSORDERS_API UGOKatnissUltimateSkill : public UGOProjectileSkillBase
 {
 	GENERATED_BODY()
 	

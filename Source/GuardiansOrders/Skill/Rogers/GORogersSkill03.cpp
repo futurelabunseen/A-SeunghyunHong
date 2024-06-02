@@ -6,9 +6,9 @@
 
 UGORogersSkill03::UGORogersSkill03()
 {
-	MovementDistance = 200.0f; // 300 units
+	MovementDistance = 300.0f; // 300 units
 	MovementDuration = 2.4f;   // 2 second
-	Acceleration = 300.0f;     // 200 units/second^2
+	Acceleration = 150.0f;     // 200 units/second^2
 }
 
 void UGORogersSkill03::PostInitProperties()

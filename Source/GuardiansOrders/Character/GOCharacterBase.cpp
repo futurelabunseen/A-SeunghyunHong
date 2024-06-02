@@ -340,3 +340,7 @@ void AGOCharacterBase::NoMana()
 	// TODO: No Mana
 }
 
+FVector AGOCharacterBase::GetBattleSocketLocation()
+{
+	return GetMesh()->GetSocketLocation(CharacterData.WeaponTipSocketName);
+}
