@@ -20,6 +20,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
+	void SetProjectileMaxSpeed(float Speed);
+
 protected:
 	virtual void BeginPlay() override;
 

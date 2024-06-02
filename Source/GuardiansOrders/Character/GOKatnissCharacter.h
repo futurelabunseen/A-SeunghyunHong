@@ -30,8 +30,9 @@ public:
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
 
-// Skill Section
 protected:
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
 
 };
 

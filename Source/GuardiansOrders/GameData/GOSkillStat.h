@@ -22,7 +22,8 @@ public:
 		AutoDetectionType(EAutoDetectionType::None),
 		DetectionRadius(200.0f),
 		DetectionDegree(45.0f),
-		SkillCollisionType(ESkillCollisionType::SweepSingle)
+		SkillCollisionType(ESkillCollisionType::SweepSingle),
+		ProjectileSpeed(0.0f)
 		{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
@@ -58,6 +59,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
 	ESkillCollisionType SkillCollisionType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SkillStat)
+	float ProjectileSpeed;
 	//FGOSkillStat operator+(const FGOSkillStat& Other) const
 	//{
 	//	const float* const ThisPtr = reinterpret_cast<const float* const>(this);

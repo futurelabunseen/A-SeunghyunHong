@@ -7,6 +7,7 @@
 #include "Interface/GOAnimationAttackInterface.h"
 #include "Interface/GOCharacterWidgetInterface.h"
 #include "Interface/GOCombatInterface.h"
+#include "Interface/GOHighlightInterface.h"
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 // #include "Skill/GOSkillBase.h"
@@ -23,7 +24,7 @@ class UGOSkillCastComponent;
 class UGOSpellCastComponent;
 
 UCLASS()
-class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOCombatInterface, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
+class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOHighlightInterface, public IGOCombatInterface, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
 {
 	GENERATED_BODY()
 	
@@ -122,5 +123,9 @@ protected:
 
 // Combat Interface
 	virtual FVector GetBattleSocketLocation() override;
+
+// Highlight Interface
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
 
 }; // End Of Class

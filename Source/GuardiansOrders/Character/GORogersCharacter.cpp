@@ -73,6 +73,16 @@ void AGORogersCharacter::OnSkillR()
 	UE_LOG(LogTemp, Warning, TEXT("Rogers Skill R is triggered."));
 }
 
+void AGORogersCharacter::HighlightActor()
+{
+    Super::HighlightActor();
+}
+
+void AGORogersCharacter::UnHighlightActor()
+{
+    Super::UnHighlightActor();
+}
+
 //void AGORogersCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 //{
 //	 GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);

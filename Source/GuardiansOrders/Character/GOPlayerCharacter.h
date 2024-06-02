@@ -545,4 +545,8 @@ private:
 	float MovementDistance;
 
 	void MoveForwardStep();
+
+protected:
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
 };

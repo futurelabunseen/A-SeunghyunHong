@@ -58,3 +58,13 @@ void AGOKatnissCharacter::OnSkillR()
 	Super::OnSkillR();
 	UE_LOG(LogTemp, Log, TEXT("Katniss Skill E is triggered."));
 }
+
+void AGOKatnissCharacter::HighlightActor()
+{
+	Super::HighlightActor();
+}
+
+void AGOKatnissCharacter::UnHighlightActor()
+{
+	Super::UnHighlightActor();
+}

@@ -9,6 +9,7 @@
 
 class UGOHUDWidget;
 class UGOSkillSetBarWidget;
+class IGOHighlightInterface;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
@@ -17,6 +18,7 @@ class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
 	
 public:
 	AGOPlayerController();
+	virtual void PlayerTick(float DeltaTime) override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -120,4 +122,9 @@ private:
 	// Helper function to get the selected hero type from the player state
 	EHeroType GetSelectedHero();
 
+// Mouse Cursor Trace
+	void CursorTrace();
+
+	TScriptInterface<IGOHighlightInterface> LastActor;
+	TScriptInterface<IGOHighlightInterface> ThisActor;
 };

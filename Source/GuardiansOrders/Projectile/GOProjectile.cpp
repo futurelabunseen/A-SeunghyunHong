@@ -19,8 +19,13 @@ AGOProjectile::AGOProjectile()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovement");
 	ProjectileMovement->InitialSpeed = 550.f;
-	ProjectileMovement->MaxSpeed = 1000.f;
+	ProjectileMovement->MaxSpeed = 2000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
+}
+
+void AGOProjectile::SetProjectileMaxSpeed(float Speed)
+{
+	ProjectileMovement->MaxSpeed = Speed;
 }
 
 void AGOProjectile::BeginPlay()
