@@ -2,7 +2,8 @@
 
 
 #include "Skill/GOSkillCastComponent.h"
-#include <Interface/GOPlaySkillAnimInterface.h>
+#include "Interface/GOPlaySkillAnimInterface.h"
+#include "Interface/GOCombatInterface.h"
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
@@ -10,6 +11,7 @@
 #include "Character/GOPlayerCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "Physics/GOCollision.h"
+#include "Skill/Projectile/GOProjectileSkillBase.h"
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
@@ -25,6 +27,7 @@ UGOSkillCastComponent::UGOSkillCastComponent()
 void UGOSkillCastComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
 
 void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -103,6 +106,38 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 				GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
 				CurrentSkill->HandleSkillAffect();
 				CurrentSkill->ActivateSkill();//사용하지않음
+
+				if (CurrentSkill)
+				{
+					CurrentSkill->SetSkillOwner(GetOwner());
+					CurrentSkill->HandleSkillTrigger();  // Trigger 처리
+					CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
+
+					if (CurrentSkill->GetSkillCastType() == ESkillCastType::Projectile)
+					{
+						UGOProjectileSkillBase* ProjectileSkill = Cast<UGOProjectileSkillBase>(CurrentSkill);
+						if (ProjectileSkill)
+						{
+							IGOCombatInterface* GOCombatInterface = Cast<IGOCombatInterface>(Owner);
+							if (GOCombatInterface)
+							{
+								const FVector SocketLocation = GOCombatInterface->GetBattleSocketLocation();
+
+								FVector SpawnLocation = GetOwner()->GetActorLocation();
+								FRotator SpawnRotation = GetOwner()->GetActorRotation();
+								//FTransform SpawnTransform = GetOwner()->GetActorTransform();
+								FTransform SpawnTransform;
+								SpawnTransform.SetLocation(SocketLocation);
+
+								UE_LOG(LogTemp, Warning, TEXT("[Projectile]  UGOSkillCastComponent::OnUpdateCast")); // 1번 실행
+
+								HandleProjectileSkill(ProjectileSkill, SocketLocation, SpawnRotation, SpawnTransform);
+							}
+							
+						}
+					}
+				}
+
 				bIsOnCasting = false;
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 			}
@@ -171,4 +206,72 @@ TObjectPtr<UGOSkillBase> UGOSkillCastComponent::GetCurrentSkill()
 FHeroSkillKey UGOSkillCastComponent::GetCurrentSkillKey()
 {
 	return SkillKey;
+}
+
+void UGOSkillCastComponent::HandleProjectileSkill(UGOProjectileSkillBase* ProjectileSkill, FVector Location, FRotator Rotation, FTransform SpawnTransform)
+{
+	if (ProjectileSkill && ProjectileSkill->ProjectileClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::HandleProjectileSkill] 0 ")); // 1번 실행
+		if (GetOwner()->GetLocalRole() == ROLE_Authority)
+		{
+			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+		}
+		else
+		{
+			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+		}
+	}
+}
+
+void UGOSkillCastComponent::ServerHandleProjectileSkill_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform)
+{
+	if (ProjectileClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetOwner()->GetInstigator();
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		// Spawn Projectile
+		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, Location, Rotation, SpawnParams);
+		if (Projectile)
+		{
+			// Projectile 초기 데이터 설정
+
+			//1번 실행
+			UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill spawned. Actor: %s"), *Projectile->GetName());
+
+			// MulticastSpawnProjectile(ProjectileClass, Location, Rotation, SpawnTransform);
+		}
+
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill Failed to spawn projectile."));
+		}
+	}
+}
+
+bool UGOSkillCastComponent::ServerHandleProjectileSkill_Validate(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform)
+{
+	return true;
+}
+
+void UGOSkillCastComponent::MulticastSpawnProjectile_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform)
+{
+	if (ProjectileClass)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = GetOwner();
+		SpawnParams.Instigator = GetOwner()->GetInstigator();
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		// Spawn Projectile
+		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, Location, Rotation, SpawnParams);
+
+		//Projectile->FinishSpawning(SpawnTransform);
+		
+		// 4번
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::MulticastSpawnProjectile  Spawn called. "));
+	}
 }

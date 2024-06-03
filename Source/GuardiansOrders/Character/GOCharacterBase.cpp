@@ -31,6 +31,8 @@
 #include "GameData/GOGameSubsystem.h"
 #include <Kismet/GameplayStatics.h>
 #include <Game/GOPlayerState.h>
+#include "Interface/GOHighlightInterface.h"
+#include "GuardiansOrders/GuardiansOrders.h"
 
 AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -57,8 +59,14 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
-	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	//GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+	GetMesh()->SetCollisionResponseToChannel(CCHANNEL_GOProjectile, ECR_Overlap);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	GetMesh()->bReceivesDecals = false;
+	GetMesh()->bRenderCustomDepth = false;
+	GetMesh()->CustomDepthStencilValue = 250.f;
 
 	// Stat Component
 	Stat = CreateDefaultSubobject<UGOCharacterStatComponent>(TEXT("Stat"));
@@ -340,3 +348,21 @@ void AGOCharacterBase::NoMana()
 	// TODO: No Mana
 }
 
+FVector AGOCharacterBase::GetBattleSocketLocation()
+{
+	return GetMesh()->GetSocketLocation(CharacterData.WeaponTipSocketName);
+}
+
+void AGOCharacterBase::HighlightActor()
+{
+	UE_LOG(LogTemp, Warning, TEXT("HighlightActor start 000000000"));
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(250.f);
+	UE_LOG(LogTemp, Warning, TEXT("HighlightActor end 000000000"));
+}
+
+void AGOCharacterBase::UnHighlightActor()
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	UE_LOG(LogTemp, Warning, TEXT("UnHighlightActor 000000000"));
+}

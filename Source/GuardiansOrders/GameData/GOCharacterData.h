@@ -32,7 +32,8 @@ public:
 		Spell03Class(nullptr),
 		DefaultSpellName01(NAME_None),
 		DefaultSpellName02(NAME_None),
-		DefaultSpellName03(NAME_None)
+		DefaultSpellName03(NAME_None),
+		WeaponTipSocketName(NAME_None)
 	{}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
@@ -94,5 +95,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName DefaultSpellName03;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	FName WeaponTipSocketName;
 };
 

@@ -28,4 +28,6 @@ public:
 	virtual FTransform GetRandomStartTransform() const = 0;
 
 	virtual void OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn) = 0;
+
+	//virtual FVector GetBattleSocketLocation() = 0;
 };

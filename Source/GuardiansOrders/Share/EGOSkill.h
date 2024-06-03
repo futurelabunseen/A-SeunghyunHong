@@ -161,11 +161,15 @@ enum class ESkillState : uint8
 UENUM(BlueprintType)
 enum class ESkillCollisionType : uint8
 {
+	None UMETA(DisplayName = "None"),
+
 	LineTraceSingle   UMETA(DisplayName = "Line Trace Single"),
 	LineTraceMulti    UMETA(DisplayName = "Line Trace Multi"),
 	SweepSingle       UMETA(DisplayName = "Sweep Single"),
 	SweepMulti        UMETA(DisplayName = "Sweep Multi"),
-	OverlapMulti      UMETA(DisplayName = "Overlap Multi")
+	OverlapMulti      UMETA(DisplayName = "Overlap Multi"),
+
+	Max UMETA(Hidden)
 };
 
 ////////////////////////////////////////////////////////////////

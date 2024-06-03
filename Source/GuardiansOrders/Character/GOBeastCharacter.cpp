@@ -71,3 +71,13 @@ void AGOBeastCharacter::OnSkillR()
 	Super::OnSkillR();
 	UE_LOG(LogTemp, Log, TEXT("Beast Skill R is triggered."));
 }
+
+void AGOBeastCharacter::HighlightActor()
+{
+    Super::HighlightActor();
+}
+
+void AGOBeastCharacter::UnHighlightActor()
+{
+    Super::UnHighlightActor();
+}

@@ -56,6 +56,9 @@ struct FGOSkillData : public FTableRowBase
     TObjectPtr<UParticleSystem> SkillEffect;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
+    TObjectPtr<UNiagaraSystem> ProjectileEffect;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")
     TObjectPtr<UTexture2D> SkillIcon;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkillData")

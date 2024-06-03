@@ -8,6 +8,9 @@
 #include "GameData/GOGameSubsystem.h"
 #include "GOSkillCastComponent.generated.h"
 
+class UGOProjectileSkillBase;
+class AGOProjectile;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GUARDIANSORDERS_API UGOSkillCastComponent : public UActorComponent
 {
@@ -51,6 +54,16 @@ public:
 	void SetCurrentSkillKey(FHeroSkillKey Key);
 	TObjectPtr<UGOSkillBase> GetCurrentSkill();
 	FHeroSkillKey GetCurrentSkillKey();
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Skill")
+	void HandleProjectileSkill(UGOProjectileSkillBase* ProjectileSkill, FVector Location, FRotator Rotation, FTransform SpawnTransform);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerHandleProjectileSkill(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnProjectile(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform);
 
 private:
 	//  현재 캐스팅 중인지의 여부 

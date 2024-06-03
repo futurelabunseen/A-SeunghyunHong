@@ -57,5 +57,15 @@ void AGOBrideCharacter::OnSkillR()
 	UE_LOG(LogTemp, Log, TEXT("Bride Skill R is triggered."));
 }
 
+void AGOBrideCharacter::HighlightActor()
+{
+	Super::HighlightActor();
+}
+
+void AGOBrideCharacter::UnHighlightActor()
+{
+	Super::UnHighlightActor();
+}
+
 
 

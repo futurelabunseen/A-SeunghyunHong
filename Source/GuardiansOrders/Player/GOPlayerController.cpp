@@ -14,6 +14,7 @@
 #include "CommonTextBlock.h"
 #include "UI/GOTeamMemberWidget.h"
 #include <Kismet/GameplayStatics.h>
+#include "Physics/GOCollision.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -24,6 +25,13 @@ AGOPlayerController::AGOPlayerController()
         GOHUDWidgetClass = GOHUDWidgetRef.Class;
     }
     */
+}
+
+void AGOPlayerController::PlayerTick(float DeltaTime)
+{
+    Super::PlayerTick(DeltaTime);
+
+    CursorTrace();
 }
 
 void AGOPlayerController::PostInitializeComponents()
@@ -440,5 +448,65 @@ EHeroType AGOPlayerController::GetSelectedHero()
         return PS->SelectedHero.SelectedHero;
     }
     return EHeroType::None;
+}
+
+void AGOPlayerController::CursorTrace()
+{
+    UE_LOG(LogTemp, Warning, TEXT("HighlightActor AGOPlayerController CursorTrace 000000000"));
+
+    FHitResult CursorHit;
+    GetHitResultUnderCursor(CCHANNEL_GOACTION, false, CursorHit);
+    if (!CursorHit.bBlockingHit) return;
+
+    LastActor = ThisActor;
+    ThisActor = CursorHit.GetActor();
+
+    /**
+     * LineTrace from cursor. There are several scenarios:
+     * A. LastActor is null &&  ThisActor is null
+     *      -> Do Nothing
+     * B. LastActor is null && ThisActor is valid
+     *      -> Highlight ThisActor
+     * C. LastActor is valid && ThisActor is null
+     *      -> UnHighlight LastActor
+     * D. Both actors are valid, but LastActor != ThisActor
+     *      -> UnHighlight LastActor, and Highlight ThisActor
+     * E. Both actors are valid, and are the same actor
+     *      -> Do Nothing
+     */
+
+    if (LastActor == nullptr)
+    {
+        if (ThisActor != nullptr)
+        {
+            // Case B
+            ThisActor->HighlightActor();
+        }
+        else
+        {
+            // Case A - both are null, do nothing
+        }
+    }
+    else // LastActor is valid
+    {
+        if (ThisActor == nullptr)
+        {
+            // Case C
+            LastActor->UnHighlightActor();
+        }
+        else // both actors are valid
+        {
+            if (LastActor != ThisActor)
+            {
+                // Case D
+                LastActor->UnHighlightActor();
+                ThisActor->HighlightActor();
+            }
+            else
+            {
+                // Case E - do nothing
+            }
+        }
+    }
 }
 

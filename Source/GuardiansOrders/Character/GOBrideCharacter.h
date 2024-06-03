@@ -30,6 +30,10 @@ public:
 	virtual void OnSkillE() override;
 	virtual void OnSkillR() override;
 
+protected:
+	virtual void HighlightActor() override;
+	virtual void UnHighlightActor() override;
+
 // Skill Section
 protected:
 	/** Q Skill */

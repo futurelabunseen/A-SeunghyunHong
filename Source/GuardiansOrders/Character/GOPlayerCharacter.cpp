@@ -1749,6 +1749,16 @@ void AGOPlayerCharacter::MoveForwardStep()
 	SetActorLocation(NewLocation);
 }
 
+void AGOPlayerCharacter::HighlightActor()
+{
+	Super::HighlightActor();
+}
+
+void AGOPlayerCharacter::UnHighlightActor()
+{
+	Super::UnHighlightActor();
+}
+
 void AGOPlayerCharacter::ServerRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
 {
 	PlayEffectParticleAnimByKey(Key);
