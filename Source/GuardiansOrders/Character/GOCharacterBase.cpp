@@ -59,7 +59,11 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
-	GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	//GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+	GetMesh()->SetCollisionResponseToChannel(CCHANNEL_GOProjectile, ECR_Overlap);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	GetMesh()->SetGenerateOverlapEvents(true);
 	GetMesh()->bReceivesDecals = false;
 	GetMesh()->bRenderCustomDepth = false;
 	GetMesh()->CustomDepthStencilValue = 250.f;

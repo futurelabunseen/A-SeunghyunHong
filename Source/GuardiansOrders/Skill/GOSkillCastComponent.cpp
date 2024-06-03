@@ -129,6 +129,8 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 								FTransform SpawnTransform;
 								SpawnTransform.SetLocation(SocketLocation);
 
+								UE_LOG(LogTemp, Warning, TEXT("[Projectile]  UGOSkillCastComponent::OnUpdateCast")); // 1번 실행
+
 								HandleProjectileSkill(ProjectileSkill, SocketLocation, SpawnRotation, SpawnTransform);
 							}
 							
@@ -210,7 +212,7 @@ void UGOSkillCastComponent::HandleProjectileSkill(UGOProjectileSkillBase* Projec
 {
 	if (ProjectileSkill && ProjectileSkill->ProjectileClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::HandleProjectileSkill] 0 "));
+		UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::HandleProjectileSkill] 0 ")); // 1번 실행
 		if (GetOwner()->GetLocalRole() == ROLE_Authority)
 		{
 			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
@@ -236,8 +238,16 @@ void UGOSkillCastComponent::ServerHandleProjectileSkill_Implementation(TSubclass
 		if (Projectile)
 		{
 			// Projectile 초기 데이터 설정
-			
-			MulticastSpawnProjectile(ProjectileClass, Location, Rotation, SpawnTransform);
+
+			//1번 실행
+			UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill spawned. Actor: %s"), *Projectile->GetName());
+
+			// MulticastSpawnProjectile(ProjectileClass, Location, Rotation, SpawnTransform);
+		}
+
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill Failed to spawn projectile."));
 		}
 	}
 }
@@ -260,6 +270,8 @@ void UGOSkillCastComponent::MulticastSpawnProjectile_Implementation(TSubclassOf<
 		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, Location, Rotation, SpawnParams);
 
 		//Projectile->FinishSpawning(SpawnTransform);
-		UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::MulticastSpawnProjectile] Spawn called. "));
+		
+		// 4번
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::MulticastSpawnProjectile  Spawn called. "));
 	}
 }
