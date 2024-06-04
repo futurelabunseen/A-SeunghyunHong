@@ -8,6 +8,7 @@
 #include "Interface/GOPlaySkillAnimInterface.h"
 #include "Interface/GOSpellFlashInterface.h"
 #include "Interface/GOPlaySkillEffectInterface.h"
+#include "Interface/GOApplySkillInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -28,7 +29,7 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOApplySkillInterface, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
 {
 	GENERATED_BODY()
 	
@@ -523,6 +524,9 @@ public:
 
 // ======== IGOPlaySkillEffectInterface ========
 	virtual void PlayEffectParticleAnimByKey(FHeroSkillKey Key);
+
+// ======== IGOApplySkillInterface ========
+	virtual void ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser);
 
 // ======== Move Skill =======
 public:

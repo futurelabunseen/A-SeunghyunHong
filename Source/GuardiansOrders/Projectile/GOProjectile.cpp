@@ -7,6 +7,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Physics/GOCollision.h"
+#include "Interface/GOApplySkillInterface.h"
 
 AGOProjectile::AGOProjectile()
 {
@@ -58,6 +59,16 @@ void AGOProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	if (SweepResult.GetActor() != GetOwner())
+	{
+		if (IGOApplySkillInterface* GOApplySkillInterface = Cast<IGOApplySkillInterface>(SweepResult.GetActor()))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[Projectile] OnSphereOverlap GetOwner() : %s"), *GetOwner()->GetName());
+
+			GOApplySkillInterface->ApplySkillEffect(SweepResult.GetActor(), 10, GetOwner()); // 
+		}
+	}
 
 	if (HasAuthority())
 	{

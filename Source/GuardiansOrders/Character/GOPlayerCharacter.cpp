@@ -1313,14 +1313,28 @@ void AGOPlayerCharacter::SetDead()
 }
 
 // TODO: Death
+// EventInstigator: Attacker
+// 
 float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage |  EventInstigator : %s , Controller : %s "), *EventInstigator->GetName(), *Controller->GetName());
+
+	if (DamageCauser == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageCauser nullptr "));
+	}
+	else if (EventInstigator == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] EventInstigator nullptr"));
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage DamageCauser : %s , EventInstigator: %s"), *DamageCauser->GetName(), *EventInstigator->GetName());
 
 	GOBattleGameMode = GOBattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<AGOBattleGameMode>() : GOBattleGameMode;
 	if (GOBattleGameMode == nullptr) return 0.0f;
 
-	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount);
+	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount); // EventInstigator: Attacker. Controller: Victim
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageAmount : %d "), DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (Stat->GetCurrentHp() <= 0.0f)
@@ -1702,6 +1716,14 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[Particle] PlayEffectParticleAnimByKey  end"));
 
+}
+
+// ======== IGOApplySkillInterface ========
+void AGOPlayerCharacter::ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] ApplySkillEffect DamagedActor : %s"), *DamagedActor->GetName());
+
+	TakeDamage(Damage, FDamageEvent(), DamageCauser->GetInstigatorController(), DamageCauser);
 }
 
 bool AGOPlayerCharacter::ServerActivateSkillWithMovement_Validate(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
