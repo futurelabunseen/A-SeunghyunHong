@@ -4,6 +4,7 @@
 #include "UI/GOLobbyHUDWidget.h"
 #include "UI/GOHeroSelectionWidget.h"
 #include "UI/GOLobbyTeamMembersWidget.h"
+#include "UI/GOLobbySelectedHeroInfoWidget.h"
 #include "Interface/GOLobbyHUDInterface.h"
 #include "CommonTextBlock.h"
 #include "Components/Image.h"
@@ -15,6 +16,10 @@ UGOLobbyHUDWidget::UGOLobbyHUDWidget(const FObjectInitializer& ObjectInitializer
 void UGOLobbyHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+	
+	LobbySelectedHeroInfoWidget = Cast<UGOLobbySelectedHeroInfoWidget>(GetWidgetFromName(TEXT("WidgetLobbySelectedHeroInfo")));
+	ensure(LobbySelectedHeroInfoWidget);
+	LobbySelectedHeroInfoWidget->SetVisibility(ESlateVisibility::Hidden);
 
 	HeroSelectionWidget = Cast<UGOHeroSelectionWidget>(GetWidgetFromName(TEXT("WidgetHeroSelection")));
 	ensure(HeroSelectionWidget);
@@ -53,6 +58,7 @@ void UGOLobbyHUDWidget::ShowHeroSelectionWidget()
 	}
 	BackgroundImage->SetVisibility(ESlateVisibility::Visible);
 	WidgetTeamMembers->SetVisibility(ESlateVisibility::Visible);
+	LobbySelectedHeroInfoWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UGOLobbyHUDWidget::HideHeroSelectionWidget()

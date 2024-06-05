@@ -252,8 +252,36 @@ void AGOLobbyGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroT
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = NewPlayer;
 		SpawnParams.Instigator = NewPlayer->GetPawn();
+		FVector SpawnLocation;
+		// TODO : PlayerStart For Render Target
+		switch (HeroType)
+		{
+		case EHeroType::Rogers:
+			CharacterClass = RogersCharacterClass;
+			 SpawnLocation = FVector(0.0f, 0.0f, 200.0f);  // Set your spawn location
 
-		FVector SpawnLocation = FVector(0.0f, 0.0f, 200.0f);  // Set your spawn location
+			break;
+		case EHeroType::Katniss:
+			CharacterClass = KatnissCharacterClass;
+			 SpawnLocation = FVector(0.0f, 200.0f, 200.0f);  // Set your spawn location
+
+			break;
+		case EHeroType::Beast:
+			CharacterClass = BeastCharacterClass;
+			 SpawnLocation = FVector(0.0f, 400.0f, 200.0f);  // Set your spawn location
+
+			break;
+		case EHeroType::Bride:
+			CharacterClass = BrideCharacterClass;
+			 SpawnLocation = FVector(0.0f, 600.0f, 200.0f);  // Set your spawn location
+
+			break;
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("Invalid hero type!"));
+			return;
+		}
+
+		//FVector SpawnLocation = FVector(0.0f, 0.0f, 200.0f);  // Set your spawn location
 		FRotator SpawnRotation = FRotator::ZeroRotator; // Set your spawn rotation
 
 		AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);

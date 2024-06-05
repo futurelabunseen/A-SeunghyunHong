@@ -12,7 +12,7 @@ void UGOCharacterStatWidget::NativeConstruct()
 	{
 		const FName PropKey(PropIt->GetName());
 		const FName TextBaseControlName = *FString::Printf(TEXT("Txt%sBase"), *PropIt->GetName());
-		const FName TextModifierControlName = *FString::Printf(TEXT("Txt%sModifier"), *PropIt->GetName());
+		//const FName TextModifierControlName = *FString::Printf(TEXT("Txt%sModifier"), *PropIt->GetName());
 
 		UCommonTextBlock* BaseTextBlock = Cast<UCommonTextBlock>(GetWidgetFromName(TextBaseControlName));
 		if (BaseTextBlock)
@@ -20,11 +20,11 @@ void UGOCharacterStatWidget::NativeConstruct()
 			BaseLookup.Add(PropKey, BaseTextBlock);
 		}
 
-		UCommonTextBlock* ModifierTextBlock = Cast<UCommonTextBlock>(GetWidgetFromName(TextModifierControlName));
-		if (ModifierTextBlock)
-		{
-			ModifierLookup.Add(PropKey, ModifierTextBlock);
-		}
+		//UCommonTextBlock* ModifierTextBlock = Cast<UCommonTextBlock>(GetWidgetFromName(TextModifierControlName));
+		//if (ModifierTextBlock)
+		//{
+		//	ModifierLookup.Add(PropKey, ModifierTextBlock);
+		//}
 	}
 }
 
@@ -36,8 +36,8 @@ void UGOCharacterStatWidget::UpdateStat(const FGOCharacterStat& BaseStat, const 
 
 		float BaseData = 0.0f;
 		PropIt->GetValue_InContainer((const void*)&BaseStat, &BaseData);
-		float ModifierData = 0.0f;
-		PropIt->GetValue_InContainer((const void*)&ModifierStat, &ModifierData);
+		/*float ModifierData = 0.0f;
+		PropIt->GetValue_InContainer((const void*)&ModifierStat, &ModifierData);*/
 
 		UCommonTextBlock** BaseTextBlockPtr = BaseLookup.Find(PropKey);
 		if (BaseTextBlockPtr)
@@ -45,10 +45,10 @@ void UGOCharacterStatWidget::UpdateStat(const FGOCharacterStat& BaseStat, const 
 			(*BaseTextBlockPtr)->SetText(FText::FromString(FString::SanitizeFloat(BaseData)));
 		}
 
-		UCommonTextBlock** ModifierTextBlockPtr = ModifierLookup.Find(PropKey);
+		/*UCommonTextBlock** ModifierTextBlockPtr = ModifierLookup.Find(PropKey);
 		if (ModifierTextBlockPtr)
 		{
 			(*ModifierTextBlockPtr)->SetText(FText::FromString(FString::SanitizeFloat(ModifierData)));
-		}
+		}*/
 	}
 }

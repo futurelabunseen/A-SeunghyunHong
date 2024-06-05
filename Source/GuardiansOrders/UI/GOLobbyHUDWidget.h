@@ -8,6 +8,7 @@
 #include "GOLobbyHUDWidget.generated.h"
 
 class UGOLobbyTeamMembersWidget;
+class UGOLobbySelectedHeroInfoWidget;
 class UGOHeroSelectionWidget;
 class UCommonTextBlock;
 class UImage;
@@ -39,9 +40,11 @@ public:
 protected:
 	virtual void NativeConstruct() override;
 
-protected:
+public:
 	UPROPERTY()
 	TObjectPtr<UGOHeroSelectionWidget> HeroSelectionWidget;
-
+	
+	UPROPERTY()
+	TObjectPtr<UGOLobbySelectedHeroInfoWidget> LobbySelectedHeroInfoWidget;
 
 };

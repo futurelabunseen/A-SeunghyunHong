@@ -14,7 +14,11 @@ struct FGOCharacterData : public FTableRowBase
 public:
 	FGOCharacterData() :
 		HeroType(EHeroType::None),
+		RoleType(ERoleType::None),
+		AttackRangeType(EAttackRange::None),
+		ArcheType(EArchetype::None),
 		HeroIcon(nullptr),
+		HeroLobbyInfoImage(nullptr),
 		BaseSkillClass(nullptr),
 		SkillQClass(nullptr),
 		SkillWClass(nullptr),
@@ -38,6 +42,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	EHeroType HeroType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	ERoleType RoleType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	EAttackRange AttackRangeType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	EArchetype ArcheType;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	TObjectPtr<UTexture2D> HeroIcon;
@@ -98,5 +111,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
 	FName WeaponTipSocketName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = CharacterData)
+	TObjectPtr<UTexture2D> HeroLobbyInfoImage;
 };
 
