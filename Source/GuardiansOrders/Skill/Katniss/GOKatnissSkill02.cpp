@@ -5,7 +5,9 @@
 
 UGOKatnissSkill02::UGOKatnissSkill02()
 {
-
+	bIsSpreadSkill = true;
+	NumProjectiles = 5;  
+	SpreadAngle = 45.0f; 
 }
 
 void UGOKatnissSkill02::PostInitProperties()
