@@ -23,6 +23,10 @@ public:
 
 	void SetProjectileMaxSpeed(float Speed);
 
+	// Add a property to specify the damage value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float Damage;
+
 protected:
 	virtual void BeginPlay() override;
 	void StartDestroyTimer();
@@ -31,7 +35,7 @@ protected:
 	virtual void Destroyed() override;
 
 	UFUNCTION()
-	void OnSphereOverlap(
+	virtual void OnSphereOverlap(
 		UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -39,7 +43,7 @@ protected:
 		bool bFromSweep,
 		const FHitResult& SweepResult);
 
-private:
+protected:
 	UPROPERTY(EditDefaultsOnly)
 	float LifeSpan = 15.f;
 

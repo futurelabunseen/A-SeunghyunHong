@@ -5,7 +5,9 @@
 
 UGOKatnissUltimateSkill::UGOKatnissUltimateSkill()
 {
-
+	SpreadAngle = 0.0f; 
+	NumProjectiles = 7;  
+	bIsSpreadSkill = false; 
 }
 
 void UGOKatnissUltimateSkill::PostInitProperties()
