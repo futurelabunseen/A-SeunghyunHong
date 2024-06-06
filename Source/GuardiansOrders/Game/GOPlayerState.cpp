@@ -9,11 +9,13 @@
 #include "Player/GOLobbyPlayerController.h"
 #include "Player/GOPlayerController.h"
 #include "UI/GOLobbyHUDWidget.h"
+#include "UI/GOLobbySelectedHeroInfoWidget.h"
 
 AGOPlayerState::AGOPlayerState()
 {
 	SelectedCharacterClass = nullptr;
 	//bCharacterSelected = false;
+	bReplicates = true;
 
 	// SetPlayerId()
 
@@ -27,6 +29,7 @@ void AGOPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AGOPlayerState, SelectedHero);
 	DOREPLIFETIME(AGOPlayerState, Team); 
 	DOREPLIFETIME(AGOPlayerState, Defeats);
+	DOREPLIFETIME(AGOPlayerState, SelectedHeroInfo);
 	//DOREPLIFETIME(AGOPlayerState, PlayerName);
 	
 	//DOREPLIFETIME(AGOPlayerState, bCharacterSelected);
@@ -188,4 +191,24 @@ void AGOPlayerState::OnRep_Team()
 	//		}
 	//	}
 	//}
+}
+
+void AGOPlayerState::SetSelectedHero(EHeroType HeroType)
+{
+	SelectedHeroInfo = HeroType;
+	OnRep_SelectedHeroInfo();
+}
+
+void AGOPlayerState::OnRep_SelectedHeroInfo()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+	if (PlayerController)
+	{
+		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+		if (LobbyController && LobbyController->GOLobbyHUDWidget)
+		{
+			LobbyController->GOLobbyHUDWidget->LobbySelectedHeroInfoWidget->UpdateHeroInfo(SelectedHeroInfo);
+			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam %d "), GetTeamType());
+		}
+	}
 }

@@ -147,7 +147,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	// TODO
 	if (CastDownTimer > CurrentSkill->GetCastingTime())
 	{
-		OnFinishCast();
+		//OnFinishCast();
 	}
 }
 
@@ -212,14 +212,43 @@ void UGOSkillCastComponent::HandleProjectileSkill(UGOProjectileSkillBase* Projec
 {
 	if (ProjectileSkill && ProjectileSkill->ProjectileClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::HandleProjectileSkill] 0 ")); // 1번 실행
-		if (GetOwner()->GetLocalRole() == ROLE_Authority)
+		if (ProjectileSkill->bIsSpreadSkill)
 		{
-			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+			//ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+			HandleSpreadProjectiles(ProjectileSkill, Location, Rotation);
 		}
 		else
 		{
-			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+			//if (GetOwner()->GetLocalRole() == ROLE_Authority)
+			//{
+				ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+			//}
+		}
+	}
+}
+
+void UGOSkillCastComponent::HandleSpreadProjectiles(UGOProjectileSkillBase* ProjectileSkill, FVector Location, FRotator Rotation)
+{
+	const FVector Forward = Rotation.Vector();
+	const FVector LeftOfSpread = Forward.RotateAngleAxis(-ProjectileSkill->SpreadAngle / 2.f, FVector::UpVector);
+	const FVector RightOfSpread = Forward.RotateAngleAxis(ProjectileSkill->SpreadAngle / 2.f, FVector::UpVector);
+
+	if (ProjectileSkill->NumProjectiles > 1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::HandleSpreadProjectiles spawned. NumProjectiles: %d. Owner: %s"), ProjectileSkill->NumProjectiles, *GetOwner()->GetName());
+
+		const float DeltaSpread = ProjectileSkill->SpreadAngle / (ProjectileSkill->NumProjectiles - 1);
+		for (int32 i = 0; i < ProjectileSkill->NumProjectiles; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			FVector SpawnLocation = Location + FVector(0, 0, 50); // Adjust the spawn location as needed
+			FRotator SpawnRotation = Direction.Rotation();
+			FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
+
+			//if (GetOwner()->GetLocalRole() == ROLE_Authority)
+			//{
+				ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, SpawnLocation, SpawnRotation, SpawnTransform);
+			//}
 		}
 	}
 }

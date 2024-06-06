@@ -68,11 +68,6 @@ void AGOLobbyPlayerController::SetLobbyTeamInfo(ETeamType TeamType)
 
 void AGOLobbyPlayerController::SetupLobbyHUDWidget(UGOLobbyHUDWidget* InLobbyHUDWidget)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 0 "));
-	if (InLobbyHUDWidget)
-	{
-	}
-	UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyPlayerController] SetupLobbyHUDWidget 2 "));
 
 }
 
@@ -85,6 +80,7 @@ void AGOLobbyPlayerController::ServerSelectHero_Implementation(EHeroType HeroTyp
 	{
 		int32 PlayerId = PS->GetPlayerId();
 		PS->SelectedHero = FHeroSelectionInfo(PlayerId, HeroType);
+		PS->SetSelectedHero(HeroType);
 
 		//// »Æ¿Œ«‘
 		//if (GEngine)

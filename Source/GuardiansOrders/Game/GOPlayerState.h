@@ -10,6 +10,7 @@
 
 class AGOPlayerCharacter;
 class AGOPlayerController;
+
 /**
  * 서버와 모든 클라이언트에 존재합니다.
  * 자신, 다른 플레이어의 상태를 파악할 수 있습니다.
@@ -92,4 +93,13 @@ private:
 
 	// Name
 	FString PlayerName;
+
+public:
+	UPROPERTY(ReplicatedUsing = OnRep_SelectedHeroInfo, BlueprintReadOnly, Category = "Hero Selection")
+	EHeroType SelectedHeroInfo;
+
+	void SetSelectedHero(EHeroType HeroType);
+
+	UFUNCTION()
+	void OnRep_SelectedHeroInfo();
 };

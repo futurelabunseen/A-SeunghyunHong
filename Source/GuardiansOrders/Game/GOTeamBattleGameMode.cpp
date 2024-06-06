@@ -59,6 +59,9 @@ float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController*
 {
 	AGOPlayerState* AttackerPState = Attacker->GetPlayerState<AGOPlayerState>();
 	AGOPlayerState* VictimPState = Victim->GetPlayerState<AGOPlayerState>();
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] CalculateDamage |  AttackerPState : %s , VictimPState : %s "), *AttackerPState->GetName(), *VictimPState->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] CalculateDamage Team |  AttackerPState : %d , VictimPState : %d "), AttackerPState->GetTeamType(), VictimPState->GetTeamType());
+
 	if (AttackerPState == nullptr || VictimPState == nullptr) return BaseDamage;
 	if (VictimPState == AttackerPState)
 	{
@@ -66,6 +69,7 @@ float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController*
 	}
 	if (AttackerPState->GetTeamType() == VictimPState->GetTeamType())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] CalculateDamage Team ==  AttackerPState : %d , VictimPState : %d "), AttackerPState->GetTeamType(), VictimPState->GetTeamType());
 		return 0.f;
 	}
 	return BaseDamage;

@@ -28,8 +28,9 @@ public:
 	//virtual bool IsCasting() const override;
 	//virtual bool IsCastable() const override;
 
-private:
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
 
+private:
+	void ShieldSkillFinished();
 };

@@ -6,6 +6,8 @@
 #include "Character/GOPlayerCharacter.h"
 #include "GORogersCharacter.generated.h"
 
+class USphereComponent;
+
 UCLASS()
 class GUARDIANSORDERS_API AGORogersCharacter : public AGOPlayerCharacter
 {
@@ -29,6 +31,30 @@ public:
 protected:
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+
+public:
+	// 방패 상태를 관리하기 위한 함수 추가
+	void ActivateShield();
+	void DeactivateShield();
+	bool IsShieldBlocking(const FVector& AttackDirection) const;
+
+	UFUNCTION()
+	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+protected:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent> ShieldSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shield", meta = (AllowPrivateAccess = "true"))
+	float SphereRadius;
+
+private:
+	bool bShieldActive;
+	FVector ShieldDirection;
+	float MaxBlockAngle; // 방패가 공격을 막을 수 있는 각도
 
 // ======== IPlaySkillAnimInterface ========
 //	virtual UGOSkillCastComponent* GetSkillCastComponent()

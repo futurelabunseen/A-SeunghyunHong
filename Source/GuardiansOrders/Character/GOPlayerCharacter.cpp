@@ -42,8 +42,10 @@
 #include "Player/GOPlayerController.h"
 #include "GOCharacterMovementComponent.h"
 #include "Share/EGOSkill.h"
+#include "Share/EGOTeam.h"
 #include <Game/GOBattleGameMode.h>
 #include "GameData/GOSkillData.h"
+#include "Game/GOPlayerState.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -1313,14 +1315,28 @@ void AGOPlayerCharacter::SetDead()
 }
 
 // TODO: Death
+// EventInstigator: Attacker
+// 
 float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage |  EventInstigator : %s , Controller : %s "), *EventInstigator->GetName(), *Controller->GetName());
+
+	if (DamageCauser == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageCauser nullptr "));
+	}
+	else if (EventInstigator == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[Projectile] EventInstigator nullptr"));
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage DamageCauser : %s , EventInstigator: %s"), *DamageCauser->GetName(), *EventInstigator->GetName());
 
 	GOBattleGameMode = GOBattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<AGOBattleGameMode>() : GOBattleGameMode;
 	if (GOBattleGameMode == nullptr) return 0.0f;
 
-	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount);
+	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount); // EventInstigator: Attacker. Controller: Victim
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageAmount : %d "), DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (Stat->GetCurrentHp() <= 0.0f)
@@ -1560,8 +1576,6 @@ void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
 	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s is a startup actor: %s"), *ActorToCheck->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
 }
 
-
-
 // ======== IGOPlaySkillAnimInterface ========
 void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 {
@@ -1704,6 +1718,15 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 
 }
 
+// ======== IGOApplySkillInterface ========
+void AGOPlayerCharacter::ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] ApplySkillEffect DamagedActor : %s"), *DamagedActor->GetName());
+	if (!DamagedActor || !DamageCauser) return;  // Check for null pointers
+
+	TakeDamage(Damage, FDamageEvent(), DamageCauser->GetInstigatorController(), DamageCauser);
+}
+
 bool AGOPlayerCharacter::ServerActivateSkillWithMovement_Validate(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
 {
 	return true;
@@ -1751,7 +1774,10 @@ void AGOPlayerCharacter::MoveForwardStep()
 
 void AGOPlayerCharacter::HighlightActor()
 {
+	// 상대팀 플레이어라면
+
 	Super::HighlightActor();
+
 }
 
 void AGOPlayerCharacter::UnHighlightActor()
@@ -1776,4 +1802,11 @@ void AGOPlayerCharacter::MulticastRPCActivateSkillWithParticles_Implementation(F
 
 	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  end"));
 
+}
+
+ETeamType AGOPlayerCharacter::GetTeamType()
+{
+	GOPlayerState = GOPlayerState == nullptr ? GetPlayerState<AGOPlayerState>() : GOPlayerState;
+	if (GOPlayerState == nullptr) return ETeamType::ET_NoTeam;
+	return GOPlayerState->GetTeamType();
 }

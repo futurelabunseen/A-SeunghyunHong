@@ -65,6 +65,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnProjectile(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform);
 
+	void HandleSpreadProjectiles(UGOProjectileSkillBase* ProjectileSkill, FVector Location, FRotator Rotation);
+
 private:
 	//  현재 캐스팅 중인지의 여부 
 	bool bIsOnCasting = false;
