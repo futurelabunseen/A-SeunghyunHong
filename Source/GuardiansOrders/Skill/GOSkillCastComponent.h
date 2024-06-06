@@ -62,10 +62,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerHandleProjectileSkill(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSpawnProjectile(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform);
-
 	void HandleSpreadProjectiles(UGOProjectileSkillBase* ProjectileSkill, FVector Location, FRotator Rotation);
+
+	// Arrow Rain methods
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerStartArrowRain(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn);
 
 private:
 	//  현재 캐스팅 중인지의 여부 
@@ -74,6 +76,11 @@ private:
 	TObjectPtr<UGOSkillBase> CurrentSkill;
 	FHeroSkillKey SkillKey;
 	float CastDownTimer = 0.f;
+
+	FTimerHandle ArrowRainTimerHandle;
+	FTimerHandle DamageTimerHandle;
+
+
 };
 
 /*

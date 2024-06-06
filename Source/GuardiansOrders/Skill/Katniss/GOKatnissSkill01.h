@@ -29,6 +29,18 @@ public:
 	//virtual bool IsCastable() const override;
 
 private:
+	void StartArrowRain();
+	void EndArrowRain();
+
+	FVector SkillLocation;
+
+	FTimerHandle ArrowRainTimerHandle;
+	FTimerHandle DamageTimerHandle;
+
+	const float Duration = 5.0f;
+	const float SpawnInterval = 10.f; // Time interval between each projectile spawn
+	const int32 NumProjectilesPerSpawn = 10; // Number of projectiles to spawn each interval
+
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
 };

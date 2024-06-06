@@ -29,6 +29,11 @@ public:
 	//virtual bool IsCastable() const override;
 
 private:
+	void SpawnSequentialProjectiles();
+	void SpawnProjectile(FVector Location, FRotator Rotation);
+
+	int32 ProjectilesFired;
+	FTimerHandle ProjectileTimerHandle;
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
 };
