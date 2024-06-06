@@ -271,11 +271,36 @@ bool UGOSkillCastComponent::ServerHandleProjectileSkill_Validate(TSubclassOf<AGO
 	return true;
 }
 
+//void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
+//{
+//	FVector Forward = GetOwner()->GetActorForwardVector();
+//	FVector RainCenterLocation = Location + Forward * 1000.0f; // 500 units in front of the character
+//
+//	for (int32 i = 0; i < NumProjectilesPerSpawn; ++i)
+//	{
+//		FVector SpawnLocation = Location + FVector(FMath::RandRange(-200, 200), FMath::RandRange(-200, 200), 300.0f); // Randomize the spawn location within a certain range
+//		FRotator SpawnRotation = FRotator(-90.0f, 0.0f, 0.0f); // Rotate downwards
+//
+//		FActorSpawnParameters SpawnParams;
+//		SpawnParams.Owner = GetOwner();
+//		SpawnParams.Instigator = GetOwner()->GetInstigator();
+//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+//
+//		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+//	}
+//}
+
 void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
 {
+	FVector Forward = GetOwner()->GetActorForwardVector();
+	FVector RainCenterLocation = Location + Forward * 1000.0f; // 1000 units in front of the character
+
 	for (int32 i = 0; i < NumProjectilesPerSpawn; ++i)
 	{
-		FVector SpawnLocation = Location + FVector(FMath::RandRange(-200, 200), FMath::RandRange(-200, 200), 300.0f); // Randomize the spawn location within a certain range
+		FVector Offset = FVector::ZeroVector;
+		float Distance = 1000.0f * (static_cast<float>(i) / (NumProjectilesPerSpawn - 1));
+		FVector SpawnLocation = Location + Forward * Distance + Offset + FVector(0, 0, 300.0f); // Linear distribution of projectiles within 1000 units
+
 		FRotator SpawnRotation = FRotator(-90.0f, 0.0f, 0.0f); // Rotate downwards
 
 		FActorSpawnParameters SpawnParams;
@@ -286,7 +311,6 @@ void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOP
 		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 	}
 }
-
 bool UGOSkillCastComponent::ServerStartArrowRain_Validate(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
 {
 	return true;
