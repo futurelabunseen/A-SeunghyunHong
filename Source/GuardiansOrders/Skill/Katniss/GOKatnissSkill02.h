@@ -27,6 +27,7 @@ public:
 	virtual void ActivateEffect() override;
 	//virtual bool IsCasting() const override;
 	//virtual bool IsCastable() const override;
+	void SpawnSpreadProjectiles(FVector Location, FRotator Rotation);
 
 private:
 	//bool bIsCastable = false;

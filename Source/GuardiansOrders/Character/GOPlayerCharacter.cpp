@@ -42,8 +42,10 @@
 #include "Player/GOPlayerController.h"
 #include "GOCharacterMovementComponent.h"
 #include "Share/EGOSkill.h"
+#include "Share/EGOTeam.h"
 #include <Game/GOBattleGameMode.h>
 #include "GameData/GOSkillData.h"
+#include "Game/GOPlayerState.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -1574,8 +1576,6 @@ void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
 	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s is a startup actor: %s"), *ActorToCheck->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
 }
 
-
-
 // ======== IGOPlaySkillAnimInterface ========
 void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 {
@@ -1721,7 +1721,8 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 // ======== IGOApplySkillInterface ========
 void AGOPlayerCharacter::ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Projectile] ApplySkillEffect DamagedActor : %s"), *DamagedActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] ApplySkillEffect DamagedActor : %s"), *DamagedActor->GetName());
+	if (!DamagedActor || !DamageCauser) return;  // Check for null pointers
 
 	TakeDamage(Damage, FDamageEvent(), DamageCauser->GetInstigatorController(), DamageCauser);
 }
@@ -1773,7 +1774,10 @@ void AGOPlayerCharacter::MoveForwardStep()
 
 void AGOPlayerCharacter::HighlightActor()
 {
+	// 상대팀 플레이어라면
+
 	Super::HighlightActor();
+
 }
 
 void AGOPlayerCharacter::UnHighlightActor()
@@ -1798,4 +1802,11 @@ void AGOPlayerCharacter::MulticastRPCActivateSkillWithParticles_Implementation(F
 
 	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  end"));
 
+}
+
+ETeamType AGOPlayerCharacter::GetTeamType()
+{
+	GOPlayerState = GOPlayerState == nullptr ? GetPlayerState<AGOPlayerState>() : GOPlayerState;
+	if (GOPlayerState == nullptr) return ETeamType::ET_NoTeam;
+	return GOPlayerState->GetTeamType();
 }

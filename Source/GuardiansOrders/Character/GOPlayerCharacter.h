@@ -14,6 +14,7 @@
 #include "GameData/GOCharacterStat.h"
 #include "Share/EGOPlayerActionState.h"
 #include "Share/GOOrder.h"
+#include "Share/EGOTeam.h"
 #include "GOPlayerCharacter.generated.h"
 
 struct FInputActionValue;
@@ -537,6 +538,13 @@ public:
 	void MulticastActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
 
 	void StartMovingForward(float Distance, float Duration, float Acceleration);
+
+public:
+	UPROPERTY()
+	class AGOPlayerState* GOPlayerState;
+
+	ETeamType GetTeamType();
+
 private:
 	// 이동 관련 변수와 타이머 핸들러 추가
 	FTimerHandle MovementTimerHandle;

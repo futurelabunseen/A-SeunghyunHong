@@ -2,6 +2,7 @@
 
 
 #include "Skill/Katniss/GOKatnissSkill02.h"
+#include <Skill/GOSkillCastComponent.h>
 
 UGOKatnissSkill02::UGOKatnissSkill02()
 {
@@ -20,6 +21,7 @@ void UGOKatnissSkill02::StartCast()
 	//SetCoolDownTimer();
 	//bIsCasting = true;
 	Super::StartCast();
+
 }
 
 void UGOKatnissSkill02::UpdateCast(float DeltaTime)
@@ -31,6 +33,13 @@ void UGOKatnissSkill02::ActivateSkill()
 {
 	Super::ActivateSkill();
 
+	if (GetSkillOwner())
+	{
+		FVector Location = GetSkillOwner()->GetActorLocation();
+		FRotator Rotation = GetSkillOwner()->GetActorRotation();
+		//SpawnSpreadProjectiles(Location, Rotation);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOKatnissSkill02::StartCast"));
 }
 
 void UGOKatnissSkill02::FinishCast()
@@ -57,3 +66,37 @@ void UGOKatnissSkill02::ActivateEffect()
 //{
 //	return false;
 //}
+void UGOKatnissSkill02::SpawnSpreadProjectiles(FVector Location, FRotator Rotation)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOKatnissSkill02::SpawnSpreadProjectiles"));
+	const FVector Forward = Rotation.Vector();
+	const FVector LeftOfSpread = Forward.RotateAngleAxis(-SpreadAngle / 2.f, FVector::UpVector);
+	const FVector RightOfSpread = Forward.RotateAngleAxis(SpreadAngle / 2.f, FVector::UpVector);
+
+	if (NumProjectiles > 1)
+	{
+		const float DeltaSpread = SpreadAngle / (NumProjectiles - 1);
+		for (int32 i = 0; i < NumProjectiles; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			FVector SpawnLocation = Location + FVector(0, 0, 50); // Adjust the spawn location as needed
+			FRotator SpawnRotation = Direction.Rotation();
+			FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
+
+			// Call the component to handle the projectile spawn
+			if (UGOSkillCastComponent* SkillCastComponent = GetSkillOwner()->FindComponentByClass<UGOSkillCastComponent>())
+			{
+				SkillCastComponent->HandleProjectileSkill(this, SpawnLocation, SpawnRotation, SpawnTransform);
+			}
+		}
+	}
+	else
+	{
+		// Single projectile
+		FTransform SpawnTransform = FTransform(Rotation, Location);
+		if (UGOSkillCastComponent* SkillCastComponent = GetSkillOwner()->FindComponentByClass<UGOSkillCastComponent>())
+		{
+			SkillCastComponent->HandleProjectileSkill(this, Location, Rotation, SpawnTransform);
+		}
+	}
+}

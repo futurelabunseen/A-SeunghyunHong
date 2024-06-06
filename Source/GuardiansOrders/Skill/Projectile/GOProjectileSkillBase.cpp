@@ -3,15 +3,18 @@
 
 #include "Skill/Projectile/GOProjectileSkillBase.h"
 #include "Projectile/GOProjectile.h"
-#include "GameFramework/ProjectileMovementComponent.h"
 
 UGOProjectileSkillBase::UGOProjectileSkillBase()
 {
+    SpreadAngle = 45.0f;  // Default spread angle
+    NumProjectiles = 1;   // Default number of projectiles
+    bIsSpreadSkill = false; // Default to not spread
 }
 
 void UGOProjectileSkillBase::PostInitProperties()
 {
     Super::PostInitProperties();
+    SetSpeed();
 }
 
 void UGOProjectileSkillBase::StartCast()
@@ -27,8 +30,6 @@ void UGOProjectileSkillBase::UpdateCast(float DeltaTime)
 void UGOProjectileSkillBase::ActivateSkill()
 {
     Super::ActivateSkill();
-
-   
 }
 
 void UGOProjectileSkillBase::FinishCast()
@@ -44,4 +45,9 @@ void UGOProjectileSkillBase::InterruptedCast()
 void UGOProjectileSkillBase::ActivateEffect()
 {
     Super::ActivateEffect();
+}
+
+void UGOProjectileSkillBase::SetSpeed()
+{
+
 }

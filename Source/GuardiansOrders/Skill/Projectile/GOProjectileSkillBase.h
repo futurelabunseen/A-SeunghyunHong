@@ -60,7 +60,25 @@ public:
 	  */
 	virtual void ActivateEffect();
 
+	void SetSpeed();
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AGOProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<AGOProjectile> Projectile;
+
+	// Spread angle for the projectiles
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	float SpreadAngle;
+
+	// Number of projectiles to spawn in a spread
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	int32 NumProjectiles;
+
+	// Flag to indicate if this skill uses spread
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	bool bIsSpreadSkill;
 };
 
