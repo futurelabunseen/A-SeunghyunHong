@@ -198,8 +198,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Skill")
 	float GetAcceleration() const { return Acceleration; }
 
+	// Flag for area attack skill
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	bool bIsAreaSkill;
+
 protected:
 	float MovementDistance;
 	float MovementDuration;
 	float Acceleration;
+
+
 };

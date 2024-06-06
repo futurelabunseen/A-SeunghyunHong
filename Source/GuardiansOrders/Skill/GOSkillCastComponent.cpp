@@ -85,7 +85,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	CurrentSkill->UpdateCast(DeltaTime);
 	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillCastComponent::OnUpdateCast] CurrentSkill->UpdateCast(DeltaTime);"));
 
-	if (bIsOnCasting) 
+	if (bIsOnCasting)
 	{
 		if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetOwner()))
 		{
@@ -133,7 +133,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 
 								HandleProjectileSkill(ProjectileSkill, SocketLocation, SpawnRotation, SpawnTransform);
 							}
-							
+
 						}
 					}
 				}
@@ -217,12 +217,14 @@ void UGOSkillCastComponent::HandleProjectileSkill(UGOProjectileSkillBase* Projec
 			//ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
 			HandleSpreadProjectiles(ProjectileSkill, Location, Rotation);
 		}
+		else if (ProjectileSkill->bIsAreaSkill)
+		{
+			ServerStartArrowRain(ProjectileSkill->ProjectileClass, Location, 5.0f, 10.f, 10);
+		}
 		else
 		{
-			//if (GetOwner()->GetLocalRole() == ROLE_Authority)
-			//{
-				ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
-			//}
+			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, Location, Rotation, SpawnTransform);
+
 		}
 	}
 }
@@ -245,10 +247,7 @@ void UGOSkillCastComponent::HandleSpreadProjectiles(UGOProjectileSkillBase* Proj
 			FRotator SpawnRotation = Direction.Rotation();
 			FTransform SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
 
-			//if (GetOwner()->GetLocalRole() == ROLE_Authority)
-			//{
-				ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, SpawnLocation, SpawnRotation, SpawnTransform);
-			//}
+			ServerHandleProjectileSkill(ProjectileSkill->ProjectileClass, SpawnLocation, SpawnRotation, SpawnTransform);
 		}
 	}
 }
@@ -264,20 +263,6 @@ void UGOSkillCastComponent::ServerHandleProjectileSkill_Implementation(TSubclass
 
 		// Spawn Projectile
 		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, Location, Rotation, SpawnParams);
-		if (Projectile)
-		{
-			// Projectile 초기 데이터 설정
-
-			//1번 실행
-			UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill spawned. Actor: %s"), *Projectile->GetName());
-
-			// MulticastSpawnProjectile(ProjectileClass, Location, Rotation, SpawnTransform);
-		}
-
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[Projectile] UGOSkillCastComponent::ServerHandleProjectileSkill Failed to spawn projectile."));
-		}
 	}
 }
 
@@ -286,21 +271,24 @@ bool UGOSkillCastComponent::ServerHandleProjectileSkill_Validate(TSubclassOf<AGO
 	return true;
 }
 
-void UGOSkillCastComponent::MulticastSpawnProjectile_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, FRotator Rotation, FTransform SpawnTransform)
+void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
 {
-	if (ProjectileClass)
+	for (int32 i = 0; i < NumProjectilesPerSpawn; ++i)
 	{
+		FVector SpawnLocation = Location + FVector(FMath::RandRange(-200, 200), FMath::RandRange(-200, 200), 300.0f); // Randomize the spawn location within a certain range
+		FRotator SpawnRotation = FRotator(-90.0f, 0.0f, 0.0f); // Rotate downwards
+
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = GetOwner();
 		SpawnParams.Instigator = GetOwner()->GetInstigator();
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		// Spawn Projectile
-		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, Location, Rotation, SpawnParams);
-
-		//Projectile->FinishSpawning(SpawnTransform);
-		
-		// 4번
-		UE_LOG(LogTemp, Warning, TEXT("[Projectile] UGOSkillCastComponent::MulticastSpawnProjectile  Spawn called. "));
+		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 	}
 }
+
+bool UGOSkillCastComponent::ServerStartArrowRain_Validate(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
+{
+	return true;
+}
+

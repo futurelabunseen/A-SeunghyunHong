@@ -2,10 +2,13 @@
 
 
 #include "Skill/Katniss/GOKatnissSkill01.h"
+#include <Skill/GOSkillCastComponent.h>
 
 UGOKatnissSkill01::UGOKatnissSkill01()
 {
-
+	bIsSpreadSkill = false;
+	bIsAreaSkill = true;
+	NumProjectiles = 0;
 }
 
 void UGOKatnissSkill01::PostInitProperties()
@@ -17,9 +20,10 @@ void UGOKatnissSkill01::StartCast()
 {
 	//SetCoolDownTimer();
 	//bIsCasting = true;
-	
-	
+
+
 	Super::StartCast();
+	StartArrowRain();
 
 	//if (IsCastable() == false)
 	//{
@@ -53,16 +57,39 @@ void UGOKatnissSkill01::ActivateSkill()
 void UGOKatnissSkill01::FinishCast()
 {
 	Super::FinishCast();
+	GetWorld()->GetTimerManager().ClearTimer(ArrowRainTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 }
 
 void UGOKatnissSkill01::InterruptedCast()
 {
 	Super::InterruptedCast();
+	GetWorld()->GetTimerManager().ClearTimer(ArrowRainTimerHandle);
+	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 }
 
 void UGOKatnissSkill01::ActivateEffect()
 {
 	Super::ActivateEffect();
+}
+
+void UGOKatnissSkill01::StartArrowRain()
+{
+	if (GetSkillOwner())
+	{
+		SkillLocation = GetSkillOwner()->GetActorLocation(); // Get the location to spawn the rain
+
+
+		if (UGOSkillCastComponent* SkillCastComponent = GetSkillOwner()->FindComponentByClass<UGOSkillCastComponent>())
+		{
+			//SkillCastComponent->StartArrowRain(SkillLocation, Duration, SpawnInterval, NumProjectilesPerSpawn);
+		}
+	}
+}
+
+void UGOKatnissSkill01::EndArrowRain()
+{
+	GetWorld()->GetTimerManager().ClearTimer(DamageTimerHandle);
 }
 
 //bool UGOKatnissSkill01::IsCasting() const

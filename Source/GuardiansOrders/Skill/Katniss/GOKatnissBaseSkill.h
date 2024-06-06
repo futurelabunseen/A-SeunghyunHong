@@ -29,6 +29,7 @@ public:
 	//virtual bool IsCastable() const override;
 
 private:
+
 	//bool bIsCastable = false;
 	//bool bIsOnCasting = false;
 };
