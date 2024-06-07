@@ -27,6 +27,8 @@ AGOProjectile::AGOProjectile()
 	ProjectileMovement->InitialSpeed = 500.f;
 	ProjectileMovement->MaxSpeed = 2000.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
+
+	Damage = 10.f; // Default damage value
 }
 
 void AGOProjectile::SetProjectileMaxSpeed(float Speed)
@@ -62,7 +64,7 @@ void AGOProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		if (IGOApplySkillInterface* GOApplySkillInterface = Cast<IGOApplySkillInterface>(SweepResult.GetActor()))
 		{
 
-			GOApplySkillInterface->ApplySkillEffect(SweepResult.GetActor(), 10, GetOwner()); 
+			GOApplySkillInterface->ApplySkillEffect(SweepResult.GetActor(), Damage, GetOwner());
 		}
 	}
 
