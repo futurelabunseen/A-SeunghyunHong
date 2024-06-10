@@ -33,7 +33,7 @@ public:
 	TSubclassOf<AGOPlayerCharacter> SelectedCharacterClass;
 
 	// 플레이어가 선택한 영웅 정보
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_SelectedNickname)
 	FHeroSelectionInfo SelectedHero;
 
 	UPROPERTY(Replicated)
@@ -99,7 +99,11 @@ public:
 	EHeroType SelectedHeroInfo;
 
 	void SetSelectedHero(EHeroType HeroType);
+	void SetNickname(const FString& Nickname);
 
 	UFUNCTION()
-	void OnRep_SelectedHeroInfo();
+	void OnRep_SelectedHeroInfo();	
+	
+	UFUNCTION()
+	void OnRep_SelectedNickname();
 };

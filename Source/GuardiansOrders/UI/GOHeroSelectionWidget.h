@@ -10,6 +10,9 @@
 //UFUNCTION(Server, Reliable, WithValidation)
 //void ServerSelectHero(APlayerController* PlayerController, EHeroType HeroType);
 class UButton;
+class UEditableTextBox;
+class UHorizontalBox;
+
 /**
  * 
  */
@@ -40,7 +43,14 @@ protected:
     void OnReadyButtonClicked(); // Ready 버튼 클릭 이벤트 핸들러
 
     UFUNCTION()
-    void EnableReadyButton();
+    void EnableSetNicknameSection();
+
+    UFUNCTION()
+    void EnableReadyButton();    
+    
+    
+    UFUNCTION()
+    void OnNicknameButtonClicked();
 
     // UMG widget bindings
     UPROPERTY(meta = (BindWidget))
@@ -58,6 +68,15 @@ protected:
     UPROPERTY(meta = (BindWidget))
     UButton* ReadyButton;
 
+    UPROPERTY(meta = (BindWidget))
+    UEditableTextBox* EditableNicknameText;
+
+    UPROPERTY(meta = (BindWidget))
+    UButton* NicknameButton;
+
+
+    UPROPERTY(meta = (BindWidget))
+    UHorizontalBox* SetNicknameBox;
 private:
     // 추가
     // void SelectCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);

@@ -12,6 +12,8 @@
 #include "Game/GOGameState.h"
 #include "Game/GOPlayerState.h"
 #include "Player/GOLobbyPlayerController.h"
+#include "Components/EditableTextBox.h"
+#include "Components/HorizontalBox.h"
 
 void UGOHeroSelectionWidget::NativeConstruct()
 {
@@ -37,6 +39,10 @@ void UGOHeroSelectionWidget::NativeConstruct()
     {
         ReadyButton->OnClicked.AddDynamic(this, &UGOHeroSelectionWidget::OnReadyButtonClicked);
         ReadyButton->SetIsEnabled(false);
+    }
+    if (NicknameButton)
+    {
+        NicknameButton->OnClicked.AddDynamic(this, &UGOHeroSelectionWidget::OnNicknameButtonClicked);
     }
 }
 
@@ -70,9 +76,10 @@ void UGOHeroSelectionWidget::SelectCharacter(EHeroType HeroType)
         if (GOPlayerController)
         {
             GOPlayerController->ServerSelectHero(HeroType);
+            EnableSetNicknameSection();
         }
     }
-    EnableReadyButton();
+
 }
 
 void UGOHeroSelectionWidget::OnReadyButtonClicked()
@@ -90,10 +97,38 @@ void UGOHeroSelectionWidget::OnReadyButtonClicked()
     this->SetVisibility(ESlateVisibility::Hidden);
 }
 
+void UGOHeroSelectionWidget::EnableSetNicknameSection()
+{
+    if (SetNicknameBox)
+    {
+        SetNicknameBox->SetVisibility(ESlateVisibility::Visible);
+    }
+}
+
 void UGOHeroSelectionWidget::EnableReadyButton()
 {
     if (ReadyButton)
     {
+        ReadyButton->SetVisibility(ESlateVisibility::Visible);
         ReadyButton->SetIsEnabled(true);
+    }
+}
+
+void UGOHeroSelectionWidget::OnNicknameButtonClicked()
+{
+    if (EditableNicknameText)
+    {
+        FString Nickname = EditableNicknameText->GetText().ToString();
+        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            AGOLobbyPlayerController* GOPlayerController = Cast<AGOLobbyPlayerController>(PlayerController);
+            if (GOPlayerController)
+            {
+                GOPlayerController->ServerRPCConfirmNickname(Nickname);
+                EnableReadyButton();
+
+            }
+        }
     }
 }

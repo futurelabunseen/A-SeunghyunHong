@@ -22,7 +22,7 @@ public:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 
 	//void SetSelectedCharacter(TSubclassOf<class AGOPlayerCharacter> CharacterClass);
-	void SelectHero(APlayerController* PlayerController, EHeroType HeroType);
+	void SelectHero(APlayerController* PlayerController, EHeroType HeroType, const FString& Nickname);
 
 	UFUNCTION()
 	void OnGamePlayerReady();

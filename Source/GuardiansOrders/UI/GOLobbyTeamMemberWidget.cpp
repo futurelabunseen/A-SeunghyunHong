@@ -27,4 +27,8 @@ void UGOLobbyTeamMemberWidget::SetTeamMemberUI(FHeroSelectionInfo HeroInfo)
 
 	HeroIconImage->SetBrushFromTexture(GOGameInstance->GetHeroImageByEHeroType(HeroInfo.SelectedHero));
 	HeroNameText->SetText(GetEHeroTypeAsText(HeroInfo.SelectedHero));
+
+	FText Nickname = FText::FromString(HeroInfo.PlayerName);
+
+	NicknameText->SetText(Nickname);
 }

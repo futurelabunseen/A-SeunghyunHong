@@ -29,6 +29,9 @@ public:
     UFUNCTION(Server, Reliable, WithValidation)
     void ServerReady();
 
+    UFUNCTION(Server, Reliable)
+    void ServerRPCConfirmNickname(const FString& Nickname);
+
     void EnableMouseCursor();
 
     void DisableAllUI();

@@ -10,6 +10,7 @@
 #include "Player/GOPlayerController.h"
 #include "UI/GOLobbyHUDWidget.h"
 #include "UI/GOLobbySelectedHeroInfoWidget.h"
+#include "CommonTextBlock.h"
 
 AGOPlayerState::AGOPlayerState()
 {
@@ -199,6 +200,13 @@ void AGOPlayerState::SetSelectedHero(EHeroType HeroType)
 	OnRep_SelectedHeroInfo();
 }
 
+void AGOPlayerState::SetNickname(const FString& Nickname)
+{
+	SelectedHero.PlayerName = Nickname;
+	UE_LOG(LogTemp, Warning, TEXT("AGOPlayerState::SetNickname Nickname set to: %s"), *SelectedHero.PlayerName);
+	OnRep_SelectedNickname();
+}
+
 void AGOPlayerState::OnRep_SelectedHeroInfo()
 {
 	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
@@ -211,4 +219,18 @@ void AGOPlayerState::OnRep_SelectedHeroInfo()
 			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam %d "), GetTeamType());
 		}
 	}
+}
+
+void AGOPlayerState::OnRep_SelectedNickname()
+{
+	//APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+	//if (PlayerController)
+	//{
+	//	AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
+	//	if (LobbyController && LobbyController->GOLobbyHUDWidget)
+	//	{
+	//		FText NicknameText = FText::FromString(SelectedHero.PlayerName);
+	//		LobbyController->GOLobbyHUDWidget->LobbySelectedHeroInfoWidget->NameText->SetText(NicknameText);
+	//	}
+	//}
 }
