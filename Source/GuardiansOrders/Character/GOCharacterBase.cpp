@@ -35,7 +35,8 @@
 #include "GuardiansOrders/GuardiansOrders.h"
 
 AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+	: Super(ObjectInitializer),
+	bIsDead(false)
 {
 	// Pawn
 	bUseControllerRotationPitch = false;
@@ -313,6 +314,7 @@ void AGOCharacterBase::ProcessComboCommand()
 
 void AGOCharacterBase::SetDead()
 {
+	bIsDead = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
 	SetActorEnableCollision(false);
@@ -337,6 +339,21 @@ void AGOCharacterBase::PlayDeadAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	AnimInstance->Montage_Play(DeadMontage, 1.0f);
+}
+
+void AGOCharacterBase::SetStunned()
+{
+	bIsStunned = true;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	PlayStunnedAnimation();
+}
+
+void AGOCharacterBase::PlayStunnedAnimation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(StunnedMontage, 1.0f);
+	UE_LOG(LogTemp, Warning, TEXT("[SetStunned] AGOCharacterBase::PlayStunnedAnimation()"));
 }
 
 void AGOCharacterBase::GetMana()
@@ -365,4 +382,14 @@ void AGOCharacterBase::UnHighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	UE_LOG(LogTemp, Warning, TEXT("UnHighlightActor 000000000"));
+}
+
+bool AGOCharacterBase::GetIsDead()
+{
+	return bIsDead;
+}
+
+bool AGOCharacterBase::GetIsStunned()
+{
+	return bIsStunned;
 }

@@ -9,6 +9,7 @@
 #include "Interface/GOSpellFlashInterface.h"
 #include "Interface/GOPlaySkillEffectInterface.h"
 #include "Interface/GOApplySkillInterface.h"
+#include "Interface/GOPlayerInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -30,7 +31,7 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOApplySkillInterface, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOApplySkillInterface, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface, public IGOPlayerInterface
 {
 	GENERATED_BODY()
 	
@@ -365,6 +366,13 @@ public:
 	FTimerHandle DeadTimerHandle;
 
 	virtual void SetDead() override;
+	virtual void SetStunned() override;
+	
+    void EndStunned();
+    void Knockback(const FVector& Direction);
+
+    FTimerHandle StunnedTimerHandle;
+    FVector KnockbackDirection;
 
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
@@ -529,6 +537,11 @@ public:
 // ======== IGOApplySkillInterface ========
 	virtual void ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser);
 
+// ======== IGOPlayerInterface ========
+
+	virtual void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial = nullptr) override;
+	virtual void HideMagicCircle_Implementation() override;
+
 // ======== Move Skill =======
 public:
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -538,6 +551,10 @@ public:
 	void MulticastActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
 
 	void StartMovingForward(float Distance, float Duration, float Acceleration);
+
+public:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastStunnedAnimation();
 
 public:
 	UPROPERTY()
@@ -561,4 +578,10 @@ private:
 protected:
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+
+
+// IGOStateInterface
+public:
+	virtual bool GetIsDead() override;
+	virtual bool GetIsStunned() override;
 };

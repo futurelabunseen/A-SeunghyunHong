@@ -1267,8 +1267,11 @@ void AGOPlayerCharacter::OnRep_CanAttack()
 	}
 }
 
+// reset player
 void AGOPlayerCharacter::ResetPlayer()
 {
+	bIsDead = false; // Add this line
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance)
 	{
@@ -1314,6 +1317,26 @@ void AGOPlayerCharacter::SetDead()
 	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, 5.0f, false);
 }
 
+void AGOPlayerCharacter::SetStunned()
+{
+	Super::SetStunned();
+	MulticastStunnedAnimation();
+	Knockback(KnockbackDirection);
+	// 공격한 사람의 foward vector로 밀려나기
+	// 1초 후 stunned 상태에서 풀려나기
+}
+
+void AGOPlayerCharacter::EndStunned()
+{
+	bIsStunned = false;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+void AGOPlayerCharacter::Knockback(const FVector& Direction)
+{
+	LaunchCharacter(Direction * 500.0f, true, true);
+}
+
 // TODO: Death
 // EventInstigator: Attacker
 // 
@@ -1339,12 +1362,25 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageAmount : %d "), DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	
 	if (Stat->GetCurrentHp() <= 0.0f)
 	{
+
 		IGOBattleInterface* GOBattleMode = GetWorld()->GetAuthGameMode<IGOBattleInterface>();
 		if (GOBattleMode)
 		{
 			GOBattleMode->OnPlayerKilled(EventInstigator, GetController(), this);
+		}
+	} 
+	else
+	{
+		if (!bIsStunned)
+		{
+			// Set the direction for knockback
+			KnockbackDirection = -DamageCauser->GetActorForwardVector();
+			SetStunned();
+			UE_LOG(LogTemp, Warning, TEXT("[SetStunned] TakeDamage SetStunned"));
+			GetWorldTimerManager().SetTimer(StunnedTimerHandle, this, &AGOPlayerCharacter::EndStunned, 1.0f, false);
 		}
 	}
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
@@ -1727,6 +1763,28 @@ void AGOPlayerCharacter::ApplySkillEffect(AActor* DamagedActor, float Damage, AA
 	TakeDamage(Damage, FDamageEvent(), DamageCauser->GetInstigatorController(), DamageCauser);
 }
 
+// ======== IGOPlayerInterface ========
+
+void AGOPlayerCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
+{
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		GOPlayerController->ShowMagicCircle();
+		if (DecalMaterial != nullptr)
+		{
+			GOPlayerController->ShowMagicCircle(DecalMaterial);
+		}
+	}
+}
+
+void AGOPlayerCharacter::HideMagicCircle_Implementation()
+{
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		GOPlayerController->HideMagicCircle();
+	}
+}
+
 bool AGOPlayerCharacter::ServerActivateSkillWithMovement_Validate(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
 {
 	return true;
@@ -1785,6 +1843,16 @@ void AGOPlayerCharacter::UnHighlightActor()
 	Super::UnHighlightActor();
 }
 
+bool AGOPlayerCharacter::GetIsDead()
+{
+	return Super::GetIsDead();
+}
+
+bool AGOPlayerCharacter::GetIsStunned()
+{
+	return Super::GetIsStunned();
+}
+
 void AGOPlayerCharacter::ServerRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
 {
 	PlayEffectParticleAnimByKey(Key);
@@ -1802,6 +1870,13 @@ void AGOPlayerCharacter::MulticastRPCActivateSkillWithParticles_Implementation(F
 
 	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  end"));
 
+}
+
+void AGOPlayerCharacter::MulticastStunnedAnimation_Implementation()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(StunnedMontage, 1.0f);
 }
 
 ETeamType AGOPlayerCharacter::GetTeamType()
