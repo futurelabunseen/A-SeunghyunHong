@@ -5,6 +5,8 @@
 #include "GOGameState.h"
 #include "GOPlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include <EngineUtils.h>
+#include "GameFramework/PlayerStart.h"
 
 AGOTeamBattleGameMode::AGOTeamBattleGameMode()
 {
@@ -51,8 +53,74 @@ void AGOTeamBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 void AGOTeamBattleGameMode::StartPlay()
 {
 	Super::StartPlay();
-	UE_LOG(LogTemp, Warning, TEXT("AGOTeamBattleGameMode StartPlay")); // O
+	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode StartPlay"));
 
+	// 팀에 따라 위치 설정
+	for (APlayerStart* PlayerStart : TActorRange<APlayerStart>(GetWorld()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart: %s"), *PlayerStart->GetName());
+
+		// 여기서 팀별로 분류합니다.
+		if (PlayerStart->Tags.Contains(FName("BlueTeam")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart BlueTeam"));
+
+			BlueTeamPlayerStarts.Add(PlayerStart);
+		}
+		else if (PlayerStart->Tags.Contains(FName("RedTeam")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart RedTeam"));
+
+			RedTeamPlayerStarts.Add(PlayerStart);
+		}
+	}
+
+	// 모든 플레이어 상태를 가져옴
+	for (APlayerState* PlayerState : GameState->PlayerArray)
+	{
+		AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+		if (GOPlayerState)
+		{
+			ETeamType Team = GOPlayerState->GetTeamType();
+			APlayerController* PlayerController = Cast<APlayerController>(GOPlayerState->GetOwner());
+
+			if (PlayerController && PlayerController->GetPawn())
+			{
+				FVector SpawnLocation;
+				FRotator SpawnRotation;
+
+				if (Team == ETeamType::ET_BlueTeam && BlueTeamPlayerStarts.Num() > 0)
+				{
+					int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
+					SpawnLocation = BlueTeamPlayerStarts[RandIndex]->GetActorLocation();
+					SpawnRotation = BlueTeamPlayerStarts[RandIndex]->GetActorRotation();
+				}
+				else if (Team == ETeamType::ET_RedTeam && RedTeamPlayerStarts.Num() > 0)
+				{
+					int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
+					SpawnLocation = RedTeamPlayerStarts[RandIndex]->GetActorLocation();
+					SpawnRotation = RedTeamPlayerStarts[RandIndex]->GetActorRotation();
+				}
+				else
+				{
+					continue; // 팀에 맞는 시작 위치가 없으면 무시
+				}
+
+				// 플레이어의 위치를 설정
+				APawn* Pawn = PlayerController->GetPawn();
+				Pawn->SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
+				UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] %s moved to Team %d Location: %s"),
+					*GOPlayerState->GetPlayerName(), Team, *SpawnLocation.ToString());
+			}
+		}
+	}
+}
+
+void AGOTeamBattleGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode BeginPlay")); // O
+	
 }
 
 float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)

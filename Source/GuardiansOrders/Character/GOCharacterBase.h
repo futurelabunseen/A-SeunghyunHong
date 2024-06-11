@@ -8,6 +8,7 @@
 #include "Interface/GOCharacterWidgetInterface.h"
 #include "Interface/GOCombatInterface.h"
 #include "Interface/GOHighlightInterface.h"
+#include "Interface/GOStateInterface.h"
 #include "GameData/GOCharacterStat.h"
 #include "GameData/GOCharacterData.h"
 // #include "Skill/GOSkillBase.h"
@@ -24,7 +25,12 @@ class UGOSkillCastComponent;
 class UGOSpellCastComponent;
 
 UCLASS()
-class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, public IGOHighlightInterface, public IGOCombatInterface, public IGOAnimationAttackInterface, public IGOCharacterWidgetInterface
+class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, 
+	public IGOHighlightInterface, 
+	public IGOCombatInterface, 
+	public IGOAnimationAttackInterface, 
+	public IGOCharacterWidgetInterface,
+	public IGOStateInterface
 {
 	GENERATED_BODY()
 	
@@ -113,6 +119,19 @@ protected:
 
 	float DeadEventDelayTime = 5.0f;
 
+	bool bIsDead;
+
+// Stunned Section
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> StunnedMontage;
+
+	virtual void SetStunned();
+	void PlayStunnedAnimation();
+
+	float StunnedEventDelayTime = 1.0f;
+
+	bool bIsStunned;
+
 // Mana Section
 protected:
 	// 마나가 충전되는 함수입니다.
@@ -128,4 +147,8 @@ protected:
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
 
+// IGOStateInterface
+public:
+	virtual bool GetIsDead() override;
+	virtual bool GetIsStunned() override;
 }; // End Of Class

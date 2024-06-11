@@ -71,6 +71,16 @@ void AGOLobbyPlayerController::SetupLobbyHUDWidget(UGOLobbyHUDWidget* InLobbyHUD
 
 }
 
+void AGOLobbyPlayerController::ServerRPCConfirmNickname_Implementation(const FString& Nickname)
+{
+	AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+	if (PS)
+	{
+		PS->SetNickname(Nickname);
+		UE_LOG(LogTemp, Warning, TEXT("LPC ServerRPCConfirmNickname Nickname set to: %s"), *PS->SelectedHero.PlayerName);
+	}
+}
+
 void AGOLobbyPlayerController::ServerSelectHero_Implementation(EHeroType HeroType)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] ServerSelectHero_Implementation() "));
@@ -105,7 +115,7 @@ void AGOLobbyPlayerController::ServerReady_Implementation()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] AGOLobbyPlayerController ServerReady_Implementation 1 "));
 
-		GOGameMode->SelectHero(this, GetPlayerState<AGOPlayerState>()->SelectedHero.SelectedHero);
+		GOGameMode->SelectHero(this, GetPlayerState<AGOPlayerState>()->SelectedHero.SelectedHero, GetPlayerState<AGOPlayerState>()->SelectedHero.PlayerName);
 	}
 }
 

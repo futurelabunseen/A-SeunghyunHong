@@ -8,7 +8,6 @@
 
 class UGOTeamMemberWidget;
 class UCommonTextBlock;
-
 /**
  * 
  */
@@ -44,4 +43,5 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UGOTeamMemberWidget* RedTeamMember02;
+
 };

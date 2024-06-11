@@ -330,7 +330,7 @@ void AGOLobbyGameMode::OnTravelReadyTimer()
 //	return true;
 //}
 
-void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType HeroType)
+void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType HeroType, const FString& Nickname)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] SelectHero 0 "));
 
@@ -348,7 +348,7 @@ void AGOLobbyGameMode::SelectHero(APlayerController* PlayerController, EHeroType
 			UE_LOG(LogTemp, Warning, TEXT("[AGOLobbyGameMode] SelectHero 2 "));
 
 			int32 PlayerId = PS->GetPlayerId();
-			PS->SelectedHero = FHeroSelectionInfo(PlayerId, HeroType);
+			PS->SelectedHero = FHeroSelectionInfo(PlayerId, HeroType, Nickname);
 
 			PS->bIsReady = true;
 

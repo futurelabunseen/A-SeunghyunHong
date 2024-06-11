@@ -14,6 +14,7 @@ class UGOCharacterStatWidget;
 class UGOSkillSetBarWidget;
 class UGOSpellSetBarWidget;
 class UGOHeroInfoWidget;
+class UCommonUserWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOHUDWidget : public UCommonUserWidget
@@ -41,6 +42,9 @@ public:
 
 	UPROPERTY()
 	class UGOBattleCharacterOverlayWidget* CharacterOverlay;
+	
+	UPROPERTY(meta = (BindWidget))
+	UCommonUserWidget* GrindingStoneWidget;
 
 protected:
 	UPROPERTY()
@@ -63,4 +67,6 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGOHeroInfoWidget> HeroInfo;
+
+
 };

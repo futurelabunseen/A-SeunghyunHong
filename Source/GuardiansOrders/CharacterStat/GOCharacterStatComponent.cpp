@@ -6,6 +6,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GuardiansOrders/GuardiansOrders.h"
 #include <Kismet/GameplayStatics.h>
+#include <Interface/GOStateInterface.h>
 
 UGOCharacterStatComponent::UGOCharacterStatComponent()
 {
@@ -163,21 +164,49 @@ void UGOCharacterStatComponent::SetNewMaxMana(const FGOCharacterStat& InBaseStat
 
 void UGOCharacterStatComponent::RegenerateHp()
 {
-	if (CurrentHp < MaxHp)
+	// if(bIsDead != false)
+	if (AActor* Owner = GetOwner())
 	{
-		CurrentHp = FMath::Min(CurrentHp + BaseStat.HpRegenerationRate, MaxHp);
-		OnHpChanged.Broadcast(CurrentHp, MaxHp);
-		UE_LOG(LogTemp, Warning, TEXT("[debuggung] RegenerateHp() called ended"));
+		if (IGOStateInterface* GOStateInterface = Cast<IGOStateInterface>(Owner))
+		{
+			if (GOStateInterface->GetIsDead() != false)
+			{
+				return;
+			}
+			else if (GOStateInterface->GetIsDead() == false) {
+				if (CurrentHp < MaxHp)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[GOStateInterface->GetIsDead()]  RegenerateHp %d"), GOStateInterface->GetIsDead());
+
+					CurrentHp = FMath::Min(CurrentHp + BaseStat.HpRegenerationRate, MaxHp);
+					OnHpChanged.Broadcast(CurrentHp, MaxHp);
+					UE_LOG(LogTemp, Warning, TEXT("[debuggung] RegenerateHp() called ended"));
+				}
+			}
+		}
 	}
+
 }
 
 void UGOCharacterStatComponent::RegenerateMana()
-{
-	if (CurrentMana < MaxMana)
+{	
+	// if(bIsDead != false)
+	if (AActor* Owner = GetOwner())
 	{
-		CurrentMana = FMath::Min(CurrentMana + BaseStat.ManaRegenerationRate, MaxMana);
-		OnManaChanged.Broadcast(CurrentMana, MaxMana);
-		UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
+		if (IGOStateInterface* GOStateInterface = Cast<IGOStateInterface>(Owner))
+		{
+			if (GOStateInterface->GetIsDead() != false)
+			{
+				if (CurrentMana < MaxMana)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("[GOStateInterface->GetIsDead()] RegenerateMana %d"), GOStateInterface->GetIsDead());
+
+					CurrentMana = FMath::Min(CurrentMana + BaseStat.ManaRegenerationRate, MaxMana);
+					OnManaChanged.Broadcast(CurrentMana, MaxMana);
+					UGOCharacterStatComponentOnManaChangedDelegate.Broadcast(CurrentMana);
+				}
+			}
+		}
 	}
 }
 

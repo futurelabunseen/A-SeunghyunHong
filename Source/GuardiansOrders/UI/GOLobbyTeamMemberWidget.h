@@ -31,8 +31,8 @@ public:
 	UCommonTextBlock* HeroNameText;
 
 	UPROPERTY(meta = (BindWidget))
-	UCommonTextBlock* SteamNameText;
-	
+	UCommonTextBlock* NicknameText;
+
 	UPROPERTY(meta = (BindWidget))
 	UOverlay* RingOverlay; // NS_Ring Widget
 

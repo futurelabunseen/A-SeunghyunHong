@@ -117,11 +117,19 @@ struct FHeroSelectionInfo
     FHeroSelectionInfo()
         : PlayerId(0)
         , SelectedHero(EHeroType::None)
+        , PlayerName(TEXT(""))
     {}
 
     FHeroSelectionInfo(int32 InPlayerId, EHeroType InSelectedHero)
         : PlayerId(InPlayerId)
         , SelectedHero(InSelectedHero)
+        , PlayerName(TEXT(""))
+    {}
+
+    FHeroSelectionInfo(int32 InPlayerId, EHeroType InSelectedHero, const FString& InPlayerName)
+        : PlayerId(InPlayerId)
+        , SelectedHero(InSelectedHero)
+        , PlayerName(InPlayerName)
     {}
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -129,4 +137,7 @@ struct FHeroSelectionInfo
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     EHeroType SelectedHero;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    FString PlayerName;
 };

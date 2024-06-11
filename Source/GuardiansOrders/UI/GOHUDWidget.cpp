@@ -12,6 +12,7 @@
 #include "GOHeroInfoWidget.h"
 #include <Player/GOPlayerController.h>
 #include "UI/GOBattleCharacterOverlayWidget.h"
+#include "CommonUserWidget.h"
 
 UGOHUDWidget::UGOHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -50,11 +51,17 @@ void UGOHUDWidget::NativeConstruct()
 
 	HeroInfo = Cast<UGOHeroInfoWidget>(GetWidgetFromName(TEXT("CUI_CharacterInfo")));
 
+	GrindingStoneWidget = Cast<UCommonUserWidget>(GetWidgetFromName(TEXT("GrindingStoneWidget")));
+	ensure(GrindingStoneWidget);
+	UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget name: %s"), *GrindingStoneWidget->GetName());
+
 	IGOCharacterHUDInterface* HUDPawn = Cast<IGOCharacterHUDInterface>(GetOwningPlayerPawn());
 	if (HUDPawn)
 	{
 		HUDPawn->SetupHUDWidget(this);
 	}
+
+	
 }
 
 void UGOHUDWidget::UpdateStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)

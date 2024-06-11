@@ -93,4 +93,8 @@ protected:
 
 private:
 	void SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType);
+
+protected:
+	TArray<TObjectPtr<APlayerStart>> BlueTeamPlayerStarts; // 블루 팀 시작 위치
+	TArray<TObjectPtr<APlayerStart>> RedTeamPlayerStarts;  // 레드 팀 시작 위치
 };

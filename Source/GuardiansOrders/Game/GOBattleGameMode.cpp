@@ -69,6 +69,7 @@ void AGOBattleGameMode::PostSeamlessTravel()
 void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 {
 	Super::HandleSeamlessTravelPlayer(C);
+	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOBattleGameMode HandleSeamlessTravelPlayer")); // O
 
 	if (!C)
 	{
@@ -122,11 +123,33 @@ void AGOBattleGameMode::StartPlay()
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	Super::StartPlay();
+	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOBattleGameMode StartPlay")); // O
+
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 
 	for (APlayerStart* PlayerStart : TActorRange<APlayerStart>(GetWorld()))
 	{
 		PlayerStartArray.Add(PlayerStart);
+	}
+
+	// 팀에 따라 위치 설정
+	for (APlayerStart* PlayerStart : TActorRange<APlayerStart>(GetWorld()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart: %s"), *PlayerStart->GetName());
+
+		// 여기서 팀별로 분류합니다.
+		if (PlayerStart->Tags.Contains(FName("BlueTeam")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart BlueTeam"));
+
+			BlueTeamPlayerStarts.Add(PlayerStart);
+		}
+		else if (PlayerStart->Tags.Contains(FName("RedTeam")))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart RedTeam"));
+
+			RedTeamPlayerStarts.Add(PlayerStart);
+		}
 	}
 }
 
@@ -173,6 +196,8 @@ FTransform AGOBattleGameMode::GetRandomStartTransform() const
 {
 	if (PlayerStartArray.Num() == 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOBattleGameMode GetRandomStartTransform 0000")); // O
+
 		return FTransform(FVector(600.f, 3600.f, -395.f));
 	}
 	int32 RandIndex = FMath::RandRange(0, PlayerStartArray.Num() - 1);
@@ -249,7 +274,6 @@ void AGOBattleGameMode::CheckPlayerControllers()
 		}
 	}
 }
-
 void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHeroType HeroType)
 {
 	UE_LOG(LogTemp, Log, TEXT("[SEAMLESS] NewPlayer: %s"), *NewPlayer->GetName());
@@ -280,8 +304,41 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHero
 		SpawnParams.Owner = NewPlayer;
 		SpawnParams.Instigator = NewPlayer->GetPawn();
 
-		FVector SpawnLocation = GetRandomStartTransform().GetLocation();
-		FRotator SpawnRotation = GetRandomStartTransform().GetRotation().Rotator();
+		FVector SpawnLocation;
+		FRotator SpawnRotation;
+
+		// 플레이어 상태에서 팀 정보를 가져옴
+		AGOPlayerState* PlayerState = NewPlayer->GetPlayerState<AGOPlayerState>();
+		if (PlayerState)
+		{
+			ETeamType Team = PlayerState->GetTeamType();
+			if (Team == ETeamType::ET_BlueTeam && BlueTeamPlayerStarts.Num() > 0)
+			{
+				int32 RandIndex = FMath::RandRange(0, BlueTeamPlayerStarts.Num() - 1);
+				SpawnLocation = BlueTeamPlayerStarts[RandIndex]->GetActorLocation();
+				SpawnRotation = BlueTeamPlayerStarts[RandIndex]->GetActorRotation();
+			}
+			else if (Team == ETeamType::ET_RedTeam && RedTeamPlayerStarts.Num() > 0)
+			{
+				int32 RandIndex = FMath::RandRange(0, RedTeamPlayerStarts.Num() - 1);
+				SpawnLocation = RedTeamPlayerStarts[RandIndex]->GetActorLocation();
+				SpawnRotation = RedTeamPlayerStarts[RandIndex]->GetActorRotation();
+			}
+			else
+			{
+				// 기본 스폰 위치 사용
+				FTransform StartTransform = GetRandomStartTransform();
+				SpawnLocation = StartTransform.GetLocation();
+				SpawnRotation = StartTransform.GetRotation().Rotator();
+			}
+		}
+		else
+		{
+			// 기본 스폰 위치 사용
+			FTransform StartTransform = GetRandomStartTransform();
+			SpawnLocation = StartTransform.GetLocation();
+			SpawnRotation = StartTransform.GetRotation().Rotator();
+		}
 
 		APawn* OldPawn = NewPlayer->GetPawn();
 		if (OldPawn)
@@ -290,24 +347,22 @@ void AGOBattleGameMode::SpawnPlayerCharacter(APlayerController* NewPlayer, EHero
 		}
 
 		AGOPlayerCharacter* NewCharacter = GetWorld()->SpawnActor<AGOPlayerCharacter>(CharacterClass, SpawnLocation, SpawnRotation, SpawnParams);
-		//UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - NewCharacter %s"), *NewCharacter->GetName());
 
 		if (NewCharacter)
 		{
 			NewPlayer->Possess(NewCharacter);
 			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - %s->Possess(%s) "), *NewPlayer->GetName(), *NewCharacter->GetName());
 
-			FTransform StartTransform = GetRandomStartTransform();
-			NewCharacter->SetActorLocation(StartTransform.GetLocation());
-			NewCharacter->SetActorRotation(StartTransform.GetRotation().Rotator());
+			// 최종 위치와 회전 설정
+			NewCharacter->SetActorLocation(SpawnLocation);
+			NewCharacter->SetActorRotation(SpawnRotation);
 
-			FVector PlayerStartLocation = StartTransform.GetLocation();
-			UE_LOG(LogTemp, Log, TEXT("[SEAMLESS]  check!! AGOBattleGameMode::SpawnPlayerCharacter - Player spawned and moved to PlayerStart Location: X=%f, Y=%f, Z=%f"),
-				PlayerStartLocation.X, PlayerStartLocation.Y, PlayerStartLocation.Z);
+			UE_LOG(LogTemp, Log, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - Player spawned and moved to Location: X=%f, Y=%f, Z=%f"),
+				SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS]  check!!  AGOBattleGameMode::SpawnPlayerCharacter - Failed to spawn player character."));
+			UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::SpawnPlayerCharacter - Failed to spawn player character."));
 		}
 	}
 	else
