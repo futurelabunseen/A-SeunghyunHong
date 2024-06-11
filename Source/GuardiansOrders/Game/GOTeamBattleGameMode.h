@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GOBattleGameMode.h"
+#include "GameFramework/PlayerStart.h"
 #include "GOTeamBattleGameMode.generated.h"
 
 /**
@@ -22,6 +23,7 @@ public:
 	virtual void PostSeamlessTravel() override;
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void StartPlay() override;
+	virtual void BeginPlay() override;
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 	virtual void OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn);
 
@@ -29,5 +31,6 @@ protected:
 	virtual void HandleMatchHasStarted() override;
 	virtual void DefaultRoundTimer() override;
 	void FinishMatch();
+
 
 };
