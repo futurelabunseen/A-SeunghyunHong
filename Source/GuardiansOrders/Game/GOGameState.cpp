@@ -43,6 +43,23 @@ void AGOGameState::HandleBeginPlay()
 	}
 
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
+
+	// 연마석
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PlayerState);
+		if (GOPlayerState)
+		{
+			if (GOPlayerState->GetTeamType() == ETeamType::ET_RedTeam)
+			{
+				RedTeamPlayerIds.Add(GOPlayerState->GetPlayerId());
+			}
+			else if (GOPlayerState->GetTeamType() == ETeamType::ET_BlueTeam)
+			{
+				BlueTeamPlayerIds.Add(GOPlayerState->GetPlayerId());
+			}
+		}
+	}
 }
 
 void AGOGameState::OnRep_ReplicatedHasBegunPlay()

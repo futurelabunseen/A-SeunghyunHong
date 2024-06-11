@@ -584,4 +584,16 @@ protected:
 public:
 	virtual bool GetIsDead() override;
 	virtual bool GetIsStunned() override;
+
+// 연마석
+private:
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerCheckForGrindingStone();
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetGrindingStoneVisible();
+
+	void HandlePlayerKilled(AController* KillerController, AGOPlayerState* VictimPlayerState);
+
+	void CheckForGrindingStone();
 };

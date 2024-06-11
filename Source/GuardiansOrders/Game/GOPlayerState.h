@@ -106,4 +106,20 @@ public:
 	
 	UFUNCTION()
 	void OnRep_SelectedNickname();
+
+// 연마석 시스템
+private:
+	TSet<int32> KilledEnemyPlayers;
+
+public:
+	void AddKilledEnemyPlayer(int32 pID);
+	bool HasKilledAllEnemyPlayers(const TArray<int32>& EnemyPlayerIds);
+	void CheckForGrindingStone();
+	void SetGrindingStoneVisible();
+
+	UPROPERTY(ReplicatedUsing = OnRep_HasGrindingStone)
+	bool bHasGrindingStone;
+
+	UFUNCTION()
+	void OnRep_HasGrindingStone();
 };

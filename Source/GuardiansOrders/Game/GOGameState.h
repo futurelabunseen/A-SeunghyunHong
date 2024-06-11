@@ -120,5 +120,9 @@ public:
 private:
 	void DisplayHeroSelectionWidget(APlayerController* PlayerController);
 
+// 연마석
+public:
+	TArray<int32> RedTeamPlayerIds;
+	TArray<int32> BlueTeamPlayerIds;
 
 };
