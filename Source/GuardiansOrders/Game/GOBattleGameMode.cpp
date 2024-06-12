@@ -14,6 +14,8 @@
 #include "Cheats/GOCheatManager.h"
 #include "Player/GOLobbyPlayerController.h"
 #include "Player/GOPlayerController.h"
+#include "UI/GOStatsBarWidget.h"
+#include "CommonTextBlock.h"
 
 AGOBattleGameMode::AGOBattleGameMode()
 {

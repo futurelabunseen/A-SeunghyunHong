@@ -197,6 +197,9 @@ void UGOCharacterStatComponent::RegenerateMana()
 		{
 			if (GOStateInterface->GetIsDead() != false)
 			{
+				return;
+			}
+			else if (GOStateInterface->GetIsDead() == false) {
 				if (CurrentMana < MaxMana)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("[GOStateInterface->GetIsDead()] RegenerateMana %d"), GOStateInterface->GetIsDead());

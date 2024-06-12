@@ -55,25 +55,7 @@ void AGOTeamBattleGameMode::StartPlay()
 	Super::StartPlay();
 	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode StartPlay"));
 
-	// 팀에 따라 위치 설정
-	for (APlayerStart* PlayerStart : TActorRange<APlayerStart>(GetWorld()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart: %s"), *PlayerStart->GetName());
 
-		// 여기서 팀별로 분류합니다.
-		if (PlayerStart->Tags.Contains(FName("BlueTeam")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart BlueTeam"));
-
-			BlueTeamPlayerStarts.Add(PlayerStart);
-		}
-		else if (PlayerStart->Tags.Contains(FName("RedTeam")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart RedTeam"));
-
-			RedTeamPlayerStarts.Add(PlayerStart);
-		}
-	}
 
 	// 모든 플레이어 상태를 가져옴
 	for (APlayerState* PlayerState : GameState->PlayerArray)

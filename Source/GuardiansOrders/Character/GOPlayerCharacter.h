@@ -596,4 +596,17 @@ private:
 	void HandlePlayerKilled(AController* KillerController, AGOPlayerState* VictimPlayerState);
 
 	void CheckForGrindingStone();
+
+	void AttemptStatIncrease();
+
+private:
+	int32 AttemptCount;
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void ServerAttemptStatIncrease();
+
+    UFUNCTION(Client, Reliable)
+    void ClientNotifyStatIncreaseResult(bool bSuccess, int32 StatIncreaseAmount);
+
+    void BindWidgetEvents();
 };

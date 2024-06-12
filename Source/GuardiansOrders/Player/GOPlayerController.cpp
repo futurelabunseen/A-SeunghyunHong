@@ -15,6 +15,10 @@
 #include "UI/GOTeamMemberWidget.h"
 #include <Kismet/GameplayStatics.h>
 #include "Physics/GOCollision.h"
+#include "CircleSpell/GOMagicCircle.h"
+#include "Components/DecalComponent.h"
+#include "Components/Overlay.h"
+#include "CommonUserWidget.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -32,6 +36,8 @@ void AGOPlayerController::PlayerTick(float DeltaTime)
     Super::PlayerTick(DeltaTime);
 
     CursorTrace();
+
+    UpdateMagicCircleLocation();
 }
 
 void AGOPlayerController::PostInitializeComponents()
@@ -123,6 +129,8 @@ void AGOPlayerController::BeginPlay()
         }
 
     }
+
+    UE_LOG(LogTemp, Warning, TEXT("AGOPlayerController::BeginPlay()"));
 }
 
 void AGOPlayerController::AddCharacterOverlayDelayed()
@@ -265,6 +273,45 @@ void AGOPlayerController::SetHUDMatchMembers(int32 MatchMemberNum)
                 }
             }
         }
+    }
+}
+
+void AGOPlayerController::SetGrindingStoneVisible()
+{
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->GrindingStoneWidget;
+
+        UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget : %d"), bHUDVaild);
+
+
+        if (bHUDVaild)
+        {
+            GOHUDWidget->GrindingStoneWidget->SetVisibility(ESlateVisibility::Visible);
+            UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget Visible"));
+
+        }
+    }
+}
+
+void AGOPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+    if (!IsValid(MagicCircle))
+    {
+        MagicCircle = GetWorld()->SpawnActor<AGOMagicCircle>(MagicCircleClass);
+        if (DecalMaterial)
+        {
+            MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+        }
+    }
+}
+
+void AGOPlayerController::HideMagicCircle()
+{
+    if (IsValid(MagicCircle))
+    {
+        MagicCircle->Destroy();
     }
 }
 
@@ -452,14 +499,64 @@ EHeroType AGOPlayerController::GetSelectedHero()
 
 void AGOPlayerController::CursorTrace()
 {
-    UE_LOG(LogTemp, Warning, TEXT("HighlightActor AGOPlayerController CursorTrace 000000000"));
-
-    FHitResult CursorHit;
     GetHitResultUnderCursor(CCHANNEL_GOACTION, false, CursorHit);
     if (!CursorHit.bBlockingHit) return;
 
     LastActor = ThisActor;
     ThisActor = CursorHit.GetActor();
+
+    // ThisActor가 플레이어 캐릭터인지 확인
+    AGOPlayerCharacter* ThisPlayerCharacter = Cast<AGOPlayerCharacter>(ThisActor.GetObject());
+
+    // ThisActor가 플레이어 캐릭터라면 팀 정보 확인
+    if (ThisPlayerCharacter)
+    {
+        AGOPlayerState* ThisPlayerState = ThisPlayerCharacter->GetPlayerState<AGOPlayerState>();
+        AGOPlayerState* LocalPlayerState = GetPlayerState<AGOPlayerState>();
+
+        if (ThisPlayerState && LocalPlayerState && ThisPlayerState->GetTeamType() != LocalPlayerState->GetTeamType())
+        {
+            // ThisPlayerCharacter가 상대팀일 때만 하이라이트 처리
+            if (LastActor == nullptr)
+            {
+                if (ThisActor != nullptr)
+                {
+                    ThisActor->HighlightActor();
+                }
+            }
+            else
+            {
+                if (ThisActor == nullptr)
+                {
+                    LastActor->UnHighlightActor();
+                }
+                else
+                {
+                    if (LastActor != ThisActor)
+                    {
+                        LastActor->UnHighlightActor();
+                        ThisActor->HighlightActor();
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 팀 정보가 없거나 같은 팀일 경우 하이라이트를 제거
+            if (LastActor != nullptr)
+            {
+                LastActor->UnHighlightActor();
+            }
+        }
+    }
+    else
+    {
+        // ThisActor가 플레이어 캐릭터가 아니면 하이라이트를 제거
+        if (LastActor != nullptr)
+        {
+            LastActor->UnHighlightActor();
+        }
+    }
 
     /**
      * LineTrace from cursor. There are several scenarios:
@@ -475,38 +572,47 @@ void AGOPlayerController::CursorTrace()
      *      -> Do Nothing
      */
 
-    if (LastActor == nullptr)
+    //if (LastActor == nullptr)
+    //{
+    //    if (ThisActor != nullptr)
+    //    {
+    //        // Case B
+    //        ThisActor->HighlightActor();
+    //    }
+    //    else
+    //    {
+    //        // Case A - both are null, do nothing
+    //    }
+    //}
+    //else // LastActor is valid
+    //{
+    //    if (ThisActor == nullptr)
+    //    {
+    //        // Case C
+    //        LastActor->UnHighlightActor();
+    //    }
+    //    else // both actors are valid
+    //    {
+    //        if (LastActor != ThisActor)
+    //        {
+    //            // Case D
+    //            LastActor->UnHighlightActor();
+    //            ThisActor->HighlightActor();
+    //        }
+    //        else
+    //        {
+    //            // Case E - do nothing
+    //        }
+    //    }
+    //}
+
+}
+
+void AGOPlayerController::UpdateMagicCircleLocation()
+{
+    if (IsValid(MagicCircle))
     {
-        if (ThisActor != nullptr)
-        {
-            // Case B
-            ThisActor->HighlightActor();
-        }
-        else
-        {
-            // Case A - both are null, do nothing
-        }
-    }
-    else // LastActor is valid
-    {
-        if (ThisActor == nullptr)
-        {
-            // Case C
-            LastActor->UnHighlightActor();
-        }
-        else // both actors are valid
-        {
-            if (LastActor != ThisActor)
-            {
-                // Case D
-                LastActor->UnHighlightActor();
-                ThisActor->HighlightActor();
-            }
-            else
-            {
-                // Case E - do nothing
-            }
-        }
+        MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
     }
 }
 

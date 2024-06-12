@@ -21,6 +21,8 @@ struct FGOSkillData : public FTableRowBase
         Description(""),
         SkillTriggerType(ESkillTriggerType::None),
         SkillAffectType(ESkillAffectType::None),
+        SkillCastType(ESkillCastType::None),
+        ParticleSpawnLocation(EParticleSpawnLocation::None),
         SkillAnim(nullptr),
         SkillEffect(nullptr),
         SkillIcon(nullptr),

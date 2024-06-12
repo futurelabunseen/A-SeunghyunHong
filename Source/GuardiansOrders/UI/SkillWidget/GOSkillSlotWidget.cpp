@@ -6,6 +6,7 @@
 #include "Skill/GOSkillBase.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "UI/GOSkillSlotToolTipWidget.h"
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -58,6 +59,15 @@ void UGOSkillSlotWidget::NativeConstruct()
     {
         NoManaImage->SetVisibility(ESlateVisibility::Hidden);
     }
+
+    //if (ToolTipClass)
+    //{
+
+    //    GOToolTipWidget = CreateWidget<UGOSkillSlotToolTipWidget>(this, ToolTipClass);
+    //    GOToolTipWidget->SkillSlotBeingHobered = this;
+    //    SetToolTip(GOToolTipWidget);
+    //    UE_LOG(LogTemp, Warning, TEXT("[ToolTip]"));
+    //}
 }
 
 void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)

@@ -187,6 +187,8 @@ enum class ESkillCollisionType : uint8
 UENUM(BlueprintType)
 enum class ESkillCastType : uint8
 {
+	None UMETA(DisplayName = "None"),
+
 	Instant UMETA(DisplayName = "Instant"),
 	Projectile UMETA(DisplayName = "Projectile"),
 	Delayed UMETA(DisplayName = "Delayed"),
@@ -213,6 +215,8 @@ enum class ESkillCastType : uint8
 UENUM(BlueprintType)
 enum class EParticleSpawnLocation : uint8
 {
+	None UMETA(DisplayName = "None"),
+
 	Caster UMETA(DisplayName = "Caster"),
 	Target UMETA(DisplayName = "Target"),
 	Projectile UMETA(DisplayName = "Projectile"),

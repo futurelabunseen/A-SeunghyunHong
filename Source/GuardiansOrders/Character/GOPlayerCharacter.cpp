@@ -46,6 +46,9 @@
 #include <Game/GOBattleGameMode.h>
 #include "GameData/GOSkillData.h"
 #include "Game/GOPlayerState.h"
+#include "UI/GOStatsBarWidget.h"
+#include "CommonTextBlock.h"
+#include "UI/GOGrindingStoneWidget.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -212,6 +215,8 @@ void AGOPlayerCharacter::BeginPlay()
 
 	InputSubsystem = ULocalPlayer::GetSubsystem<UCommonInputSubsystem>(PlayerController->GetLocalPlayer());
 	UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase BeginPlay"));
+
+	BindWidgetEvents();
 }
 
 void AGOPlayerCharacter::PossessedBy(AController* NewController)
@@ -759,6 +764,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 		float SkillAffectAmount;
 
+		// 연마석?
 		switch (SkillAffectType) {
 		case ESkillAffectType::Damage:
 			SkillAffectAmount = CurrentSkill->GetTotalSkillStat().DamageMultiplier * Stat->GetTotalStat().BaseDamage;
@@ -781,7 +787,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE case ESkillCollisionType::OverlapMulti:"));
 
 		// 공격
-		
+
 		// 클라이언트에서 진행 (판정에 대한 검증을 받아야 하므로 패킷 전송 필요)
 		if (!HasAuthority())
 		{
@@ -823,7 +829,7 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 					if (HitActor != nullptr) {
 						UE_LOG(LogTemp, Warning, TEXT("Hit: 5555 sweep single"));
-						 ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
+						ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
 						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
 					}
 					break;
@@ -963,7 +969,7 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	UE_LOG(LogTemp, Warning, TEXT("ServerRPCNotifySkillHit_Implementation !!! AttackSkillHitConfirm SkillAffectAmount: %f"), SkillAffectAmount);
-	
+
 	if (HasAuthority())
 	{
 		FDamageEvent DamageEvent;
@@ -988,18 +994,18 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 			{
 				TargetCharacter->Stat->ServerHealHp(SkillAffectAmount);
 			}
-		
+
 			UE_LOG(LogTemp, Warning, TEXT("AGOPlayerCharacter::HandleHealSkill: %f"), SkillAffectAmount);
 			break;
-		
+
 		case ESkillAffectType::Buff:
 			// Buff 처리 로직
 			break;
 
 		case ESkillAffectType::Debuff:
 			// Debuff 처리 로직
-			break;		
-		
+			break;
+
 		default:
 			break;
 		}
@@ -1193,7 +1199,7 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Implementation(const FHitRe
 			// 기각!
 			GO_LOG(LogGONetwork, Warning, TEXT("%s"), TEXT("[HIT!!] HitTest Rejected!"));
 		}
-	}	
+	}
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 
 }
@@ -1362,7 +1368,7 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageAmount : %d "), DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	
+
 	if (Stat->GetCurrentHp() <= 0.0f)
 	{
 
@@ -1370,8 +1376,12 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 		if (GOBattleMode)
 		{
 			GOBattleMode->OnPlayerKilled(EventInstigator, GetController(), this);
+
+			AController* KillerController = EventInstigator;
+			AGOPlayerState* VictimPlayerState = GetPlayerState<AGOPlayerState>();
+			HandlePlayerKilled(KillerController, VictimPlayerState);
 		}
-	} 
+	}
 	else
 	{
 		if (!bIsStunned)
@@ -1543,7 +1553,7 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	// 스킬 이펙트 효과
 	//PlayEffectParticleAnimByKey(Key);///*
 	//MulticastRPCActivateSkill(Key); ///*
-	
+
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
 		if (PlayerController && GetController() != PlayerController)
@@ -1578,7 +1588,7 @@ void AGOPlayerCharacter::MulticastRPCActivateSkill_Implementation(FHeroSkillKey 
 {
 	if (!IsLocallyControlled())
 	{
-		
+
 		//if (Key != nullptr)
 		//{
 		//	//  왜 NULL 이지?
@@ -1589,7 +1599,7 @@ void AGOPlayerCharacter::MulticastRPCActivateSkill_Implementation(FHeroSkillKey 
 
 		// 현재 클라이언트는 이미 모션을 재생했으므로
 		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-		
+
 		// PlaySkillAnimByKey(Key); //요기
 		PlayEffectParticleAnimByKey(Key);
 	}
@@ -1884,4 +1894,141 @@ ETeamType AGOPlayerCharacter::GetTeamType()
 	GOPlayerState = GOPlayerState == nullptr ? GetPlayerState<AGOPlayerState>() : GOPlayerState;
 	if (GOPlayerState == nullptr) return ETeamType::ET_NoTeam;
 	return GOPlayerState->GetTeamType();
+}
+
+// 연마석
+void AGOPlayerCharacter::ServerCheckForGrindingStone_Implementation()
+{
+	CheckForGrindingStone();
+}
+
+bool AGOPlayerCharacter::ServerCheckForGrindingStone_Validate()
+{
+	return true;
+}
+
+void AGOPlayerCharacter::ClientSetGrindingStoneVisible_Implementation()
+{
+	AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+	if (PS && PS->bHasGrindingStone)
+	{
+		PS->SetGrindingStoneVisible();
+	}
+}
+
+void AGOPlayerCharacter::HandlePlayerKilled(AController* KillerController, AGOPlayerState* VictimPlayerState)
+{
+	if (KillerController)
+	{
+		AGOPlayerState* KillerPlayerState = Cast<AGOPlayerState>(KillerController->PlayerState);
+		if (KillerPlayerState && VictimPlayerState)
+		{
+			KillerPlayerState->AddKilledEnemyPlayer(VictimPlayerState->GetPlayerId());
+			KillerPlayerState->CheckForGrindingStone();
+			if (KillerController->IsLocalController())
+			{
+				ClientSetGrindingStoneVisible();
+			}
+			else
+			{
+				ServerCheckForGrindingStone();
+			}
+		}
+	}
+}
+
+void AGOPlayerCharacter::CheckForGrindingStone()
+{
+	AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+	if (PS)
+	{
+		PS->CheckForGrindingStone();
+	}
+}
+
+void AGOPlayerCharacter::AttemptStatIncrease()
+{
+	if (HasAuthority())
+	{
+		ServerAttemptStatIncrease();
+	}
+	else
+	{
+		ServerAttemptStatIncrease();
+	}
+}
+
+void AGOPlayerCharacter::BindWidgetEvents()
+{
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		if (UGOGrindingStoneWidget* GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GOPlayerController->GOHUDWidget->GrindingStoneWidget))
+		{
+			GrindingStoneWidget->OnYesButtonClicked.AddUObject(this, &AGOPlayerCharacter::AttemptStatIncrease);
+		}
+	}
+
+}
+
+void AGOPlayerCharacter::ServerAttemptStatIncrease_Implementation()
+{
+	// 확률 및 스탯 증가 로직
+	TArray<float> Chances = { 0.99f, 0.70f, 0.50f, 0.30f, 0.10f };
+	TArray<int32> StatIncreases = { 5, 10, 25, 40, 50 };
+	if (AttemptCount >= Chances.Num())
+	{
+		AttemptCount = Chances.Num() - 1; // 최대 값으로 제한
+	}
+	float Chance = Chances[AttemptCount];
+	float StatIncreaseAmount = StatIncreases[AttemptCount];
+	bool bSuccess = FMath::FRand() <= Chance;
+
+	if (bSuccess)
+	{
+		if (Stat)
+		{
+			//Stat->SetBaseStat(FGOCharacterStat(Stat->GetBaseStat().MaxHp, Stat->GetBaseStat().MaxMana, Stat->GetBaseStat().BaseDamage + StatIncreaseAmount));
+		}
+	}
+
+	ClientNotifyStatIncreaseResult(bSuccess, StatIncreaseAmount);
+
+	// 1초 후 UI 숨기기
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
+		{
+			if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+			{
+				// 클라에서 크래시
+				if (UGOGrindingStoneWidget* GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GOPlayerController->GOHUDWidget->GrindingStoneWidget))
+				{
+					GrindingStoneWidget->SetVisibility(ESlateVisibility::Hidden);
+				}
+			}
+		}, 1.0f, false);
+}
+
+bool AGOPlayerCharacter::ServerAttemptStatIncrease_Validate()
+{
+	return true;
+}
+
+void AGOPlayerCharacter::ClientNotifyStatIncreaseResult_Implementation(bool bSuccess, int32 StatIncreaseAmount)
+{
+	if (bSuccess)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Stat increase successful! BaseDamage increased by %d"), StatIncreaseAmount);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("Stat increase failed. %d"), StatIncreaseAmount);
+	}
+
+	//if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	//{
+	//	if (UGOGrindingStoneWidget* GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GOPlayerController->GOHUDWidget->GrindingStoneWidget))
+	//	{
+	//		GrindingStoneWidget->ShowResultMessage(bSuccess, StatIncreaseAmount);
+	//	}
+	//}
 }

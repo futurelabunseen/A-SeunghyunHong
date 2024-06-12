@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "UI/GOUserWidget.h"
 #include "GOStatsBarWidget.generated.h"
-
 class UProgressBar;
 class UGOHpBarWidget;
 class UGOManaBarWidget;
+class UCommonTextBlock;
+class UTextBlock;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOStatsBarWidget : public UGOUserWidget
@@ -27,4 +28,10 @@ public:
 
     UPROPERTY()
     TObjectPtr < UGOManaBarWidget> ManaBar;
+
+    //UPROPERTY(meta = (BindWidget))
+    //UCommonTextBlock* NicknameText;
+
+    UPROPERTY(meta = (BindWidget))
+    UTextBlock* Nickname;
 };

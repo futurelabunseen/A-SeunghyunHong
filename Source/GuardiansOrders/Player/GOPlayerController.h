@@ -5,11 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Share/ShareEnums.h"
+#include "Interface/GOPlayerInterface.h"
 #include "GOPlayerController.generated.h"
 
 class UGOHUDWidget;
 class UGOSkillSetBarWidget;
 class IGOHighlightInterface;
+class AGOMagicCircle;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
@@ -97,6 +99,12 @@ public:
 
 	void SetHUDMatchMembers(int32 MatchMemberNum);
 
+	void SetGrindingStoneVisible();
+
+// Magic Circle
+	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
+	void HideMagicCircle();
+
 private:
 	float MatchTime = 200.f; //200 seconds 
 	uint32 CountdownInt = 0;
@@ -127,4 +135,14 @@ private:
 
 	TScriptInterface<IGOHighlightInterface> LastActor;
 	TScriptInterface<IGOHighlightInterface> ThisActor;
+	FHitResult CursorHit;
+
+// ======= MagicCircle =======
+	void UpdateMagicCircleLocation();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AGOMagicCircle> MagicCircleClass;
+
+	UPROPERTY()
+	TObjectPtr<AGOMagicCircle> MagicCircle;
 };

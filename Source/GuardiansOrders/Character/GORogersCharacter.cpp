@@ -36,17 +36,17 @@ void AGORogersCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-    DrawDebugSphere(
-        GetWorld(),
-        ShieldSphere->GetComponentLocation(),
-        ShieldSphere->GetScaledSphereRadius(),
-        32,  // 세그먼트 수
-        FColor::Cyan,
-        false,  // 지속 시간
-        -1,  // 지속 시간(0이면 지속되지 않음)
-        0,  // 두께
-        1.0f  // 두께
-    );
+    //DrawDebugSphere(
+    //    GetWorld(),
+    //    ShieldSphere->GetComponentLocation(),
+    //    ShieldSphere->GetScaledSphereRadius(),
+    //    32,  // 세그먼트 수
+    //    FColor::Cyan,
+    //    false,  // 지속 시간
+    //    -1,  // 지속 시간(0이면 지속되지 않음)
+    //    0,  // 두께
+    //    1.0f  // 두께
+    //);
 }
 
 void AGORogersCharacter::BeginPlay()

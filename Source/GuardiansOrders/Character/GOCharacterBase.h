@@ -23,6 +23,7 @@ class UCameraComponent;
 class UGOUserWidget;
 class UGOSkillCastComponent;
 class UGOSpellCastComponent;
+class UGOStatsBarWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, 
@@ -66,9 +67,17 @@ protected:
 
 	void ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat);
 
+public:
+	void UpdateNicknameWidget(const FString& Nickname);
 
 // UI Widget Section
-protected:
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGOStatsBarWidget> StatsBarWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UGOStatsBarWidget> StatsBarWidget;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UGOWidgetComponent> HpBar;
 

@@ -33,6 +33,7 @@
 #include <Game/GOPlayerState.h>
 #include "Interface/GOHighlightInterface.h"
 #include "GuardiansOrders/GuardiansOrders.h"
+#include "CommonTextBlock.h"
 
 AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
@@ -71,6 +72,10 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 
 	// Stat Component
 	Stat = CreateDefaultSubobject<UGOCharacterStatComponent>(TEXT("Stat"));
+	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
+	SpellCastComponent = CreateDefaultSubobject<UGOSpellCastComponent>(TEXT("SpellCastComponent"));
+	CharacterSkillSet = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
+	CharacterSpellSet = CreateDefaultSubobject<UGOSpells>(TEXT("Spells"));
 
 	{
 	//// Widget Component : HP
@@ -103,30 +108,39 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
-	static ConstructorHelpers::FClassFinder<UUserWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C"));
+	//static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C")); //UUserWidget
 	
 	// hp bar images (Red, Green, Blue)
-	static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> RedTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Red.LOL-StatsBar-Short-HP-Red"));
+	//static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
+	//static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
+	//static ConstructorHelpers::FObjectFinder<UTexture2D> RedTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Red.LOL-StatsBar-Short-HP-Red"));
 
-	// Assign textures to class members
-	BlueTexture = BlueTextureObj.Object;
-	GreenTexture = GreenTextureObj.Object;
-	RedTexture = RedTextureObj.Object;
+	//// Assign textures to class members
+	//BlueTexture = BlueTextureObj.Object;
+	//GreenTexture = GreenTextureObj.Object;
+	//RedTexture = RedTextureObj.Object;
 
-	if (StatsBarWidgetRef.Succeeded())
+	//if (StatsBarWidgetRef.Succeeded())
+	//{
+	//	StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
+	//	StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
+	//	StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
+	//	StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//}
+	//UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 0 : %s"));
+
+	if (IsValid(StatsBarWidgetClass))
 	{
-		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
-		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
-		StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
-		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	 }
+		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 1 : %s"), *StatsBarWidgetClass->GetName());
 
-	SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-	SpellCastComponent = CreateDefaultSubobject<UGOSpellCastComponent>(TEXT("SpellCastComponent"));
-	CharacterSkillSet = CreateDefaultSubobject<UGOSkills>(TEXT("Skills"));
-	CharacterSpellSet = CreateDefaultSubobject<UGOSpells>(TEXT("Spells"));
+		StatsBar->SetWidgetClass(StatsBarWidgetClass);
+		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
+		StatsBar->SetDrawSize(FVector2D(200.0f, 50.0f));
+		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 2 : %s"), *StatsBarWidgetClass->GetName());
+	}
+
+
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -147,7 +161,6 @@ void AGOCharacterBase::Tick(float DeltaTime)
 void AGOCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void AGOCharacterBase::SetData(FName InCharacterName)
@@ -178,10 +191,18 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 	}
 }
 
+
 void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
 {
 	float MovementSpeed = (BaseStat + ModifierStat).MovementSpeed;
 	GetCharacterMovement()->MaxWalkSpeed = MovementSpeed;
+}
+
+void AGOCharacterBase::UpdateNicknameWidget(const FString& Nickname) {
+	if (StatsBarWidget) {
+		FText NicknameText = FText::FromString(Nickname);
+		StatsBarWidget->Nickname->SetText(NicknameText);
+	}
 }
 
 void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
@@ -205,63 +226,74 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 	//	// Stat->OnStatChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateStat);
 	//}
 	}
-
-	UGOStatsBarWidget* StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
-	if (StatsBarWidget)
 	{
-		// StatsBar 위젯 안의 HP바와 마나바에 대한 참조를 가져옵니다.
-		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->HpBar);
-		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->ManaBar);
-		UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
-		UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
-		
-		if (HpBarWidget && ManaBarWidget)
-		{
-			// HP와 마나 업데이트 함수를 상태 변경 이벤트에 바인딩합니다.
-			HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
-			ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
-			Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
-			Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+		//if (!InUserWidget)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("InUserWidget is null"));
+		//	return;
+		//}
 
-			AGOPlayerState* GOPlayerState = GetPlayerState<AGOPlayerState>();
-			if (GOPlayerState)
-			{
-				UTexture2D* BarTexture = nullptr;
-				if (GOPlayerState->GetTeamType() == ETeamType::ET_RedTeam)
-				{
-					BarTexture = RedTexture;
-					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : RedTexture"));
+		//StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
+		//if (!StatsBarWidget)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("StatsBarWidget is null"));
+		//	return;
+		//}
 
-				}
-				else if (GOPlayerState->GetTeamType() == ETeamType::ET_BlueTeam)
-				{
-					BarTexture = BlueTexture;
-					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : BlueTexture"));
-				}
-				else
-				{
-					BarTexture = GreenTexture;
-					UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget Texture : GreenTexture"));
+		//UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
+		//UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
 
-				}
-				HpBarWidget->SetHpBarTexture(BarTexture);
-			}
+		//if (!HpBarWidget || !ManaBarWidget)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("HpBarWidget or ManaBarWidget is null"));
+		//	return;
+		//}
 
-			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : HpBarWidget ManaBarWidget okkkk"));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : No HpBarWidget or No ManaBarWidget"));
-		}
+		//// Binding stat changes to the widgets
+		//Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
+		//Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+
+		//// Set initial values
+		//HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
+		//ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 	}
-	else
+	//FText Nickname = FText::FromString(GOPlayerState->SelectedHero.PlayerName);
+	//StatsBarWidget->NicknameText->SetText(Nickname);
+
+	StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
+
+	if (!InUserWidget)
 	{
-		UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase SetupCharacterWidget : No StatsBarWidget"));
+		UE_LOG(LogTemp, Warning, TEXT("InUserWidget is null"));
+		return;
 	}
+
+	StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
+	if (!StatsBarWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidget is null"));
+		return;
+	}
+
+	UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
+	UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
+
+	if (!HpBarWidget || !ManaBarWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HpBarWidget or ManaBarWidget is null"));
+		return;
+	}
+
+	Stat->OnHpChanged.AddUObject(HpBarWidget, &UGOHpBarWidget::UpdateHpBar);
+	Stat->OnManaChanged.AddUObject(ManaBarWidget, &UGOManaBarWidget::UpdateManaBar);
+
+	HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
+	ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 }
 
 void AGOCharacterBase::AttackHitCheck()
 {
+
 	FHitResult OutHitResult;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 

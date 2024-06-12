@@ -3,6 +3,7 @@
 
 #include "UI/GOStatsBarWidget.h"
 #include "Interface/GOCharacterWidgetInterface.h"
+#include "Components/TextBlock.h"
 
 UGOStatsBarWidget::UGOStatsBarWidget(const FObjectInitializer& ObjectInitializer)
 {
