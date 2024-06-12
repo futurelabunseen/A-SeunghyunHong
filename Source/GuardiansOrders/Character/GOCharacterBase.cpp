@@ -108,7 +108,7 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
-	//static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C")); //UUserWidget
+	static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C")); //UUserWidget
 	
 	// hp bar images (Red, Green, Blue)
 	//static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
@@ -120,14 +120,15 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	//GreenTexture = GreenTextureObj.Object;
 	//RedTexture = RedTextureObj.Object;
 
-	//if (StatsBarWidgetRef.Succeeded())
-	//{
-	//	StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
-	//	StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
-	//	StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
-	//	StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//}
+	if (StatsBarWidgetRef.Succeeded())
+	{
+		StatsBar->SetWidgetClass(StatsBarWidgetRef.Class);
+		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
+		StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
+		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 	//UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 0 : %s"));
+	UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 0 "));
 
 	if (IsValid(StatsBarWidgetClass))
 	{
@@ -139,8 +140,6 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 2 : %s"), *StatsBarWidgetClass->GetName());
 	}
-
-
 }
 
 void AGOCharacterBase::PostInitializeComponents()
@@ -190,7 +189,6 @@ void AGOCharacterBase::SetData(FName InCharacterName)
 		}
 	}
 }
-
 
 void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOCharacterStat& ModifierStat)
 {
@@ -349,7 +347,7 @@ void AGOCharacterBase::SetDead()
 	bIsDead = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	PlayDeadAnimation();
-	SetActorEnableCollision(false);
+	SetActorEnableCollision(true);
     if (HpBar) // Ensure HpBar is not null
         HpBar->SetHiddenInGame(true);
     
