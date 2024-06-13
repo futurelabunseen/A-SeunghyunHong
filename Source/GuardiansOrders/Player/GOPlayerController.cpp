@@ -8,6 +8,7 @@
 #include "UI/SkillWidget/GOSkillSetBarWidget.h"
 #include <Game/GOPlayerState.h>
 #include "Game/GOGameState.h"
+#include "Game/GOTeamBattleGameMode.h"
 #include <GameData/GOGameSubsystem.h>
 #include <Character/GOPlayerCharacter.h>
 #include "UI/GOBattleCharacterOverlayWidget.h"
@@ -19,6 +20,8 @@
 #include "Components/DecalComponent.h"
 #include "Components/Overlay.h"
 #include "CommonUserWidget.h"
+#include "GameFramework/GameMode.h" // AGameModeBase를 포함
+#include "Net/UnrealNetwork.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -38,6 +41,13 @@ void AGOPlayerController::PlayerTick(float DeltaTime)
     CursorTrace();
 
     UpdateMagicCircleLocation();
+}
+
+void AGOPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AGOPlayerController, MatchState);
 }
 
 void AGOPlayerController::PostInitializeComponents()
@@ -92,7 +102,9 @@ void AGOPlayerController::PostSeamlessTravel()
 void AGOPlayerController::BeginPlay()
 {
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Start"));
-    Super::BeginPlay();
+    Super::BeginPlay();    
+    CheckMatchState();
+
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 
     bShowMouseCursor = true;
@@ -121,7 +133,9 @@ void AGOPlayerController::BeginPlay()
                 UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
 
                 // GOHUDWidget->AddCharacterOverlay();
-                GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
+                
+                
+                //GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
                 
                 InitTeamScores(); // TODO : 구조
             }
@@ -129,8 +143,46 @@ void AGOPlayerController::BeginPlay()
         }
 
     }
-
+    // 5초 후에 매치 카운트다운 시작
+    GetWorld()->GetTimerManager().SetTimer(MatchStartTimerHandle, this, &AGOPlayerController::StartMatchCountdown, 5.0f, false);
     UE_LOG(LogTemp, Warning, TEXT("AGOPlayerController::BeginPlay()"));
+
+    FTimerHandle TimerHandle;
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]() {
+        AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+        if (PS)
+        {
+            PS->SetNickname(PS->SelectedHero.PlayerName);
+            if (PS->GetPawn())
+            {
+                AGOCharacterBase* Character = Cast<AGOCharacterBase>(PS->GetPawn());
+                if (Character)
+                {
+                    Character->UpdateNicknameWidget(PS->SelectedHero.PlayerName);
+                }
+            }
+        }
+        }, 5.0f, false);
+
+    // Set other players' names on the listen server
+    //if (IsLocalController() && GetNetMode() == NM_ListenServer)
+    //{
+        for (APlayerState* PS : GOBattleGameState->PlayerArray)
+        {
+            AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PS);
+            if (GOPlayerState && GOPlayerState != GetPlayerState<AGOPlayerState>())
+            {
+                if (GOPlayerState->GetPawn())
+                {
+                    AGOCharacterBase* C = Cast<AGOCharacterBase>(GOPlayerState->GetPawn());
+                    if (C)
+                    {
+                        C->UpdateNicknameWidget(GOPlayerState->SelectedHero.PlayerName);
+                    }
+                }
+            }
+        }
+    //}
 }
 
 void AGOPlayerController::AddCharacterOverlayDelayed()
@@ -315,6 +367,17 @@ void AGOPlayerController::HideMagicCircle()
     }
 }
 
+void AGOPlayerController::StartMatchCountdown()
+{
+    MatchTime = 180.F; // 매치 시간 설정
+
+    SetHUDMatchCountdown(MatchTime);
+}
+
+void AGOPlayerController::CheckMatchState()
+{
+
+}
 void AGOPlayerController::OnPossess(APawn* InPawn)
 {
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
@@ -371,6 +434,41 @@ void AGOPlayerController::CheckTimeSync(float DeltaTime)
     }
 }
 
+void AGOPlayerController::OnMatchStateSet(FName State)
+{
+    MatchState = State;
+
+    if (MatchState == MatchState::InProgress) // InProgress 전의 커스텀 스테이트 필요 
+    {
+        //// 5초 후에 Ready State로 넘어가도록 하기
+        //if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        //{
+        //    GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+        //    if (GOHUDWidget)
+        //    {
+        //        GOHUDWidget->AddCharacterOverlay();
+        //    }
+
+        //}
+    }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        // 5초 후에 Ready State로 넘어가도록 하기
+        if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        {
+            GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+            if (GOHUDWidget)
+            {
+                // GOHUDWidget->AddCharacterOverlay();
+                AddCharacterOverlayDelayed();
+            }
+
+        }
+    }
+}
+
 void AGOPlayerController::SetHUDScore(float Score)
 {
     if (GOHUDWidget)
@@ -415,7 +513,9 @@ void AGOPlayerController::SetHUDMatchCountdown(float CountdownTime)
         {
             if (CountdownTime < 0.f)
             {
-                GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText());
+                CountdownTime = 0.f; // 카운트다운 시간을 0으로 설정
+
+                GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(TEXT(" END ")));
                 return;
             }
 
@@ -614,5 +714,61 @@ void AGOPlayerController::UpdateMagicCircleLocation()
     {
         MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
     }
+}
+
+void AGOPlayerController::OnRep_MatchState()
+{
+    if (MatchState == MatchState::InProgress) // InProgress 전의 커스텀 스테이트 필요 
+    {
+        //if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        //{
+        //    GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+        //    if (GOHUDWidget)
+        //    {
+        //        GOHUDWidget->AddCharacterOverlay();
+        //    }
+
+        //}
+    }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        {
+            GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+            if (GOHUDWidget)
+            {
+                GOHUDWidget->AddCharacterOverlay();
+
+
+            }
+
+            if (GOBattleGameState)
+            {
+                int32 PlayerArrayNum = GOBattleGameState->PlayerArray.Num();
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num: %d"), PlayerArrayNum);
+
+                if (PlayerArrayNum > 0)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num!!: %d"), PlayerArrayNum);
+
+                    SetHUDMatchMembers(PlayerArrayNum);
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray is empty."));
+                }
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay GOBattleGameState is null."));
+            }
+        }
+
+        
+    
+    }
+
 }
 

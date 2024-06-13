@@ -21,6 +21,7 @@ class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
 public:
 	AGOPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -74,6 +75,9 @@ protected:
 	UPROPERTY()
 	class AGOGameState* GOBattleGameState;
 
+public:
+	void  OnMatchStateSet(FName State);
+
 // HUD Section
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=HUD)
@@ -110,6 +114,10 @@ private:
 	uint32 CountdownInt = 0;
 
 	FTimerHandle CharacterOverlayTimerHandle;
+	FTimerHandle MatchStartTimerHandle; 
+
+	void StartMatchCountdown();
+	void CheckMatchState(); // MatchState를 확인하는 함수 선언
 
 // ======== SkillSetBar UI ======== 
 protected:
@@ -145,4 +153,11 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<AGOMagicCircle> MagicCircle;
+
+// ======= MatchState  =======
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName  MatchState;
+
+	UFUNCTION()
+	void  OnRep_MatchState();
 };

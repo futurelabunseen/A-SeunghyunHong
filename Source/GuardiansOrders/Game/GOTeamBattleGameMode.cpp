@@ -7,6 +7,13 @@
 #include "Kismet/GameplayStatics.h"
 #include <EngineUtils.h>
 #include "GameFramework/PlayerStart.h"
+#include <Character/GOCharacterBase.h>
+#include "Player/GOPlayerController.h"
+
+namespace  MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+}
 
 AGOTeamBattleGameMode::AGOTeamBattleGameMode()
 {
@@ -93,6 +100,22 @@ void AGOTeamBattleGameMode::StartPlay()
 				Pawn->SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 				UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] %s moved to Team %d Location: %s"),
 					*GOPlayerState->GetPlayerName(), Team, *SpawnLocation.ToString());
+
+				//// Update player's widget nickname
+				//AGOCharacterBase* Character = Cast<AGOCharacterBase>(Pawn);
+				//if (Character)
+				//{
+				//	FTimerHandle TimerHandle;
+				//	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Character, GOPlayerState]() {
+				//		if (Character)
+				//		{
+				//			Character->UpdateNicknameWidget(GOPlayerState->SelectedHero.PlayerName);
+				//		}
+				//		}, 3.0f, false);
+				//}
+
+				//UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] %s moved to Team %d Location: %s"),
+				//	*GOPlayerState->GetPlayerName(), Team, *SpawnLocation.ToString());
 			}
 		}
 	}
@@ -103,7 +126,45 @@ void AGOTeamBattleGameMode::BeginPlay()
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode BeginPlay")); // O
 	
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
+
+//void AGOTeamBattleGameMode::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//	if (MatchState == MatchState::InProgress)
+//	{
+//		//UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode InProgress")); // O
+//		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+//	}
+//}
+
+void AGOTeamBattleGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::InProgress)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode InProgress")); // O
+
+		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
+		// Check if 5 seconds have passed since the match started
+		float ElapsedTime = GetWorld()->GetTimeSeconds() - LevelStartingTime;
+		if (ElapsedTime >= CooldownTime)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+	}
+
+	else  if (MatchState == MatchState::Cooldown)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode Cooldown")); // O
+
+	}
+}
+
 
 float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
 {
@@ -145,6 +206,20 @@ void AGOTeamBattleGameMode::OnPlayerKilled(AController* Killer, AController* Kil
 	}
 }
 
+void AGOTeamBattleGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGOPlayerController* PC = Cast<AGOPlayerController>(*It);
+		if (PC)
+		{
+			PC->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
@@ -158,3 +233,4 @@ void AGOTeamBattleGameMode::DefaultRoundTimer()
 void AGOTeamBattleGameMode::FinishMatch()
 {
 }
+
