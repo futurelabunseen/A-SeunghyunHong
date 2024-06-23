@@ -12,6 +12,7 @@ class UGOHUDWidget;
 class UGOSkillSetBarWidget;
 class IGOHighlightInterface;
 class AGOMagicCircle;
+class AGOPlayerState;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
@@ -66,7 +67,8 @@ protected:
 	float TimeSyncFrequency = 5.f; // 5초마다 서버와 동기화
 
 	float TimeSyncRunningTime = 0.f;
-
+	float WarmupTime = 10.f;
+	float CooldownTime = 10.f;
 	void CheckTimeSync(float DeltaTime);
 
 	float SingleTripTime = 0.f;
@@ -90,9 +92,10 @@ public:
 
 	void SetHUDDefeats(int32 Defeats);
 
-	void SetHUDMatchCountdown(float CountdownTime);
+	void SetHUDMatchCountdown(float CountdownTimeSec);
 
 	void SetHUDTime();
+	float CountdownTime = 180.f;
 
 	void AddCharacterOverlayDelayed();
 
@@ -104,20 +107,30 @@ public:
 	void SetHUDMatchMembers(int32 MatchMemberNum);
 
 	void SetGrindingStoneVisible();
+	void SetHUDWinnerText(const FString& WinnerText);
+	
 
-// Magic Circle
+	// Magic Circle
 	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
 	void HideMagicCircle();
 
+	void BroadcastElim(AGOPlayerState* Attacker, AGOPlayerState* Victim);
+
+	bool CheckMatchState(); // MatchState를 확인하는 함수 선언
+
+protected:
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(AGOPlayerState* Attacker, AGOPlayerState* Victim);
+
+
 private:
-	float MatchTime = 200.f; //200 seconds 
+	float MatchTime = 180; //180 seconds 
 	uint32 CountdownInt = 0;
 
 	FTimerHandle CharacterOverlayTimerHandle;
 	FTimerHandle MatchStartTimerHandle; 
 
 	void StartMatchCountdown();
-	void CheckMatchState(); // MatchState를 확인하는 함수 선언
 
 // ======== SkillSetBar UI ======== 
 protected:
