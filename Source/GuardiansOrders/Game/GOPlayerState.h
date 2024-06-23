@@ -83,10 +83,12 @@ public:
 	FORCEINLINE ETeamType GetTeamType() const { return Team; }
 	void SetTeam(ETeamType TeamToSet);
 
+	void SetTeamColor(ETeamType TeamtoSet);
+
 	UFUNCTION()
 	void OnRep_Team();
 
-private:
+
 	// 팀 정보 (Red, Blue)
 	UPROPERTY(ReplicatedUsing = OnRep_Team)
 	ETeamType Team = ETeamType::ET_NoTeam;
@@ -116,10 +118,16 @@ public:
 	bool HasKilledAllEnemyPlayers(const TArray<int32>& EnemyPlayerIds);
 	void CheckForGrindingStone();
 	void SetGrindingStoneVisible();
+	bool HasGrindingStone() const { return bHasGrindingStone; }
+	void SetGrindingStone(bool bNewGrindingStone);
 
 	UPROPERTY(ReplicatedUsing = OnRep_HasGrindingStone)
 	bool bHasGrindingStone;
 
 	UFUNCTION()
 	void OnRep_HasGrindingStone();
+
+private:
+	void ResetKilledEnemyPlayers(); // 초기화 함수 선언
+	void ResetGrindingStone();
 };

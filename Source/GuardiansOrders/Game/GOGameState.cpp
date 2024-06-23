@@ -125,25 +125,6 @@ void AGOGameState::OnRep_CharacterSelected()
 		}
 	}
 
-	if (GEngine)
-	{
-		//// Red Team
-		//for (const FHeroSelectionInfo& HeroInfo : RedTeamHeroes)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
-		//		FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Red Team - PlayerId: %d, HeroType: %d"),
-		//			HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
-		//}
-
-		//// Blue Team
-		//for (const FHeroSelectionInfo& HeroInfo : BlueTeamHeroes)
-		//{
-		//	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Cyan,
-		//		FString::Printf(TEXT("[AGOGameState OnRep_CharacterSelected] Blue Team - PlayerId: %d, HeroType: %d"),
-		//			HeroInfo.PlayerId, static_cast<int32>(HeroInfo.SelectedHero)));
-		//}
-	}
-
 	UGOGameSubsystem* Subsystem = GetWorld()->GetGameInstance()->GetSubsystem<UGOGameSubsystem>();
 	FHeroSelectionData HeroSelectionData;
 	HeroSelectionData.RedTeamHeroes = this->RedTeamHeroes;

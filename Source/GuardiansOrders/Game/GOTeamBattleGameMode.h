@@ -10,6 +10,7 @@
 namespace MatchState
 {
 	extern GUARDIANSORDERS_API const FName Cooldown;
+	extern GUARDIANSORDERS_API const FName RoundEnd;
 }
 /**
  * 
@@ -40,7 +41,8 @@ public:
 
 	float LevelStartingTime = 0.f;
 
-	float CountdownTime  = 0.f;
+	float CountdownTime  = 180.f;
+	// float CountdownTime  = 10.f;
 
 protected:
 	virtual void OnMatchStateSet() override;
@@ -48,4 +50,10 @@ protected:
 	virtual void DefaultRoundTimer() override;
 	void FinishMatch();
 
+
+	void StartCooldownCountdown();
+	void HandleCooldownCountdown();
+
+private:
+	FTimerHandle CooldownTimerHandle;
 };
