@@ -12,6 +12,12 @@ void UGOHealSpell::StartCast()
 	Super::StartCast();
 }
 
+void UGOHealSpell::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void UGOHealSpell::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

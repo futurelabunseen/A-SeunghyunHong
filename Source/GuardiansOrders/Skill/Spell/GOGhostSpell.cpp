@@ -13,6 +13,12 @@ void UGOGhostSpell::StartCast()
 	Super::StartCast();
 }
 
+void UGOGhostSpell::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void UGOGhostSpell::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);
