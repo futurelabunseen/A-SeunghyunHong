@@ -20,6 +20,11 @@ void UGORogersUltimateSkill::StartCast()
 	Super::StartCast();
 }
 
+void UGORogersUltimateSkill::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGORogersUltimateSkill::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

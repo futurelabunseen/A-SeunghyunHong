@@ -23,6 +23,11 @@ void UGORogersSkill03::StartCast()
 	Super::StartCast();
 }
 
+void UGORogersSkill03::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGORogersSkill03::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);
@@ -34,10 +39,10 @@ void UGORogersSkill03::ActivateSkill()
 {
 	Super::ActivateSkill();
 
-	if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
+	/*if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
 	{
 		Owner->StartMovingForward(MovementDistance, MovementDuration, Acceleration);
-	}
+	}*/
 }
 
 void UGORogersSkill03::FinishCast()

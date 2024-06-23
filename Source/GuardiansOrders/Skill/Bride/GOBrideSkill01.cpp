@@ -20,6 +20,11 @@ void UGOBrideSkill01::StartCast()
 	Super::StartCast();
 }
 
+void UGOBrideSkill01::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOBrideSkill01::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

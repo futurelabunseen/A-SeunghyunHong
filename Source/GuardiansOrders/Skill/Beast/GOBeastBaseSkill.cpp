@@ -20,6 +20,11 @@ void UGOBeastBaseSkill::StartCast()
 	Super::StartCast();
 }
 
+void UGOBeastBaseSkill::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOBeastBaseSkill::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

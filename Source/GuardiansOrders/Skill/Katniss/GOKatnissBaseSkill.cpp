@@ -20,6 +20,11 @@ void UGOKatnissBaseSkill::StartCast()
 	Super::StartCast();
 }
 
+void UGOKatnissBaseSkill::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOKatnissBaseSkill::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);
