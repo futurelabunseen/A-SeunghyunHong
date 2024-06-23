@@ -27,7 +27,7 @@ public:
 	FString GetHpStatText();
 	void SetHpBarTexture(UTexture2D* NewTexture);  // Setting the HP bar texture
 
-protected:
+public:
 	UPROPERTY()
 	TObjectPtr<UProgressBar> HpProgressBar;
 
