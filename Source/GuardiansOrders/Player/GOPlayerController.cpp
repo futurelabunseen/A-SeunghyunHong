@@ -8,6 +8,7 @@
 #include "UI/SkillWidget/GOSkillSetBarWidget.h"
 #include <Game/GOPlayerState.h>
 #include "Game/GOGameState.h"
+#include "Game/GOTeamBattleGameMode.h"
 #include <GameData/GOGameSubsystem.h>
 #include <Character/GOPlayerCharacter.h>
 #include "UI/GOBattleCharacterOverlayWidget.h"
@@ -15,6 +16,15 @@
 #include "UI/GOTeamMemberWidget.h"
 #include <Kismet/GameplayStatics.h>
 #include "Physics/GOCollision.h"
+#include "CircleSpell/GOMagicCircle.h"
+#include "Components/DecalComponent.h"
+#include "Components/Overlay.h"
+#include "CommonUserWidget.h"
+#include "GameFramework/GameMode.h" // AGameModeBase를 포함
+#include "Net/UnrealNetwork.h"
+#include "UI/GOGrindingStoneWidget.h"
+#include "UI/GOReturnToMainWidget.h"
+#include "Components/Image.h"
 
 AGOPlayerController::AGOPlayerController()
 {
@@ -32,6 +42,15 @@ void AGOPlayerController::PlayerTick(float DeltaTime)
     Super::PlayerTick(DeltaTime);
 
     CursorTrace();
+
+    UpdateMagicCircleLocation();
+}
+
+void AGOPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(AGOPlayerController, MatchState);
 }
 
 void AGOPlayerController::PostInitializeComponents()
@@ -86,7 +105,9 @@ void AGOPlayerController::PostSeamlessTravel()
 void AGOPlayerController::BeginPlay()
 {
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Start"));
-    Super::BeginPlay();
+    Super::BeginPlay();    
+    CheckMatchState();
+
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 
     bShowMouseCursor = true;
@@ -108,14 +129,17 @@ void AGOPlayerController::BeginPlay()
         if (GOHUDWidget)
         {
             GOHUDWidget->AddToViewport();
-            UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -2"));
+            if(GOHUDWidget->GrindingStoneWidget != nullptr)
+                UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget is not null"));
 
             if (GOHUDWidget->CharacterOverlayClass)
             {
                 UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay -1"));
 
                 // GOHUDWidget->AddCharacterOverlay();
-                GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
+                
+                
+                //GetWorld()->GetTimerManager().SetTimer(CharacterOverlayTimerHandle, this, &AGOPlayerController::AddCharacterOverlayDelayed, 5.0f, false);
                 
                 InitTeamScores(); // TODO : 구조
             }
@@ -123,6 +147,49 @@ void AGOPlayerController::BeginPlay()
         }
 
     }
+
+    UE_LOG(LogTemp, Warning, TEXT("[Time]"));
+
+    // 5초 후에 매치 카운트다운 시작
+    GetWorld()->GetTimerManager().SetTimer(MatchStartTimerHandle, this, &AGOPlayerController::StartMatchCountdown, 5.0f, false);
+    UE_LOG(LogTemp, Warning, TEXT("AGOPlayerController::BeginPlay()"));
+
+    FTimerHandle TimerHandle;
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]() {
+        AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+        if (PS)
+        {
+            PS->SetNickname(PS->SelectedHero.PlayerName);
+            if (PS->GetPawn())
+            {
+                AGOCharacterBase* Character = Cast<AGOCharacterBase>(PS->GetPawn());
+                if (Character)
+                {
+                    //Character->UpdateNicknameWidget(PS->SelectedHero.PlayerName);
+                }
+            }
+        }
+        }, 5.0f, false);
+    
+    // Set other players' names on the listen server
+    //if (IsLocalController() && GetNetMode() == NM_ListenServer)
+    //{
+        //for (APlayerState* PS : GOBattleGameState->PlayerArray)
+        //{
+        //    AGOPlayerState* GOPlayerState = Cast<AGOPlayerState>(PS);
+        //    if (GOPlayerState && GOPlayerState != GetPlayerState<AGOPlayerState>())
+        //    {
+        //        if (GOPlayerState->GetPawn())
+        //        {
+        //            AGOCharacterBase* C = Cast<AGOCharacterBase>(GOPlayerState->GetPawn());
+        //            if (C)
+        //            {
+        //                C->UpdateNicknameWidget(GOPlayerState->SelectedHero.PlayerName);
+        //            }
+        //        }
+        //    }
+        //}
+    //}
 }
 
 void AGOPlayerController::AddCharacterOverlayDelayed()
@@ -154,7 +221,6 @@ void AGOPlayerController::AddCharacterOverlayDelayed()
         }
     }
 }
-
 
 void AGOPlayerController::HideTeamScores()
 {
@@ -268,6 +334,130 @@ void AGOPlayerController::SetHUDMatchMembers(int32 MatchMemberNum)
     }
 }
 
+void AGOPlayerController::SetGrindingStoneVisible()
+{
+    if(IsLocalPlayerController())
+    { 
+    if (GOHUDWidget)
+    {
+        bool bHUDVaild = GOHUDWidget &&
+            GOHUDWidget->GrindingStoneWidget;
+
+        UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget : %d"), bHUDVaild);
+
+        if (bHUDVaild)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget : %s"), *GOHUDWidget->GrindingStoneWidget->GetOwningPlayer()->GetName());
+
+            GOHUDWidget->GrindingStoneWidget->SetVisibility(ESlateVisibility::Visible);
+            UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget Visible"));
+        }
+    }
+
+    else
+    {
+        // 클라는 이게 null
+        UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget : GOHUDWidget is null"));
+
+    }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget : is not IsLocalPlayerController"));
+
+    }
+}
+
+void AGOPlayerController::SetHUDWinnerText(const FString& WinnerText)
+{
+    if (GOHUDWidget && GOHUDWidget->WinnerText)
+    {
+        GOHUDWidget->ReturnToMainBGImage->SetVisibility(ESlateVisibility::Visible);
+        GOHUDWidget->WidgetReturnToMainMenu->SetVisibility(ESlateVisibility::Visible);
+
+        GOHUDWidget->WinnerText->SetVisibility(ESlateVisibility::Visible);
+        GOHUDWidget->WinnerText->SetText(FText::FromString(WinnerText));
+    }
+}
+
+void AGOPlayerController::BroadcastElim(AGOPlayerState* Attacker, AGOPlayerState* Victim)
+{
+    UE_LOG(LogTemp, Warning, TEXT("BroadcastElim 0: %s"));
+
+    ClientElimAnnouncement(Attacker, Victim);
+}
+
+void AGOPlayerController::ClientElimAnnouncement_Implementation(AGOPlayerState* Attacker, AGOPlayerState* Victim)
+{
+    AGOPlayerState* Self = GetPlayerState<AGOPlayerState>();
+    if (Attacker && Victim && Self)
+    {
+        //UE_LOG(LogTemp, Warning, TEXT("BroadcastElim 1 : %s"));
+
+        if (GOHUDWidget)
+        {
+            //UE_LOG(LogTemp, Warning, TEXT("BroadcastElim 1 : %s"));
+
+            if (Attacker == Self && Victim != Self)
+            {
+                GOHUDWidget->AddElimAnnouncement(Self->SelectedHero.PlayerName, Victim->SelectedHero.PlayerName);
+                return;
+            }
+            if (Victim == Self && Attacker != Self)
+            {
+                GOHUDWidget->AddElimAnnouncement(Attacker->SelectedHero.PlayerName, Self->SelectedHero.PlayerName);
+                return;
+            }
+            if (Attacker == Victim && Attacker == Self)
+            {
+                return;
+            }
+            if (Attacker == Victim && Attacker != Self)
+            {
+                return;
+            }
+            else if (Attacker != Self && Victim != Self)
+            {
+                GOHUDWidget->AddElimAnnouncement(Attacker->SelectedHero.PlayerName, Victim->SelectedHero.PlayerName);
+            }
+        }
+    }
+}
+
+void AGOPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+    if (!IsValid(MagicCircle))
+    {
+        MagicCircle = GetWorld()->SpawnActor<AGOMagicCircle>(MagicCircleClass);
+        if (DecalMaterial)
+        {
+            MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+        }
+    }
+}
+
+void AGOPlayerController::HideMagicCircle()
+{
+    if (IsValid(MagicCircle))
+    {
+        MagicCircle->Destroy();
+    }
+}
+
+void AGOPlayerController::StartMatchCountdown()
+{
+    MatchTime = 180.F; // 매치 시간 설정
+
+    SetHUDMatchCountdown(MatchTime);
+}
+
+bool AGOPlayerController::CheckMatchState()
+{
+    if (MatchState == MatchState::Cooldown) return true;
+    
+    return false;
+}
+
 void AGOPlayerController::OnPossess(APawn* InPawn)
 {
     GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
@@ -280,12 +470,23 @@ void AGOPlayerController::OnPossess(APawn* InPawn)
 void AGOPlayerController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-    SetHUDTime();
-    CheckTimeSync(DeltaTime);
+    // SetHUDTime();
+    // CheckTimeSync(DeltaTime);
+    if (MatchState == MatchState::Cooldown)
+    {
+        if (CountdownTime > 0)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode Cooldown Countdown 0: %f"), CountdownTime);
+
+            CountdownTime -= DeltaTime;
+            SetHUDMatchCountdown(CountdownTime);
+        }
+    }
 }
 
 float AGOPlayerController::GetServerTime()
 {
+    if (MatchState != MatchState::Cooldown) return 0.f;
     if (HasAuthority()) return GetWorld()->GetTimeSeconds();
     else return GetWorld()->GetTimeSeconds() + ClientServerDelta;
 }
@@ -324,6 +525,76 @@ void AGOPlayerController::CheckTimeSync(float DeltaTime)
     }
 }
 
+void AGOPlayerController::OnMatchStateSet(FName State)
+{
+    MatchState = State;
+
+    if (MatchState == MatchState::InProgress) // InProgress 전의 커스텀 스테이트 필요 
+    {
+        //// 5초 후에 Ready State로 넘어가도록 하기
+        //if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        //{
+        //    GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+        //    if (GOHUDWidget)
+        //    {
+        //        GOHUDWidget->AddCharacterOverlay();
+        //    }
+
+        //}
+    }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        // 5초 후에 Ready State로 넘어가도록 하기
+        if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        {
+            //GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+            if (GOHUDWidget)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("AGOPlayerController::OnMatchStateSet "));
+
+                // GOHUDWidget->AddCharacterOverlay();
+                AddCharacterOverlayDelayed();
+            }
+
+        }
+        //AGOGameState* GOGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+        //TArray<APlayerState*> PlayerStates = GOGameState->PlayerArray;
+        //for (APlayerState* GOPlayerState : PlayerStates)
+        //{
+        //    if (GOPlayerState)
+        //    {
+        //        if (AGOPlayerController* PlayerController = Cast<AGOPlayerController>(GOPlayerState->GetOwner()))
+        //        {
+        //            AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+        //            if (BGameState)
+        //            {
+        //                AGOPlayerState* BPState = PlayerController->GetPlayerState<AGOPlayerState>();
+        //                if (BPState && BPState->GetTeamType() == ETeamType::ET_BlueTeam)
+        //                {
+        //                    UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]Cooldown::SetTeamColor"));
+
+        //                    BPState->SetTeamColor(ETeamType::ET_BlueTeam);
+
+        //                }
+        //                else if (BPState && BPState->GetTeamType() == ETeamType::ET_RedTeam)
+        //                {
+        //                    BPState->SetTeamColor(ETeamType::ET_RedTeam);
+
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+    }
+    else if (MatchState == MatchState::RoundEnd)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[RoundEnd] AGOPlayerController::OnMatchStateSet RoundEnd %s"), *this->GetName());
+
+    }
+}
+
 void AGOPlayerController::SetHUDScore(float Score)
 {
     if (GOHUDWidget)
@@ -342,7 +613,7 @@ void AGOPlayerController::SetHUDScore(float Score)
 
 void AGOPlayerController::SetHUDDefeats(int32 Defeats)
 {
-    if (GOHUDWidget)
+    if (IsLocalPlayerController() && GOHUDWidget)
     {
         bool bHUDVaild = GOHUDWidget &&
             GOHUDWidget->CharacterOverlay &&
@@ -356,8 +627,9 @@ void AGOPlayerController::SetHUDDefeats(int32 Defeats)
     }
 }
 
-void AGOPlayerController::SetHUDMatchCountdown(float CountdownTime)
+void AGOPlayerController::SetHUDMatchCountdown(float CountdownTimeSec)
 {
+    UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOPlayerController FConstPlayerControllerIterator: %f, %s"), CountdownTime, *this->GetName());
     if (GOHUDWidget)
     {
         bool bHUDVaild = GOHUDWidget &&
@@ -366,9 +638,11 @@ void AGOPlayerController::SetHUDMatchCountdown(float CountdownTime)
 
         if (bHUDVaild)
         {
-            if (CountdownTime < 0.f)
+            if (CountdownTime <= 0.f)
             {
-                GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText());
+                CountdownTime = 0.f; // 카운트다운 시간을 0으로 설정
+
+                GOHUDWidget->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(TEXT(" END ")));
                 return;
             }
 
@@ -383,10 +657,14 @@ void AGOPlayerController::SetHUDMatchCountdown(float CountdownTime)
 
 void AGOPlayerController::SetHUDTime()
 {
+    float TimeLeft = 0.f;
+    if (MatchState == MatchState::Cooldown)
+        TimeLeft = MatchTime - GetServerTime() + 5.f;
     uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
-    if (CountdownInt != SecondsLeft)
+    if (MatchState == MatchState::Cooldown && CountdownInt != SecondsLeft)
     {
-        SetHUDMatchCountdown(MatchTime - GetServerTime());
+        //SetHUDMatchCountdown(MatchTime - GetServerTime());
+        SetHUDMatchCountdown(TimeLeft);
     }
     CountdownInt = SecondsLeft;
 }
@@ -452,14 +730,64 @@ EHeroType AGOPlayerController::GetSelectedHero()
 
 void AGOPlayerController::CursorTrace()
 {
-    UE_LOG(LogTemp, Warning, TEXT("HighlightActor AGOPlayerController CursorTrace 000000000"));
-
-    FHitResult CursorHit;
     GetHitResultUnderCursor(CCHANNEL_GOACTION, false, CursorHit);
     if (!CursorHit.bBlockingHit) return;
 
     LastActor = ThisActor;
     ThisActor = CursorHit.GetActor();
+
+    // ThisActor가 플레이어 캐릭터인지 확인
+    AGOPlayerCharacter* ThisPlayerCharacter = Cast<AGOPlayerCharacter>(ThisActor.GetObject());
+
+    // ThisActor가 플레이어 캐릭터라면 팀 정보 확인
+    if (ThisPlayerCharacter)
+    {
+        AGOPlayerState* ThisPlayerState = ThisPlayerCharacter->GetPlayerState<AGOPlayerState>();
+        AGOPlayerState* LocalPlayerState = GetPlayerState<AGOPlayerState>();
+
+        if (ThisPlayerState && LocalPlayerState && ThisPlayerState->GetTeamType() != LocalPlayerState->GetTeamType())
+        {
+            // ThisPlayerCharacter가 상대팀일 때만 하이라이트 처리
+            if (LastActor == nullptr)
+            {
+                if (ThisActor != nullptr)
+                {
+                    ThisActor->HighlightActor();
+                }
+            }
+            else
+            {
+                if (ThisActor == nullptr)
+                {
+                    LastActor->UnHighlightActor();
+                }
+                else
+                {
+                    if (LastActor != ThisActor)
+                    {
+                        LastActor->UnHighlightActor();
+                        ThisActor->HighlightActor();
+                    }
+                }
+            }
+        }
+        else
+        {
+            // 팀 정보가 없거나 같은 팀일 경우 하이라이트를 제거
+            if (LastActor != nullptr)
+            {
+                LastActor->UnHighlightActor();
+            }
+        }
+    }
+    else
+    {
+        // ThisActor가 플레이어 캐릭터가 아니면 하이라이트를 제거
+        if (LastActor != nullptr)
+        {
+            LastActor->UnHighlightActor();
+        }
+    }
 
     /**
      * LineTrace from cursor. There are several scenarios:
@@ -475,38 +803,141 @@ void AGOPlayerController::CursorTrace()
      *      -> Do Nothing
      */
 
-    if (LastActor == nullptr)
+    //if (LastActor == nullptr)
+    //{
+    //    if (ThisActor != nullptr)
+    //    {
+    //        // Case B
+    //        ThisActor->HighlightActor();
+    //    }
+    //    else
+    //    {
+    //        // Case A - both are null, do nothing
+    //    }
+    //}
+    //else // LastActor is valid
+    //{
+    //    if (ThisActor == nullptr)
+    //    {
+    //        // Case C
+    //        LastActor->UnHighlightActor();
+    //    }
+    //    else // both actors are valid
+    //    {
+    //        if (LastActor != ThisActor)
+    //        {
+    //            // Case D
+    //            LastActor->UnHighlightActor();
+    //            ThisActor->HighlightActor();
+    //        }
+    //        else
+    //        {
+    //            // Case E - do nothing
+    //        }
+    //    }
+    //}
+
+}
+
+void AGOPlayerController::UpdateMagicCircleLocation()
+{
+    if (IsValid(MagicCircle))
     {
-        if (ThisActor != nullptr)
-        {
-            // Case B
-            ThisActor->HighlightActor();
-        }
-        else
-        {
-            // Case A - both are null, do nothing
-        }
+        MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
     }
-    else // LastActor is valid
+}
+
+void AGOPlayerController::OnRep_MatchState()
+{
+    if (MatchState == MatchState::InProgress) // InProgress 전의 커스텀 스테이트 필요 
     {
-        if (ThisActor == nullptr)
+        //if (IsLocalPlayerController() && IsValid(GOHUDWidgetClass))
+        //{
+        //    GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+        //    if (GOHUDWidget)
+        //    {
+        //        GOHUDWidget->AddCharacterOverlay();
+        //    }
+
+        //}
+    }
+    else if (MatchState == MatchState::Cooldown)
+    {
+        if (IsValid(GOHUDWidgetClass))
         {
-            // Case C
-            LastActor->UnHighlightActor();
-        }
-        else // both actors are valid
-        {
-            if (LastActor != ThisActor)
+            //GOHUDWidget = CreateWidget<UGOHUDWidget>(this, GOHUDWidgetClass);
+
+            if (GOHUDWidget)
             {
-                // Case D
-                LastActor->UnHighlightActor();
-                ThisActor->HighlightActor();
+                GOHUDWidget->AddCharacterOverlay();
+
+                // SetHUDMatchCountdown(180);
+            }
+
+            if (GOBattleGameState)
+            {
+                int32 PlayerArrayNum = GOBattleGameState->PlayerArray.Num();
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num: %d"), PlayerArrayNum);
+
+                if (PlayerArrayNum > 0)
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray Num!!: %d"), PlayerArrayNum);
+
+                    SetHUDMatchMembers(PlayerArrayNum);
+                }
+                else
+                {
+                    UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay PlayerArray is empty."));
+                }
             }
             else
             {
-                // Case E - do nothing
+                UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay GOBattleGameState is null."));
             }
         }
     }
+    else if (MatchState == MatchState::RoundEnd)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[RoundEnd] AGOPlayerController 0"));
+
+        GOHUDWidget->WidgetReturnToMainMenu->SetVisibility(ESlateVisibility::Visible);
+
+        AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+        if (BGameState)
+        {
+            int32 RedTeamScore = BGameState->RedTeamScore;
+            int32 BlueTeamScore = BGameState->BlueTeamScore;
+
+            FString WinnerText;
+
+            if (RedTeamScore > BlueTeamScore)
+            {
+                WinnerText = TEXT("WINNER : RED");
+            }
+            else if (BlueTeamScore > RedTeamScore)
+            {
+                WinnerText = TEXT("WINNER : BLUE");
+            }
+            else
+            {
+                WinnerText = TEXT("DRAW");
+            }
+
+            if (GOHUDWidget)
+            {
+                SetHUDWinnerText(WinnerText);
+
+            }
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("[RoundEnd] AGOPlayerController null"));
+
+            }
+
+        }
+
+    }
 }
+
 

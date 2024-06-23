@@ -31,22 +31,31 @@ void UGOSpellCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CurrentSpell != nullptr && CurrentSpell->bIsCasting)
-	{
-		OnUpdateCast(DeltaTime);
-	}
+	//if (CurrentSpell != nullptr && CurrentSpell->bIsCasting)
+	//{
+	//	OnUpdateCast(DeltaTime);
+	//}
 }
 
-void UGOSpellCastComponent::OnStartCast(FHeroSpellKey Key)
+bool UGOSpellCastComponent::OnStartCast(FHeroSpellKey Key)
 {
-	bIsOnCasting = true;
-	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
-	if (!ensure(GameInstance)) return;
-	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+	SetCurrentSpellKey(Key);
+	SetCurrentSpellByKey(SpellKey);
+	if (CurrentSpell->bIsCasting == false && CurrentSpell->bIsCastable == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[newspell UGOSkillspellComponent::OnStartCast] O"));
+		CurrentSpell->StartCast();
+		return true;
+	}
+	//bIsOnCasting = true;
+	//UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	//if (!ensure(GameInstance)) return;
+	//auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
-	SpellKey = Key;
-	CurrentSpell = GOGameInstance->GetSpellByHeroSpellKey(Key);
-	CurrentSpell->StartCast();
+	//SpellKey = Key;
+	//CurrentSpell = GOGameInstance->GetSpellByHeroSpellKey(Key);
+	
+	return false;
 }
 
 void UGOSpellCastComponent::OnUpdateCast(float DeltaTime)
@@ -58,22 +67,13 @@ void UGOSpellCastComponent::OnUpdateCast(float DeltaTime)
 	CastDownTimer += DeltaTime;
 
 	// 스킬 캐스팅 중 업데이트 로직
-	CurrentSpell->UpdateCast(DeltaTime);
+	//CurrentSpell->UpdateCast(DeltaTime);
 	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillCastComponent::OnUpdateCast] CurrentSkill->UpdateCast(DeltaTime);"));
 
-	if (bIsOnCasting)
-	{
-		if (AActor* Owner = GetOwner())
-		{
-			//if (IGOPlaySkillAnimInterface* GOPlaySkillAnimInterface = Cast<IGOPlaySkillAnimInterface>(Owner))
-			//{
-			//	// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
-			//	GOPlaySkillAnimInterface->ActivateSkillByKey(SkillKey);
-			//	bIsOnCasting = false;
-			//	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
-			//}
-		}
-	}
+	//if (CurrentSpell->bIsCastable)
+	//{
+	//	CurrentSpell->bIsCastable = false;
+	//}
 
 	// TODO
 	if (CastDownTimer > CurrentSpell->GetCastingTime())
@@ -109,5 +109,29 @@ void UGOSpellCastComponent::OnInterruptCast()
 
 void UGOSpellCastComponent::UpdateCoolDownTime(float DeltaTime)
 {
+}
+
+void UGOSpellCastComponent::SetCurrentSpellByKey(FHeroSpellKey Key)
+{
+	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!ensure(GameInstance)) return;
+	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
+
+	CurrentSpell = GOGameInstance->GetSpellByHeroSpellKey(Key);
+}
+
+void UGOSpellCastComponent::SetCurrentSpellKey(FHeroSpellKey Key)
+{
+	SpellKey = Key;
+}
+
+TObjectPtr<UGOSpellBase> UGOSpellCastComponent::GetCurrentSpell()
+{
+	return CurrentSpell;
+}
+
+FHeroSpellKey UGOSpellCastComponent::GetCurrentSpellKey()
+{
+	return SpellKey;
 }
 

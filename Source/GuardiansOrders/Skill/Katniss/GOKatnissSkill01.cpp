@@ -43,6 +43,11 @@ void UGOKatnissSkill01::StartCast()
 	//GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
 }
 
+void UGOKatnissSkill01::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOKatnissSkill01::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

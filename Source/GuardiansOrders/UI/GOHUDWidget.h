@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CommonUserWidget.h"
 #include "GameData/GOCharacterStat.h"
+#include "Containers/Queue.h"
 #include "GOHUDWidget.generated.h"
 
 class UGOStatsBarWidget;
@@ -15,6 +16,9 @@ class UGOSkillSetBarWidget;
 class UGOSpellSetBarWidget;
 class UGOHeroInfoWidget;
 class UCommonUserWidget;
+class UGOGrindingStoneWidget;
+class UCommonTextBlock;
+class UGOReturnToMainWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API UGOHUDWidget : public UCommonUserWidget
@@ -40,11 +44,42 @@ public:
 
 	void AddCharacterOverlay();
 
+	void AddElimAnnouncement(FString Attacker, FString Victim);
+
 	UPROPERTY()
 	class UGOBattleCharacterOverlayWidget* CharacterOverlay;
 	
 	UPROPERTY(meta = (BindWidget))
-	UCommonUserWidget* GrindingStoneWidget;
+	UGOGrindingStoneWidget* GrindingStoneWidget;
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* WinnerText;
+
+	UPROPERTY(meta = (BindWidget))
+	UGOReturnToMainWidget* WidgetReturnToMainMenu;
+
+	UPROPERTY(meta = (BindWidget))
+	class UImage* ReturnToMainBGImage;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UGOElimAnnouncementWidget> GOElimAnnouncementClass;
+
+	UPROPERTY(EditAnywhere)
+	float ElimAnnouncementTime = 3.f;
+
+	UFUNCTION()
+	void ElimAnnouncementTimerFinished(UGOElimAnnouncementWidget* MsgToRemove);
+	
+	UPROPERTY()
+	TArray<TObjectPtr<UGOElimAnnouncementWidget>> ElimMessages;
+
+	UFUNCTION()
+	void AnnouncementStatIncrease(float OriginStat, float IncreaseAmount, float NewStat);
+	// 모델 델리게이트를 바인딩하는 함수
+	void BindToStatComponent(class UGOCharacterStatComponent* StatComponent);
+
+	UPROPERTY(meta = (BindWidget))
+	UCommonTextBlock* StatAnnouncementText;
 
 protected:
 	UPROPERTY()
@@ -67,6 +102,7 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UGOHeroInfoWidget> HeroInfo;
+
 
 
 };

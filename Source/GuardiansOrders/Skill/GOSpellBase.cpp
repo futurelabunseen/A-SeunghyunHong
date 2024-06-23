@@ -8,6 +8,8 @@
 
 UGOSpellBase::UGOSpellBase()
 {
+	bTickable = true;
+	bTickableWhenPaused = false;
 }
 
 void UGOSpellBase::InitializeSpell(FName InSpellName)
@@ -36,6 +38,15 @@ void UGOSpellBase::InitializeSpell(FName InSpellName)
 
 void UGOSpellBase::StartCast()
 {
+	bIsCasting = true;
+	bIsCastable = false;
+	SetIsOnCoolTime(true);
+	SetCoolDownTimer();
+	if (bIsCasting == true)
+		UGOSpellBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	UE_LOG(LogTemp, Warning, TEXT("newspell :StartCast CoolDownTimer %f"), CoolDownTimer);
+
 }
 
 void UGOSpellBase::UpdateCast(float DeltaTime)
@@ -48,6 +59,10 @@ void UGOSpellBase::Activate()
 
 void UGOSpellBase::FinishCast()
 {
+	bIsCasting = false;
+	bIsCastable = true;
+	SetCoolDownTimer();  // 쿨다운 타이머 재설정 ㅠㅠ....
+	SetIsOnCoolTime(false);
 }
 
 void UGOSpellBase::InterruptedCast()
@@ -56,4 +71,44 @@ void UGOSpellBase::InterruptedCast()
 
 void UGOSpellBase::ActivateEffect()
 {
+}
+
+void UGOSpellBase::Tick(float DeltaTime)
+{
+	if (bIsCasting == true)
+	{
+		CoolDownTimer -= DeltaTime;
+		UE_LOG(LogTemp, Warning, TEXT("newspell UGOSpellBase::Tick --"));
+		if (CoolDownTimer <= 0.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("newspell UGOSpellBase::Tick <<"));
+
+			FinishCast();
+		}
+	}
+}
+
+bool UGOSpellBase::IsTickable() const
+{
+	return bTickable;
+}
+
+bool UGOSpellBase::IsTickableInEditor() const
+{
+	return bTickable;
+}
+
+bool UGOSpellBase::IsTickableWhenPaused() const
+{
+	return bTickableWhenPaused;
+}
+
+TStatId UGOSpellBase::GetStatId() const
+{
+	return TStatId();
+}
+
+UWorld* UGOSpellBase::GetWorld() const
+{
+	return GetOuter()->GetWorld();
 }

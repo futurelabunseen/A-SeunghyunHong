@@ -197,6 +197,9 @@ void UGOCharacterStatComponent::RegenerateMana()
 		{
 			if (GOStateInterface->GetIsDead() != false)
 			{
+				return;
+			}
+			else if (GOStateInterface->GetIsDead() == false) {
 				if (CurrentMana < MaxMana)
 				{
 					UE_LOG(LogTemp, Warning, TEXT("[GOStateInterface->GetIsDead()] RegenerateMana %d"), GOStateInterface->GetIsDead());
@@ -267,3 +270,23 @@ void UGOCharacterStatComponent::ResetStat()
 	SetHp(MaxHp);
 	SetMana(MaxMana);
 }
+
+FGOCharacterStat UGOCharacterStatComponent::GetTotalStat() const
+{
+	return BaseStat + ModifierStat;
+}
+
+void UGOCharacterStatComponent::IncreaseBaseDamage(float Amount)
+{
+	float OldBaseDamage = BaseStat.BaseDamage;
+	BaseStat.BaseDamage += Amount;
+	OnRep_BaseStat();  // Manually trigger the replication function
+	//OnStatIncreased.Broadcast(OldBaseDamage, Amount, BaseStat.BaseDamage);
+}
+
+
+void UGOCharacterStatComponent::LogStatChange(const FString& Context)
+{
+	UE_LOG(LogTemp, Warning, TEXT("[%s] BaseDamage: %d"), *Context, BaseStat.BaseDamage);
+}
+

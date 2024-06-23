@@ -24,6 +24,11 @@ void UGOKatnissSkill03::StartCast()
 	SpawnSequentialProjectiles();
 }
 
+void UGOKatnissSkill03::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOKatnissSkill03::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

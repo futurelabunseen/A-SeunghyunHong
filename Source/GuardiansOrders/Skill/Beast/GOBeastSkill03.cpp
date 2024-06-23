@@ -23,6 +23,11 @@ void UGOBeastSkill03::StartCast()
 	Super::StartCast();
 }
 
+void UGOBeastSkill03::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOBeastSkill03::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);
@@ -32,10 +37,10 @@ void UGOBeastSkill03::ActivateSkill()
 {
 	Super::ActivateSkill();
 
-	if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
+	/*if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetSkillOwner()))
 	{
 		Owner->StartMovingForward(MovementDistance, MovementDuration, Acceleration);
-	}
+	}*/
 }
 
 void UGOBeastSkill03::FinishCast()

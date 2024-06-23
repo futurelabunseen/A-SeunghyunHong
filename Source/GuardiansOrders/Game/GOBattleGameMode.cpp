@@ -14,6 +14,9 @@
 #include "Cheats/GOCheatManager.h"
 #include "Player/GOLobbyPlayerController.h"
 #include "Player/GOPlayerController.h"
+#include "UI/GOStatsBarWidget.h"
+#include "CommonTextBlock.h"
+#include <Kismet/GameplayStatics.h>
 
 AGOBattleGameMode::AGOBattleGameMode()
 {
@@ -63,6 +66,9 @@ void AGOBattleGameMode::PostSeamlessTravel()
 
 	// 일정 시간 후에 PlayerController를 재검사하기 위해 타이머 설정
 	//GetWorld()->GetTimerManager().SetTimerForNextTick(this, &AGOBattleGameMode::CheckPlayerControllers);
+
+
+
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
@@ -89,6 +95,7 @@ void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 				//UE_LOG(LogTemp, Error, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer -SpawnPlayerCharacter"));
 				// 선택된 히어로 타입으로 새로운 캐릭터 스폰 및 빙의
 				SpawnPlayerCharacter(PlayerController, PlayerState->SelectedHero.SelectedHero);
+
 			}
 			else
 			{
@@ -104,6 +111,8 @@ void AGOBattleGameMode::HandleSeamlessTravelPlayer(AController*& C)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOBattleGameMode::HandleSeamlessTravelPlayer - Controller is not of type AGOPlayerController"));
 	}
+
+
 }
 
 void AGOBattleGameMode::Logout(AController* Exiting)
@@ -229,6 +238,33 @@ void AGOBattleGameMode::OnPlayerKilled(AController* Killer, AController* KilledP
 	{
 		VictimPlayerState->AddToDefeats(1);
 	}
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(*It);
+		if (GOPlayerController && AttackerPlayerState && VictimPlayerState)
+		{
+			GOPlayerController->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+		}
+	}
+
+	//if (GetWorld() && GOGameState)
+	//{
+	//	
+	//	for (APlayerState* GOPlayerState : GOGameState->PlayerArray)
+	//	{
+	//		if (GOPlayerState && GOPlayerState->GetOwner())
+	//		{
+	//			APlayerController* PlayerController = Cast<APlayerController>(GOPlayerState->GetOwner());
+	//			AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(PlayerController);
+
+	//			if (GOPlayerController && AttackerPlayerState && VictimPlayerState)
+	//			{
+	//				GOPlayerController->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void AGOBattleGameMode::CheckPlayerControllers()

@@ -11,6 +11,7 @@
 class UCommonTextBlock;
 class UGOSkillBase;
 class UGOCharacterStatComponent;
+class UGOSkillSlotToolTipWidget;
 
 /**
  * 
@@ -52,4 +53,10 @@ public:
 public:
     void BindCharacterComponent(UGOCharacterStatComponent* CharacterStatComp);
     void HandleManaChange(float CurrentMana);
+
+    UPROPERTY(EditDefaultsOnly)
+    TSubclassOf<UGOSkillSlotToolTipWidget> ToolTipClass;
+
+    UPROPERTY(VisibleAnywhere)
+    TObjectPtr<UGOSkillSlotToolTipWidget> GOToolTipWidget;
 }; 

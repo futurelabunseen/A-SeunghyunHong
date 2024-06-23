@@ -59,34 +59,34 @@ void UGOSpellSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSecond
 {
     Super::NativeTick(Geometry, DeltaSeconds);
 
-    //if (bIsCooldownActive && CurrentSkill)
-    //{
-    //    UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillSlotWidget::NativeTick] CurrentSkill %s"), *CurrentSkill.GetName());
+    if (bIsCooldownActive && CurrentSpell)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillSlotWidget::NativeTick] CurrentSkill %s"), *CurrentSpell.GetName());
 
-    //    float CurrentTime = UGameplayStatics::GetTimeSeconds(GetWorld());
-    //    float TimeElapsed = CurrentTime - CooldownStartTime;
-    //    float CooldownDuration = CurrentSkill->GetCoolDownTime();
-    //    float RemainingTime = CooldownDuration - TimeElapsed;
+        float CurrentTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+        float TimeElapsed = CurrentTime - CooldownStartTime;
+        float CooldownDuration = CurrentSpell->GetCoolDownTime();
+        float RemainingTime = CooldownDuration - TimeElapsed;
 
-    //    if (RemainingTime <= 0)
-    //    {
-    //        bIsCooldownActive = false;
-    //        CurrentSkill->SetIsOnCoolTime(false);
-    //        OnCooldownChanged(false);
-    //    }
-    //    else
-    //    {
-    //        // 쿨다운 시간 업데이트
-    //        FString FormattedTime = FString::Printf(TEXT("%.1f"), RemainingTime);
-    //        CooldownText->SetText(FText::FromString(FormattedTime));
+        if (RemainingTime <= 0)
+        {
+            bIsCooldownActive = false;
+            CurrentSpell->SetIsOnCoolTime(false);
+            OnCooldownChanged(false);
+        }
+        else
+        {
+            // 쿨다운 시간 업데이트
+            FString FormattedTime = FString::Printf(TEXT("%.1f"), RemainingTime);
+            CooldownText->SetText(FText::FromString(FormattedTime));
 
-    //        if (MatInstance)
-    //        {
-    //            float Percent = 1.0f - (RemainingTime / CooldownDuration);
-    //            MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
-    //        }
-    //    }
-    //}
+            if (MatInstance)
+            {
+                float Percent = 1.0f - (RemainingTime / CooldownDuration);
+                MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+            }
+        }
+    }
 }
 
 void UGOSpellSlotWidget::BindSpell(UGOSpellBase* Spell)
@@ -101,42 +101,42 @@ void UGOSpellSlotWidget::BindSpell(UGOSpellBase* Spell)
     UE_LOG(LogTemp, Warning, TEXT("[UGOSpellSlotWidget::BindSpell] 000 Spell is  %s"), *Spell->GetName());
 
     //CurrentSkill->OnCooldownUpdated.AddUObject(this, &UGOSkillSlotWidget::UpdateCooldownUI);
-    //CurrentSpell->UGOSkillBaseFIsOnCooldown.AddUObject(this, &UGOSkillSlotWidget::OnCooldownChanged);
+    CurrentSpell->UGOSpellBaseFIsOnCooldown.AddUObject(this, &UGOSpellSlotWidget::OnCooldownChanged);
     SpellIconImage->SetBrushFromTexture(Spell->GetTotalSpellData().SpellIcon); // 스킬 아이콘 설정
     UE_LOG(LogTemp, Warning, TEXT("[UGOSpellSlotWidget::BindSpell] 111 Spell is  %s"), *Spell->GetName());
 }
 
 void UGOSpellSlotWidget::UpdateCooldownUI(float DeltaTime)
 {
-    //CooldownImage->SetVisibility(ESlateVisibility::Visible);
-    //CooldownText->SetVisibility(ESlateVisibility::Visible);
+    CooldownImage->SetVisibility(ESlateVisibility::Visible);
+    CooldownText->SetVisibility(ESlateVisibility::Visible);
 
-    //if (CooldownText)
-    //{
-    //    FString FormattedTime = FString::Printf(TEXT("%.1f"), DeltaTime);
-    //    CooldownText->SetText(FText::FromString(FormattedTime));
-    //}
-    //if (MatInstance)
-    //{
-    //    float Percent = (CurrentSpell->GetCoolDownTime() - DeltaTime) / CurrentSkill->GetCoolDownTime();
-    //    MatInstance->SetScalarParameterValue(FName("percent"), Percent);
-    //}
+    if (CooldownText)
+    {
+        FString FormattedTime = FString::Printf(TEXT("%.1f"), DeltaTime);
+        CooldownText->SetText(FText::FromString(FormattedTime));
+    }
+    if (MatInstance)
+    {
+        float Percent = (CurrentSpell->GetCoolDownTime() - DeltaTime) / CurrentSpell->GetCoolDownTime();
+        MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+    }
 }
 
 void UGOSpellSlotWidget::OnCooldownChanged(bool bIsActive)
 {
-    //bIsCooldownActive = bIsActive;
-    //UE_LOG(LogTemp, Warning, TEXT("[UGOSkillSlotWidget::OnCooldownChanged] is called. %d"), bIsCooldownActive);
+    bIsCooldownActive = bIsActive;
+    UE_LOG(LogTemp, Warning, TEXT("[UGOSkillSlotWidget::OnCooldownChanged] is called. %d"), bIsCooldownActive);
 
-    //if (bIsActive)
-    //{
-    //    CooldownStartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
-    //    CooldownImage->SetVisibility(ESlateVisibility::Visible);
-    //    CooldownText->SetVisibility(ESlateVisibility::Visible);
-    //}
-    //else
-    //{
-    //    CooldownImage->SetVisibility(ESlateVisibility::Hidden);
-    //    CooldownText->SetVisibility(ESlateVisibility::Hidden);
-    //}
+    if (bIsActive)
+    {
+        CooldownStartTime = UGameplayStatics::GetTimeSeconds(GetWorld());
+        CooldownImage->SetVisibility(ESlateVisibility::Visible);
+        CooldownText->SetVisibility(ESlateVisibility::Visible);
+    }
+    else
+    {
+        CooldownImage->SetVisibility(ESlateVisibility::Hidden);
+        CooldownText->SetVisibility(ESlateVisibility::Hidden);
+    }
 }

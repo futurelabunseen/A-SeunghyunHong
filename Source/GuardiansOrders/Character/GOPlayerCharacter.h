@@ -64,6 +64,7 @@ public:
 	//ERoleType RoleType;
 	//EAttackRange AttackRange;
 	//EArchetype Archetype;
+	void SetTeamColor(ETeamType TeamtoSet);
 
 // Camera Section
 protected:
@@ -357,6 +358,13 @@ public:
 	*/
 	float AcceptMinCheckTime = 0.15f;
 
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	UNiagaraSystem* HealEffect;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnHealEffect(AGOPlayerCharacter* TargetCharacter);
+
 // PvP section
 public:
 	void ResetPlayer();
@@ -596,4 +604,29 @@ private:
 	void HandlePlayerKilled(AController* KillerController, AGOPlayerState* VictimPlayerState);
 
 	void CheckForGrindingStone();
+
+	void AttemptStatIncrease();
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UNiagaraSystem* FXGrindingImpact;
+
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnGrindingNiagaraEffect(FVector Location);
+
+private:
+	void SpawnGrindingNiagaraEffect(FVector Location);
+
+private:
+	int32 AttemptCount;
+
+    UFUNCTION(Server, Reliable, WithValidation)
+    void ServerAttemptStatIncrease();
+
+    //UFUNCTION(Client, Reliable)
+    //void ClientNotifyStatIncreaseResult(bool bSuccess, float StatIncreaseAmount);
+
+    void BindWidgetEvents();
+
 };

@@ -7,6 +7,7 @@
 #include "GORogersCharacter.generated.h"
 
 class USphereComponent;
+class UNiagaraComponent;
 
 UCLASS()
 class GUARDIANSORDERS_API AGORogersCharacter : public AGOPlayerCharacter
@@ -40,6 +41,11 @@ public:
 
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	TObjectPtr<UNiagaraSystem> ShieldEffect;
+
+	TObjectPtr<UNiagaraComponent> FXShield;
 
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;

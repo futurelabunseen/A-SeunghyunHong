@@ -22,6 +22,11 @@ void UGOProjectileSkillBase::StartCast()
     Super::StartCast();
 }
 
+void UGOProjectileSkillBase::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+}
+
 void UGOProjectileSkillBase::UpdateCast(float DeltaTime)
 {
     Super::UpdateCast(DeltaTime);

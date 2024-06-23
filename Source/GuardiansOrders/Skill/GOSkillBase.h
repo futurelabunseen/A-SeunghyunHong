@@ -10,6 +10,7 @@
 #include "GameData/GOSkillData.h"
 #include "Delegates/Delegate.h"
 #include "UI/SkillWidget/GOSkillSlotWidget.h"
+#include "Tickable.h"
 #include "GOSkillBase.generated.h"
 
 class UGOSkillStatComponent;
@@ -34,7 +35,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(UGOSkillBaseFIsOnCooldown, bool);
    * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
    */
 UCLASS(Blueprintable)
-class GUARDIANSORDERS_API UGOSkillBase : public UObject
+class GUARDIANSORDERS_API UGOSkillBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -47,7 +48,29 @@ public:
 
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
+	
+	virtual void Tick(float DeltaTime) override;
+	/** Tick을 활성화할지 여부를 반환하는 함수입니다. */
+	virtual bool IsTickable() const override;
+	/** 에디터에서 Tick을 활성화할지 여부를 반환하는 함수입니다. 일반적으로 true를 반환하여 에디터에서도 객체의 Tick을 활성화할 수 있도록 설정합니다. */
+	virtual bool IsTickableInEditor() const override;
+	/** 게임이 일시 정지되었을 때 Tick을 계속해서 호출할지 여부를 반환하는 함수입니다. */
+	virtual bool IsTickableWhenPaused() const override;
+	/** 객체의 고유한 통계 식별자를 반환하는 함수입니다. */
+	virtual TStatId GetStatId() const override;
+	/** 객체가 존재하는 World를 반환하는 함수입니다. */
+	virtual UWorld* GetWorld() const override;
 
+protected:
+	/** Tick 함수의 활성화/비활성화를 설정하는 변수입니다. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseSkill")
+	bool bTickable;
+
+	/** 게임이 일시 정지되었을 때 Tick 함수를 호출할지 나타내는 변수입니다. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseSkill")
+	bool bTickableWhenPaused;
+
+public:
 	void SetSkillOwner(AActor* NewOwner);
 	FORCEINLINE AActor* GetSkillOwner() { return SkillOwnerCharacter; };
 
@@ -166,11 +189,13 @@ public:
 	UPROPERTY(VisibleInstanceOnly, Category = SkillSetting)
 	float CoolDownTimer = 0.0f; // SetCoolDownTime() 잊지말기!!!
 
+	float CoolDownTime = 0.0f;
+
 public:
 	ESkillState CurrentState;
 
 	// 스킬 시전 가능한지의 여부
-	bool bIsCastable = true;
+	bool bIsCastable = false;
 
 	// 스킬이 현재 캐스팅 중인지의 여부
 	bool bIsCasting = false;

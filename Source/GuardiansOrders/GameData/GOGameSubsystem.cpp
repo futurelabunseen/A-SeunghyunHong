@@ -412,6 +412,8 @@ void UGOGameSubsystem::InitializeHeroCharacterMap()
 
 	if (HeroCharacterData)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("HeroCharacterDataTable is  valid."));
+
 		// HeroCharacterData에 따라 맵 초기화
 		HeroCharacterMap.Add(EHeroType::Rogers, HeroCharacterData->RogersCharacterClass);
 		HeroCharacterMap.Add(EHeroType::Katniss, HeroCharacterData->KatnissCharacterClass);

@@ -12,6 +12,7 @@
 #include "DrawDebugHelpers.h"
 #include "Physics/GOCollision.h"
 #include "Skill/Projectile/GOProjectileSkillBase.h"
+#include "CharacterStat/GOCharacterStatComponent.h"
 
 UGOSkillCastComponent::UGOSkillCastComponent()
 	: bIsOnCasting(false)
@@ -34,7 +35,8 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (CurrentSkill != nullptr && CurrentSkill->bIsCasting)
+	//if (CurrentSkill != nullptr && CurrentSkill->bIsCasting)
+	if (CurrentSkill != nullptr && CurrentSkill->bIsCasting && CurrentSkill->bIsCastable) // 이케 함
 	{
 		OnUpdateCast(DeltaTime);
 	}
@@ -42,14 +44,13 @@ void UGOSkillCastComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 {
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillCastComponent OnStartCast() is Called."));
 
 	/*
 	ESkillTriggerType TriggerType = InSkillInstance->GetSkillTriggerType();
 	ESkillAffectType AffectType = InSkillInstance->GetSkillAffectType();*/
 
 	// 스킬 캐스팅 시작 로직
-	bIsOnCasting = true;
+	//bIsOnCasting = true;
 
 	// Cast상태 활성화 예. 더 유연한 방법을 써야한다
 	// GetOwner()->SetPlayerActionState(EGOPlayerActionState::Cast, true);  
@@ -64,12 +65,22 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	//}
 
 	//CurrentSkill->StartCast();
-
-	if (CurrentSkill)
+	AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetOwner());
+	if (Owner->Stat->GetCurrentMana() < CurrentSkill->GetTotalSkillStat().ManaCost)
 	{
+		return;
+	}
+	
+	if (CurrentSkill->bIsCasting==false && CurrentSkill->bIsCastable==false)//여기
+	{
+		
+		UE_LOG(LogTemp, Log, TEXT("[NewSkill] UGOSkillCastComponent OnStartCast() is Called."));
+
 		CurrentSkill->SetSkillOwner(GetOwner());
 		CurrentSkill->HandleSkillTrigger();  // Trigger 처리
 		CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
+		//bIsOnCasting = true;
+		CurrentSkill->bIsCastable = true;
 	}
 }
 
@@ -82,11 +93,16 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 	CastDownTimer += DeltaTime;
 
 	// 스킬 캐스팅 중 업데이트 로직
-	CurrentSkill->UpdateCast(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillCastComponent::OnUpdateCast] CurrentSkill->UpdateCast(DeltaTime);"));
+	//CurrentSkill->UpdateCast(DeltaTime);
+	UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillCastComponent::OnUpdateCast] CurrentSkill->UpdateCast(DeltaTime);"));
 
-	if (bIsOnCasting)
+	if (CurrentSkill->bIsCastable)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillCastComponent::OnUpdateCast] bIsOnCasting 0"));
+
+		CurrentSkill->bIsCastable = false; // 이케 함		
+		UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillCastComponent::OnUpdateCast] bIsOnCasting 0"));
+
 		if (AGOPlayerCharacter* Owner = Cast<AGOPlayerCharacter>(GetOwner()))
 		{
 			if (CurrentSkill->GetTarget() != nullptr)
@@ -111,7 +127,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 				{
 					CurrentSkill->SetSkillOwner(GetOwner());
 					CurrentSkill->HandleSkillTrigger();  // Trigger 처리
-					CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
+					//CurrentSkill->StartCast();  // 타겟이 설정된 후 캐스팅 프로세스 시작
 
 					if (CurrentSkill->GetSkillCastType() == ESkillCastType::Projectile)
 					{
@@ -138,7 +154,7 @@ void UGOSkillCastComponent::OnUpdateCast(float DeltaTime)
 					}
 				}
 
-				bIsOnCasting = false;
+				//bIsOnCasting = false; //원래 잇던
 				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillCastComponent::OnUpdateCast] called. This function call CharacterBase's PlaySkillAnim "));
 			}
 		}
@@ -270,25 +286,6 @@ bool UGOSkillCastComponent::ServerHandleProjectileSkill_Validate(TSubclassOf<AGO
 {
 	return true;
 }
-
-//void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
-//{
-//	FVector Forward = GetOwner()->GetActorForwardVector();
-//	FVector RainCenterLocation = Location + Forward * 1000.0f; // 500 units in front of the character
-//
-//	for (int32 i = 0; i < NumProjectilesPerSpawn; ++i)
-//	{
-//		FVector SpawnLocation = Location + FVector(FMath::RandRange(-200, 200), FMath::RandRange(-200, 200), 300.0f); // Randomize the spawn location within a certain range
-//		FRotator SpawnRotation = FRotator(-90.0f, 0.0f, 0.0f); // Rotate downwards
-//
-//		FActorSpawnParameters SpawnParams;
-//		SpawnParams.Owner = GetOwner();
-//		SpawnParams.Instigator = GetOwner()->GetInstigator();
-//		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-//
-//		AGOProjectile* Projectile = GetWorld()->SpawnActor<AGOProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
-//	}
-//}
 
 void UGOSkillCastComponent::ServerStartArrowRain_Implementation(TSubclassOf<AGOProjectile> ProjectileClass, FVector Location, float Duration, float Interval, int32 NumProjectilesPerSpawn)
 {

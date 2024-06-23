@@ -21,6 +21,7 @@ public:
 
 public:
 	virtual void StartCast() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void UpdateCast(float DeltaTime) override;
 	virtual void ActivateSkill() override;
 	virtual void FinishCast() override;

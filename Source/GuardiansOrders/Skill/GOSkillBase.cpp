@@ -15,9 +15,9 @@
 
 UGOSkillBase::UGOSkillBase()
 {
-
+	bTickable = true;
+	bTickableWhenPaused = false;
 }
-
 
 void UGOSkillBase::PostInitProperties()
 {
@@ -27,6 +27,50 @@ void UGOSkillBase::PostInitProperties()
 void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
+
+void UGOSkillBase::Tick(float DeltaTime)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick "));
+
+	//if (!IsCasting()) return;
+	if (bIsCasting==true)
+	{
+		CoolDownTimer -= DeltaTime;
+		UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick --"));
+		if (CoolDownTimer <= 0.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick <<"));
+
+			FinishCast();
+		}
+	}
+	//UpdateCast(DeltaTime);
+}
+
+bool UGOSkillBase::IsTickable() const
+{
+	return bTickable;
+}
+
+bool UGOSkillBase::IsTickableInEditor() const
+{
+	return bTickable;
+}
+
+bool UGOSkillBase::IsTickableWhenPaused() const
+{
+	return bTickableWhenPaused;
+}
+
+TStatId UGOSkillBase::GetStatId() const
+{
+	return TStatId();
+}
+
+UWorld* UGOSkillBase::GetWorld() const
+{
+	return GetOuter()->GetWorld();
 }
 
 void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
@@ -88,22 +132,25 @@ void UGOSkillBase::SpawnParticleAroundActor(AActor* Actor, float Radius)
 
 void UGOSkillBase::StartCast()
 {
-	if (IsCastable() == false)
+	/*if (IsCastable() == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Skill is not castable due to cooldown or other conditions."));
 		return;
-	}
-	UE_LOG(LogTemp, Log, TEXT("[SkillSystem] UGOSkillBase::StartCast() is Called."));
+	}*/
+	UE_LOG(LogTemp, Log, TEXT("[NewSkill] UGOSkillBase::StartCast() is Called."));
 
 	bIsCasting = true;
 	SetIsOnCoolTime(true);
 
 	SetCoolDownTimer();
+	CoolDownTime = CoolDownTimer;
 	// 델리게이트로 알려주장
-	UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
+
+	if(bIsCasting == true)
+		UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
 
 	//SpawnParticleEffect(SkillData.SkillCastType, SkillData.ParticleSpawnLocation);
-	UE_LOG(LogTemp, Warning, TEXT("[ UGOSkillBase::StartCast] Broadcast"));
+	UE_LOG(LogTemp, Warning, TEXT("[ NewSkill::StartCast] Broadcast"));
 
 	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
 	//{
@@ -114,16 +161,26 @@ void UGOSkillBase::StartCast()
 
 void UGOSkillBase::UpdateCast(float DeltaTime)
 {
-	//if (CoolDownTimer > 0.0f)
+	UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] called "));
+
+	if (CoolDownTime >= CoolDownTimer)
+	{
+		CoolDownTimer -= DeltaTime;
+
+
+		//OnCooldownUpdated.Broadcast(CoolDownTimer);
+		UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] is called. CoolDownTimer : %d > 0.f"), CoolDownTimer);
+	}
+	if (CoolDownTimer < 0)
+	{
+		FinishCast();
+	}
+	//if (CoolDownTimer <= 0.0f)
 	//{
-	//	CoolDownTimer -= DeltaTime;
-	//	if (CoolDownTimer <= 0.0f)
-	//	{
-	//		CoolDownTimer = 0.0f;
-	//		bIsCastable = true;
-	//	}
-	//	OnCooldownUpdated.Broadcast(CoolDownTimer);
-	//	UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::UpdateCast] is called. %d"), CoolDownTimer);
+	//	FinishCast();
+	//	//CoolDownTimer = 0.0f;
+	//	//bIsCastable = true;
+	//	UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] is called. CoolDownTimer : %d < 0.0f"), CoolDownTimer);
 	//}
 }
 
@@ -132,17 +189,17 @@ void UGOSkillBase::ActivateSkill() // UGOSkillCastComponent::OnUpdateCast 에서
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
 	ExecuteSkill(GetSkillCollisionType());
 
-	UE_LOG(LogTemp, Log, TEXT("[UGOSkillBase::Activate()] Skill %s activated."), *SkillData.SkillName);
+	UE_LOG(LogTemp, Log, TEXT("[NewSkill::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
 void UGOSkillBase::FinishCast()
 {
-	// bIsCasting = false;
+	bIsCasting = false;
+	bIsCastable = false;
 	// bIsCastable = false; // 쿨다운이 진행되므로 다시 캐스트할 수 없음
 	SetCoolDownTimer();  // 쿨다운 타이머 재설정 ㅠㅠ....
-	UE_LOG(LogTemp, Log, TEXT("[SkillBarUI UGOSkillBase::FinishCast()] is called "));
 	SetIsOnCoolTime(false);
-
+	UE_LOG(LogTemp, Log, TEXT("[NewSkill UGOSkillBase::FinishCast()] is called "));
 }
 
 void UGOSkillBase::InterruptedCast()
@@ -450,7 +507,7 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& Out
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called !"));
 	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
+	// DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResult>& OutHitResults)
@@ -480,7 +537,7 @@ void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResul
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepMulti Called !"));
 	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
+	// DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverlapResult>& OutOverlaps)
@@ -510,7 +567,7 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
 	FColor TraceColor = OutOverlaps.Num() > 0 ? FColor::Green : FColor::Red;
-	DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
+	// DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
 }
 
 TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
@@ -539,7 +596,7 @@ TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
 			}
 		}
 	}
-	DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
+	// DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
 
 	return ClosestCharacter;
 }
@@ -576,7 +633,7 @@ TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTargetRadiusDegreeBase(c
 			}
 		}
 	}
-	DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
+	// DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
 
 	return ClosestCharacter;
 }

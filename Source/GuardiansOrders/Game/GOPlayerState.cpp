@@ -14,6 +14,7 @@
 #include <UI/GOBattleCharacterOverlayWidget.h>
 #include "UI/GOHUDWidget.h"
 #include "Components/Overlay.h"
+#include "UI/GOGrindingStoneWidget.h"
 
 AGOPlayerState::AGOPlayerState()
 {
@@ -203,6 +204,15 @@ void AGOPlayerState::SetTeam(ETeamType TeamToSet)
 
 }
 
+void AGOPlayerState::SetTeamColor(ETeamType TeamtoSet)
+{
+	AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
+	if (BCharacter)
+	{
+		BCharacter->SetTeamColor(TeamtoSet);
+	}
+}
+
 void AGOPlayerState::OnRep_Team()
 {
 	// PlayerController를 통해 GOLobbyHUDWidget의 SetLobbyTeamInfo 호출
@@ -217,22 +227,22 @@ void AGOPlayerState::OnRep_Team()
 		}
 	}
 	//// 팀에 따른 설정 (예: 매터리얼)
-	//AGOPlayerCharacter* BCharacter = Cast<AGOPlayerCharacter>(GetPawn());
-	//if (BCharacter)
-	//{
-	//	//BCharacter->SetTeamColor(Team);
-
-	//	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
-	//	if (PlayerController)
-	//	{
-	//		AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(PlayerController);
-	//		if (LobbyController && LobbyController->GOLobbyHUDWidget)
-	//		{
-	//			LobbyController->SetLobbyTeamInfo(GetTeamType());
-	//			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] GetTeamType() : %d"), GetTeamType());
-	//		}
-	//	}
-	//}
+	AGOPlayerCharacter* GOCharacter = Cast<AGOPlayerCharacter>(GetPawn());
+	if (GOCharacter)
+	{
+		//BCharacter->SetTeamColor(Team);
+		
+		APlayerController* GOPlayerController = Cast<APlayerController>(GetOwner());
+		if (GOPlayerController)
+		{
+			AGOLobbyPlayerController* LobbyController = Cast<AGOLobbyPlayerController>(GOPlayerController);
+			if (LobbyController && LobbyController->GOLobbyHUDWidget)
+			{
+				LobbyController->SetLobbyTeamInfo(GetTeamType());
+				UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] GetTeamType() : %d"), GetTeamType());
+			}
+		}
+	}
 }
 
 void AGOPlayerState::SetSelectedHero(EHeroType HeroType)
@@ -260,6 +270,10 @@ void AGOPlayerState::OnRep_SelectedHeroInfo()
 			UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerState] SetTeam %d "), GetTeamType());
 		}
 	}
+
+	//if (Character) {
+	//	Character->UpdateNicknameWidget(SelectedHero.PlayerName);
+	//}
 }
 
 void AGOPlayerState::OnRep_SelectedNickname()
@@ -274,9 +288,9 @@ void AGOPlayerState::OnRep_SelectedNickname()
 	//		LobbyController->GOLobbyHUDWidget->LobbySelectedHeroInfoWidget->NameText->SetText(NicknameText);
 	//	}
 	//}
-	if (Character) {
-		Character->UpdateNicknameWidget(SelectedHero.PlayerName);
-	}
+	//if (Character) {
+	//	Character->UpdateNicknameWidget(SelectedHero.PlayerName);
+	//}
 }
 
 void AGOPlayerState::AddKilledEnemyPlayer(int32 pID)
@@ -301,6 +315,8 @@ bool AGOPlayerState::HasKilledAllEnemyPlayers(const TArray<int32>& EnemyPlayerId
 		return false;
 
 	return true; 
+
+	// 
 }
 
 void AGOPlayerState::CheckForGrindingStone()
@@ -311,9 +327,23 @@ void AGOPlayerState::CheckForGrindingStone()
 		const TArray<int32>& EnemyPlayerIds = (GetTeamType() == ETeamType::ET_RedTeam) ? GameState->BlueTeamPlayerIds : GameState->RedTeamPlayerIds;
 		if (HasKilledAllEnemyPlayers(EnemyPlayerIds))
 		{
-			bHasGrindingStone = true;
-			OnRep_HasGrindingStone();
+			UE_LOG(LogTemp, Warning, TEXT("[Grinding] CheckForGrindingStone AGOPlayerState: %d"), *this->GetName());
+
+			
+			SetGrindingStone(true);
+
+			// 모든 적 플레이어를 죽인 후 KilledEnemyPlayers 초기화
+			ResetKilledEnemyPlayers();
 		}
+	}
+}
+
+void AGOPlayerState::SetGrindingStone(bool bNewGrindingStone)
+{
+	if (bHasGrindingStone != bNewGrindingStone) // 추가
+	{
+		bHasGrindingStone = bNewGrindingStone;
+		OnRep_HasGrindingStone(); // Call directly for immediate update on owning client
 	}
 }
 
@@ -332,9 +362,38 @@ void AGOPlayerState::OnRep_HasGrindingStone()
 {
 	if (bHasGrindingStone)
 	{
+		//APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
+		//if (GetWorld()->GetFirstPlayerController())
+		//AGOPlayerController* GOPlayer = Cast<AGOPlayerController>(GetWorld()->GetFirstPlayerController());
+		//if (GOPlayer)
 		if (Controller)
 		{
 			Controller->SetGrindingStoneVisible();
+			//
+			UE_LOG(LogTemp, Warning, TEXT("[Grinding] OnRep_HasGrindingStone Controller: %d"), *Controller->GetName());
+			//bHasGrindingStone = false; //추가
+			//Controller->GOHUDWidget->GrindingStoneWidget->SetVisibility(ESlateVisibility::Visible);
 		}
+
+		//else if (!Controller)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("KilledEnemyPlayers has been reset"));
+		//}
 	}
+}
+
+void AGOPlayerState::ResetKilledEnemyPlayers()
+{
+	KilledEnemyPlayers.Empty();
+	UE_LOG(LogTemp, Warning, TEXT("[Grinding] KilledEnemyPlayers has been reset. Current number of elements: %d"), KilledEnemyPlayers.Num());
+	// 타이머 핸들을 선언합니다.
+	FTimerHandle TimerHandle;
+
+	// 2초 후에 ResetGrindingStone 함수를 호출하도록 타이머를 설정합니다.
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AGOPlayerState::ResetGrindingStone, 2.0f, false);
+}
+void AGOPlayerState::ResetGrindingStone()
+{
+	bHasGrindingStone = false;
+	UE_LOG(LogTemp, Warning, TEXT("[Grinding] bHasGrindingStone has been set to false."));
 }

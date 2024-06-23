@@ -12,6 +12,12 @@ void UGOFlashSpell::StartCast()
 	Super::StartCast();
 }
 
+void UGOFlashSpell::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void UGOFlashSpell::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

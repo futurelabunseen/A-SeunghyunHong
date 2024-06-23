@@ -22,6 +22,11 @@ void UGOKatnissUltimateSkill::StartCast()
 	Super::StartCast();
 }
 
+void UGOKatnissUltimateSkill::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 void UGOKatnissUltimateSkill::UpdateCast(float DeltaTime)
 {
 	Super::UpdateCast(DeltaTime);

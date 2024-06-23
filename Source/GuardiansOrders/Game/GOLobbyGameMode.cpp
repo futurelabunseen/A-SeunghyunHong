@@ -37,19 +37,19 @@ void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
 		FString PlayerName = NewPlayer->PlayerState->GetPlayerName();
 		FString PlayerControllerName = NewPlayer->GetName();
 
-		// Display the player's name on the screen
-		/*if (GEngine)
+		//Display the player's name on the screen
+		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Green,
 				FString::Printf(TEXT("Player %s (Controller: %s) has logged in"),
 					*PlayerName, *PlayerControllerName));
-		}*/
+		}
 	}
 
 	if (HasAuthority())
 	{
 		int32 NumOfPlayers = GameState.Get()->PlayerArray.Num();
-		if (NumOfPlayers == 2)
+		if (NumOfPlayers == 4)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[LOBBY] Two players logged in, waiting for character selection"));
 
@@ -131,8 +131,8 @@ void AGOLobbyGameMode::HandleSeamlessTravelPlayer(AController*& C)
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOLobbyGameMode::HandleSeamlessTravelPlayer - OldPawn is null, using default location and rotation"));
-				Location = FVector(0.f, 0.f, 100.f);  // 적절한 기본 위치로 설정
-				Rotation = FRotator::ZeroRotator;    // 적절한 기본 회전으로 설정
+				Location = FVector(0.f, 0.f, 100.f);  
+				Rotation = FRotator::ZeroRotator;   
 			}
 
 			FActorSpawnParameters SpawnParams;
@@ -197,7 +197,9 @@ void AGOLobbyGameMode::CheckAllPlayersSelected()
 
 	if (GS && GS->AreAllPlayersReady())
 	{
-		// 모든 플레이어가 준비되면 타이머를 시작합니다.
+		// 모든 플레이어가 준비되면 타이머를 시작
+		UE_LOG(LogTemp, Warning, TEXT("[SEAMLESS] AGOLobbyGameMode::CheckAllPlayersSelected - Timer START"));
+
 		GetWorldTimerManager().SetTimer(ServerTravelTimerHandle, this, &AGOLobbyGameMode::DelayedServerTravel, 5.0f, false);
 	}
 }

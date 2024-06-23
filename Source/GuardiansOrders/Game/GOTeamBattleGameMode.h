@@ -7,6 +7,11 @@
 #include "GameFramework/PlayerStart.h"
 #include "GOTeamBattleGameMode.generated.h"
 
+namespace MatchState
+{
+	extern GUARDIANSORDERS_API const FName Cooldown;
+	extern GUARDIANSORDERS_API const FName RoundEnd;
+}
 /**
  * 
  */
@@ -24,13 +29,31 @@ public:
 	virtual void HandleSeamlessTravelPlayer(AController*& C) override;
 	virtual void StartPlay() override;
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime);
 	virtual float CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage);
 	virtual void OnPlayerKilled(AController* Killer, AController* KilledPlayer, APawn* KilledPawn);
 
+	UPROPERTY(EditDefaultsOnly)
+	float WarmupTime  = 5.f; 
+
+	UPROPERTY(EditDefaultsOnly)
+	float CooldownTime = 5.f; // at the Ready State
+
+	float LevelStartingTime = 0.f;
+
+	float CountdownTime  = 180.f;
+	// float CountdownTime  = 10.f;
+
 protected:
+	virtual void OnMatchStateSet() override;
 	virtual void HandleMatchHasStarted() override;
 	virtual void DefaultRoundTimer() override;
 	void FinishMatch();
 
 
+	void StartCooldownCountdown();
+	void HandleCooldownCountdown();
+
+private:
+	FTimerHandle CooldownTimerHandle;
 };

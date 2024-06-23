@@ -7,6 +7,14 @@
 #include "Kismet/GameplayStatics.h"
 #include <EngineUtils.h>
 #include "GameFramework/PlayerStart.h"
+#include <Character/GOCharacterBase.h>
+#include "Player/GOPlayerController.h"
+
+namespace  MatchState
+{
+	const FName Cooldown = FName("Cooldown");
+	const FName RoundEnd = FName("RoundEnd");
+}
 
 AGOTeamBattleGameMode::AGOTeamBattleGameMode()
 {
@@ -55,25 +63,7 @@ void AGOTeamBattleGameMode::StartPlay()
 	Super::StartPlay();
 	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode StartPlay"));
 
-	// 팀에 따라 위치 설정
-	for (APlayerStart* PlayerStart : TActorRange<APlayerStart>(GetWorld()))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart: %s"), *PlayerStart->GetName());
 
-		// 여기서 팀별로 분류합니다.
-		if (PlayerStart->Tags.Contains(FName("BlueTeam")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart BlueTeam"));
-
-			BlueTeamPlayerStarts.Add(PlayerStart);
-		}
-		else if (PlayerStart->Tags.Contains(FName("RedTeam")))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart RedTeam"));
-
-			RedTeamPlayerStarts.Add(PlayerStart);
-		}
-	}
 
 	// 모든 플레이어 상태를 가져옴
 	for (APlayerState* PlayerState : GameState->PlayerArray)
@@ -111,6 +101,22 @@ void AGOTeamBattleGameMode::StartPlay()
 				Pawn->SetActorLocationAndRotation(SpawnLocation, SpawnRotation);
 				UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] %s moved to Team %d Location: %s"),
 					*GOPlayerState->GetPlayerName(), Team, *SpawnLocation.ToString());
+
+				//// Update player's widget nickname
+				//AGOCharacterBase* Character = Cast<AGOCharacterBase>(Pawn);
+				//if (Character)
+				//{
+				//	FTimerHandle TimerHandle;
+				//	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [Character, GOPlayerState]() {
+				//		if (Character)
+				//		{
+				//			Character->UpdateNicknameWidget(GOPlayerState->SelectedHero.PlayerName);
+				//		}
+				//		}, 3.0f, false);
+				//}
+
+				//UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] %s moved to Team %d Location: %s"),
+				//	*GOPlayerState->GetPlayerName(), Team, *SpawnLocation.ToString());
 			}
 		}
 	}
@@ -120,8 +126,138 @@ void AGOTeamBattleGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("[Sequence] AGOTeamBattleGameMode BeginPlay")); // O
-	
+
+	LevelStartingTime = GetWorld()->GetTimeSeconds();
 }
+
+//void AGOTeamBattleGameMode::Tick(float DeltaTime)
+//{
+//	Super::Tick(DeltaTime);
+//
+//	if (MatchState == MatchState::InProgress)
+//	{
+//		//UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode InProgress")); // O
+//		CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+//	}
+//}
+
+void AGOTeamBattleGameMode::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (MatchState == MatchState::InProgress)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode InProgress")); // O
+
+		//CountdownTime = WarmupTime - GetWorld()->GetTimeSeconds() + LevelStartingTime;
+
+		// Check if 5 seconds have passed since the match started
+		float ElapsedTime = GetWorld()->GetTimeSeconds() - LevelStartingTime;
+		if (ElapsedTime >= CooldownTime)
+		{
+			SetMatchState(MatchState::Cooldown);
+		}
+	}
+
+	else if (MatchState == MatchState::Cooldown)
+	{
+		TArray<APlayerState*> PlayerStates = GameState->PlayerArray;
+
+		//for (APlayerState* PlayerState : PlayerStates)
+		//{
+		//	if (PlayerState)
+		//	{
+		//		if (AGOPlayerController* PlayerController = Cast<AGOPlayerController>(PlayerState->GetOwner()))
+		//		{
+		//			AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+		//			if (BGameState)
+		//			{
+		//				AGOPlayerState* BPState = PlayerController->GetPlayerState<AGOPlayerState>();
+		//				if (BPState && BPState->GetTeamType() == ETeamType::ET_BlueTeam)
+		//				{
+		//					UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]Cooldown::SetTeamColor"));
+		//					BPState->SetTeamColor(ETeamType::ET_BlueTeam);
+		//				}
+		//				else if (BPState && BPState->GetTeamType() == ETeamType::ET_RedTeam)
+		//				{
+		//					BPState->SetTeamColor(ETeamType::ET_RedTeam);
+		//				}
+		//			}
+		//		}
+		//	}
+		//}
+
+
+		UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode Cooldown: %f"), CountdownTime);
+		// StartCooldownCountdown();
+
+		if (CountdownTime >= 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode Cooldown Countdown 0: %f"), CountdownTime);
+
+			CountdownTime -= DeltaTime;
+			UE_LOG(LogTemp, Warning, TEXT("[MatchState] AGOTeamBattleGameMode Cooldown Countdown 1: %f"), CountdownTime);
+
+			// Notify all player controllers to update their HUD
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+			{
+				AGOPlayerController* PC = Cast<AGOPlayerController>(*It);
+				if (PC)
+				{
+					// UE_LOG(LogTemp, Warning, TEXT("[MatchState] FConstPlayerControllerIterator: %s"), *PC->GetName());
+
+					PC->SetHUDMatchCountdown(CountdownTime);
+				}
+			}
+
+		}
+		else if (CountdownTime < 0)
+		{
+			
+			SetMatchState(MatchState::RoundEnd);
+		}
+	}
+
+	else if (MatchState == MatchState::RoundEnd)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[RoundEnd] AGOTeamBattleGameMode RoundEnd"));
+
+		// 게임 스테이트 가져오기
+		AGOGameState* BGameState = Cast<AGOGameState>(UGameplayStatics::GetGameState(this));
+		if (BGameState)
+		{
+			int32 RedTeamScore = BGameState->RedTeamScore;
+			int32 BlueTeamScore = BGameState->BlueTeamScore;
+
+			FString WinnerText;
+
+			if (RedTeamScore > BlueTeamScore)
+			{
+				WinnerText = TEXT("WINNER : RED");
+			}
+			else if (BlueTeamScore > RedTeamScore)
+			{
+				WinnerText = TEXT("WINNER : BLUE");
+			}
+			else
+			{
+				WinnerText = TEXT("DRAW");
+			}
+
+			// 모든 플레이어 컨트롤러에 HUD 업데이트 호출
+			for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+			{
+				AGOPlayerController* PC = Cast<AGOPlayerController>(*It);
+				if (PC)
+				{
+					PC->SetHUDWinnerText(WinnerText);
+				}
+			}
+		}
+	}
+
+}
+
 
 float AGOTeamBattleGameMode::CalculateDamage(AController* Attacker, AController* Victim, float BaseDamage)
 {
@@ -163,6 +299,20 @@ void AGOTeamBattleGameMode::OnPlayerKilled(AController* Killer, AController* Kil
 	}
 }
 
+void AGOTeamBattleGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		AGOPlayerController* PC = Cast<AGOPlayerController>(*It);
+		if (PC)
+		{
+			PC->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void AGOTeamBattleGameMode::HandleMatchHasStarted()
 {
 	Super::HandleMatchHasStarted();
@@ -176,3 +326,36 @@ void AGOTeamBattleGameMode::DefaultRoundTimer()
 void AGOTeamBattleGameMode::FinishMatch()
 {
 }
+
+void AGOTeamBattleGameMode::StartCooldownCountdown()
+{
+	CountdownTime = 180.f; // 3 minutes countdown
+	GetWorld()->GetTimerManager().SetTimer(
+		CooldownTimerHandle,
+		this,
+		&AGOTeamBattleGameMode::HandleCooldownCountdown,
+		1.0f,
+		true
+	);
+}
+
+void AGOTeamBattleGameMode::HandleCooldownCountdown()
+{
+
+	if (CountdownTime > 0)
+	{
+		CountdownTime--;
+		UE_LOG(LogTemp, Warning, TEXT("Cooldown Countdown: %f"), CountdownTime);
+
+		// Notify all player controllers to update their HUD
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			AGOPlayerController* PC = Cast<AGOPlayerController>(*It);
+			if (PC)
+			{
+				PC->SetHUDMatchCountdown(CountdownTime);
+			}
+		}
+	}
+}
+

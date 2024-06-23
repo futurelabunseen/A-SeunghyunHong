@@ -30,7 +30,7 @@ public:
 	/**
 	  * 스펠이 시작될 때 발생하는 이벤트를 처리합니다.
 	  */
-	void OnStartCast(FHeroSpellKey Key);
+	bool OnStartCast(FHeroSpellKey Key);
 
 	/**
 	  * 스펠이 활성화되는 동안 계속해서 발생하는 이벤트를 처리합니다.
@@ -49,6 +49,13 @@ public:
 
 	void UpdateCoolDownTime(float DeltaTime);
 		
+public:
+	// 현재 스킬 Get, Set
+	void SetCurrentSpellByKey(FHeroSpellKey Key);
+	void SetCurrentSpellKey(FHeroSpellKey Key);
+	TObjectPtr<UGOSpellBase> GetCurrentSpell();
+	FHeroSpellKey GetCurrentSpellKey();
+
 private:
 	//  현재 캐스팅 중인지의 여부 
 	bool bIsOnCasting = false;

@@ -7,6 +7,7 @@
 #include "GOSkillSlotToolTipWidget.generated.h"
 class UCommonTextBlock;
 class UGOSkillSlotLobbyWidget;
+class UGOSkillSlotWidget;
 
 /**
  * 
@@ -21,6 +22,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UGOSkillSlotLobbyWidget> LobbySkillSlotBeingHobered;
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UGOSkillSlotWidget> BattleSkillSlotBeingHobered;
+
+	//UPROPERTY(VisibleAnywhere)
+	//TObjectPtr<UGOSkillSlotWidget> SkillSlotBeingHobered;
 
 	UPROPERTY(meta=(BindWidget))
 	UCommonTextBlock* SkillNameText;

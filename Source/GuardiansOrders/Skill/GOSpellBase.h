@@ -6,18 +6,24 @@
 #include "UObject/NoExportTypes.h"
 #include "GameData/GOSpellStat.h"
 #include "GameData/GOSpellData.h"
+#include "Tickable.h"
 #include "GOSpellBase.generated.h"
 
 /**
  * 
  */
+
+DECLARE_MULTICAST_DELEGATE_OneParam(UGOSpellBaseFIsOnCooldown, bool);
+
 UCLASS(Blueprintable)
-class GUARDIANSORDERS_API UGOSpellBase : public UObject
+class GUARDIANSORDERS_API UGOSpellBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 	
 public:
 	UGOSpellBase();
+
+	UGOSpellBaseFIsOnCooldown UGOSpellBaseFIsOnCooldown;
 
 protected:
 
@@ -36,6 +42,13 @@ public:
 	FORCEINLINE FGOSpellStat GetTotalSpellStat() const { return SpellStat; }
 	FORCEINLINE FGOSpellData GetTotalSpellData() const { return SpellData; }
 	FORCEINLINE float GetCastingTime() { return GetTotalSpellStat().CastingTime; }
+	FORCEINLINE float GetCoolDownTime() const { return GetTotalSpellStat().CoolDownTime; }
+	FORCEINLINE void SetCoolDownTimer() { CoolDownTimer = GetTotalSpellStat().CoolDownTime; }
+	FORCEINLINE float GetCoolDownTimer() const { return CoolDownTimer; }
+	FORCEINLINE bool GetIsOnCoolTime() { return bIsOnCoolTime; }
+	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }
+	float CoolDownTimer = 0.0f; // SetCoolDownTime() 잊지말기!!!
+	bool bIsOnCoolTime = false;
 
 public:
 	/**
@@ -70,4 +83,27 @@ public:
 	virtual void ActivateEffect();
 
 	bool bIsCasting = false;
+	bool bIsCastable = true;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+	/** Tick을 활성화할지 여부를 반환하는 함수입니다. */
+	virtual bool IsTickable() const override;
+	/** 에디터에서 Tick을 활성화할지 여부를 반환하는 함수입니다. 일반적으로 true를 반환하여 에디터에서도 객체의 Tick을 활성화할 수 있도록 설정합니다. */
+	virtual bool IsTickableInEditor() const override;
+	/** 게임이 일시 정지되었을 때 Tick을 계속해서 호출할지 여부를 반환하는 함수입니다. */
+	virtual bool IsTickableWhenPaused() const override;
+	/** 객체의 고유한 통계 식별자를 반환하는 함수입니다. */
+	virtual TStatId GetStatId() const override;
+	/** 객체가 존재하는 World를 반환하는 함수입니다. */
+	virtual UWorld* GetWorld() const override;
+
+protected:
+	/** Tick 함수의 활성화/비활성화를 설정하는 변수입니다. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseSkill")
+	bool bTickable;
+
+	/** 게임이 일시 정지되었을 때 Tick 함수를 호출할지 나타내는 변수입니다. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "BaseSkill")
+	bool bTickableWhenPaused;
 };

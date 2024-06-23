@@ -5,11 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "Share/ShareEnums.h"
+#include "Interface/GOPlayerInterface.h"
 #include "GOPlayerController.generated.h"
 
 class UGOHUDWidget;
 class UGOSkillSetBarWidget;
 class IGOHighlightInterface;
+class AGOMagicCircle;
+class AGOPlayerState;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
@@ -19,6 +22,7 @@ class GUARDIANSORDERS_API AGOPlayerController : public APlayerController
 public:
 	AGOPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void PostInitializeComponents() override;
@@ -63,7 +67,8 @@ protected:
 	float TimeSyncFrequency = 5.f; // 5초마다 서버와 동기화
 
 	float TimeSyncRunningTime = 0.f;
-
+	float WarmupTime = 10.f;
+	float CooldownTime = 10.f;
 	void CheckTimeSync(float DeltaTime);
 
 	float SingleTripTime = 0.f;
@@ -71,6 +76,9 @@ protected:
 
 	UPROPERTY()
 	class AGOGameState* GOBattleGameState;
+
+public:
+	void  OnMatchStateSet(FName State);
 
 // HUD Section
 public:
@@ -84,9 +92,10 @@ public:
 
 	void SetHUDDefeats(int32 Defeats);
 
-	void SetHUDMatchCountdown(float CountdownTime);
+	void SetHUDMatchCountdown(float CountdownTimeSec);
 
 	void SetHUDTime();
+	float CountdownTime = 180.f;
 
 	void AddCharacterOverlayDelayed();
 
@@ -97,11 +106,31 @@ public:
 
 	void SetHUDMatchMembers(int32 MatchMemberNum);
 
+	void SetGrindingStoneVisible();
+	void SetHUDWinnerText(const FString& WinnerText);
+	
+
+	// Magic Circle
+	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
+	void HideMagicCircle();
+
+	void BroadcastElim(AGOPlayerState* Attacker, AGOPlayerState* Victim);
+
+	bool CheckMatchState(); // MatchState를 확인하는 함수 선언
+
+protected:
+	UFUNCTION(Client, Reliable)
+	void ClientElimAnnouncement(AGOPlayerState* Attacker, AGOPlayerState* Victim);
+
+
 private:
-	float MatchTime = 200.f; //200 seconds 
+	float MatchTime = 180; //180 seconds 
 	uint32 CountdownInt = 0;
 
 	FTimerHandle CharacterOverlayTimerHandle;
+	FTimerHandle MatchStartTimerHandle; 
+
+	void StartMatchCountdown();
 
 // ======== SkillSetBar UI ======== 
 protected:
@@ -127,4 +156,21 @@ private:
 
 	TScriptInterface<IGOHighlightInterface> LastActor;
 	TScriptInterface<IGOHighlightInterface> ThisActor;
+	FHitResult CursorHit;
+
+// ======= MagicCircle =======
+	void UpdateMagicCircleLocation();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AGOMagicCircle> MagicCircleClass;
+
+	UPROPERTY()
+	TObjectPtr<AGOMagicCircle> MagicCircle;
+
+// ======= MatchState  =======
+	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
+	FName  MatchState;
+
+	UFUNCTION()
+	void  OnRep_MatchState();
 };
