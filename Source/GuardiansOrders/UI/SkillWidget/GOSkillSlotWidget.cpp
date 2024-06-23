@@ -7,6 +7,7 @@
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/GOSkillSlotToolTipWidget.h"
+#include "UI/GOSkillSlotLobbyWidget.h"
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -60,14 +61,15 @@ void UGOSkillSlotWidget::NativeConstruct()
         NoManaImage->SetVisibility(ESlateVisibility::Hidden);
     }
 
-    //if (ToolTipClass)
-    //{
+    if (ToolTipClass)
+    {
 
-    //    GOToolTipWidget = CreateWidget<UGOSkillSlotToolTipWidget>(this, ToolTipClass);
-    //    GOToolTipWidget->SkillSlotBeingHobered = this;
-    //    SetToolTip(GOToolTipWidget);
-    //    UE_LOG(LogTemp, Warning, TEXT("[ToolTip]"));
-    //}
+        GOToolTipWidget = CreateWidget<UGOSkillSlotToolTipWidget>(this, ToolTipClass);
+        GOToolTipWidget->LobbySkillSlotBeingHobered = nullptr;
+        GOToolTipWidget->BattleSkillSlotBeingHobered = this;
+        SetToolTip(GOToolTipWidget);
+        UE_LOG(LogTemp, Warning, TEXT("[ToolTip] skill battle"));
+    }
 }
 
 void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
@@ -115,7 +117,7 @@ void UGOSkillSlotWidget::BindSkill(UGOSkillBase* Skill)
     //CurrentSkill->OnCooldownUpdated.AddUObject(this, &UGOSkillSlotWidget::UpdateCooldownUI);
     CurrentSkill->UGOSkillBaseFIsOnCooldown.AddUObject(this, &UGOSkillSlotWidget::OnCooldownChanged);
     SkillIconImage->SetBrushFromTexture(Skill->GetTotalSkillData().SkillIcon); // 스킬 아이콘 설정
-    
+    GOToolTipWidget->UpdateSkillToolTip(CurrentSkill->GetTotalSkillData().SkillStatName);
     UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI BindSkill] SkillIconImage is %s"), *CurrentSkill->GetTotalSkillData().SkillIcon.GetName());
     UE_LOG(LogTemp, Warning, TEXT("Skill bound and delegate bound for cooldown updates."));
 

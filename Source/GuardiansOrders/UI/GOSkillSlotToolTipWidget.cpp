@@ -31,6 +31,7 @@ void UGOSkillSlotToolTipWidget::UpdateSkillToolTip(FName SkillName)
         {
             CoolTimeText->SetText(FText::AsNumber(SkillStat->CoolDownTime));
             ManaCostText->SetText(FText::AsNumber(SkillStat->ManaCost));
+            UE_LOG(LogTemp, Warning, TEXT("[ToolTip] skill tooltippppp"));
         }
     }
 }
