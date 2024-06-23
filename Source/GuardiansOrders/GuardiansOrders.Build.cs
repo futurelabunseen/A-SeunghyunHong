@@ -8,7 +8,7 @@ public class GuardiansOrders : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystemSteam", "OnlineSubsystem", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "CommonInput", "CommonUI" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "OnlineSubsystemSteam", "OnlineSubsystem", "NavigationSystem", "AIModule", "Niagara", "EnhancedInput", "CommonInput", "CommonUI", "Slate", "SlateCore", "MultiplayerSessions" });
 
         PrivateIncludePaths.Add("GuardiansOrders");
         PublicIncludePaths.Add("GuardiansOrders");
