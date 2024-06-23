@@ -67,6 +67,9 @@ protected:
 	 */
 	virtual void GOGhost();
 
+	bool CanTeleport(FVector& TargetLocation) const; // 추가
+	bool IsInvisibleWall(const FHitResult& HitResult) const;
+
 public:
 	uint8 bPressedFlashSpell : 1; // 입력이 들어오면 참으로 변경 예정
 

@@ -24,6 +24,8 @@ class UGOUserWidget;
 class UGOSkillCastComponent;
 class UGOSpellCastComponent;
 class UGOStatsBarWidget;
+class UGOHpBarWidget;
+class UGOManaBarWidget;
 
 UCLASS()
 class GUARDIANSORDERS_API AGOCharacterBase : public ACharacter, 
@@ -61,7 +63,7 @@ protected:
 	TObjectPtr<UGOSpells> CharacterSpellSet;
 
 // Stat Section
-protected:
+public :
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess="true"))
 	TObjectPtr<UGOCharacterStatComponent> Stat;
 
@@ -77,6 +79,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UGOStatsBarWidget> StatsBarWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UGOHpBarWidget> HpBarWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UGOManaBarWidget> ManaBarWidget;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UGOWidgetComponent> HpBar;
@@ -94,13 +103,14 @@ public:
 
 	// Textures for HP bar
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	UTexture2D* BlueTexture;
+	TSubclassOf<UImage> BlueTexture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	UTexture2D* GreenTexture;
+	TSubclassOf<UImage> GreenTexture;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	UTexture2D* RedTexture;
+	TSubclassOf < UImage> RedTexture;
+
 
 // Attack Hit Section
 protected:
@@ -128,7 +138,7 @@ protected:
 
 	float DeadEventDelayTime = 5.0f;
 
-	bool bIsDead;
+	bool bIsDead = false;
 
 // Stunned Section
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))

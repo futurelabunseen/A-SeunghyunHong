@@ -110,14 +110,14 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
 	static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C")); //UUserWidget
 	
-	// hp bar images (Red, Green, Blue)
+	//// hp bar images (Red, Green, Blue)
 	//static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
-	//static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
+	////static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
 	//static ConstructorHelpers::FObjectFinder<UTexture2D> RedTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Red.LOL-StatsBar-Short-HP-Red"));
 
-	//// Assign textures to class members
+	////// Assign textures to class members
 	//BlueTexture = BlueTextureObj.Object;
-	//GreenTexture = GreenTextureObj.Object;
+	////GreenTexture = GreenTextureObj.Object;
 	//RedTexture = RedTextureObj.Object;
 
 	if (StatsBarWidgetRef.Succeeded())
@@ -197,9 +197,14 @@ void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOChar
 }
 
 void AGOCharacterBase::UpdateNicknameWidget(const FString& Nickname) {
+	UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 000 %s"), *Nickname);
+
 	if (StatsBarWidget) {
+		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 111 %s"), *Nickname);
+
 		FText NicknameText = FText::FromString(Nickname);
 		StatsBarWidget->Nickname->SetText(NicknameText);
+		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 222 %s"), *Nickname);
 	}
 }
 
@@ -255,10 +260,14 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		//HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 		//ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 	}
-	//FText Nickname = FText::FromString(GOPlayerState->SelectedHero.PlayerName);
-	//StatsBarWidget->NicknameText->SetText(Nickname);
+
+	//AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+
+	//FText Nickname = FText::FromString(PS->SelectedHero.PlayerName);
+	//StatsBarWidget->Nickname->SetText(Nickname);
 
 	StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
+	UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: -1 %s"), *StatsBarWidget->GetName());
 
 	if (!InUserWidget)
 	{
@@ -273,8 +282,8 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		return;
 	}
 
-	UGOHpBarWidget* HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
-	UGOManaBarWidget* ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
+	HpBarWidget = Cast<UGOHpBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbHpBar")));
+	ManaBarWidget = Cast<UGOManaBarWidget>(StatsBarWidget->GetWidgetFromName(TEXT("PbManaBar")));
 
 	if (!HpBarWidget || !ManaBarWidget)
 	{

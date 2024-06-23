@@ -49,6 +49,12 @@
 #include "UI/GOStatsBarWidget.h"
 #include "CommonTextBlock.h"
 #include "UI/GOGrindingStoneWidget.h"
+#include "UI/GOHpBarWidget.h"
+#include "Components/ProgressBar.h"
+#include "Engine/Texture2D.h"
+#include "Slate/SlateBrushAsset.h"
+#include "Styling/SlateBrush.h"
+#include "NiagaraComponent.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -185,7 +191,8 @@ void AGOPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SelfMove();
+	if(bIsDead == false)
+		SelfMove();
 }
 
 void AGOPlayerCharacter::BeginPlay()
@@ -214,9 +221,21 @@ void AGOPlayerCharacter::BeginPlay()
 	Subsystem->AddMappingContext(HeroSkillMappingContext, 0);
 
 	InputSubsystem = ULocalPlayer::GetSubsystem<UCommonInputSubsystem>(PlayerController->GetLocalPlayer());
-	UE_LOG(LogTemp, Log, TEXT("AGOCharacterBase BeginPlay"));
+	UE_LOG(LogTemp, Log, TEXT("AGOPlayerCharacter BeginPlay"));
 
 	BindWidgetEvents();
+	// StatComponent와 HUDWidget 연결
+	if(AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		GOPlayerController->GOHUDWidget->BindToStatComponent(Stat);
+	}
+
+
+	//AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
+	//FText Nickname = FText::FromString(PS->SelectedHero.PlayerName);
+	//UE_LOG(LogTemp, Log, TEXT("AGOPlayerCharacter Nickname %s"), *PS->SelectedHero.PlayerName);
+
+	//StatsBarWidget->Nickname->SetText(Nickname);
 }
 
 void AGOPlayerCharacter::PossessedBy(AController* NewController)
@@ -324,6 +343,15 @@ void AGOPlayerCharacter::MoveGamePad(const FInputActionValue& Value)
 
 void AGOPlayerCharacter::OnInputStarted()
 {
+	if (bIsDead == true || bIsStunned == true) return;
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		if (!GOPlayerController->CheckMatchState())
+		{
+			return;
+		}
+	}
+
 	if (InputSubsystem->GetCurrentInputType() == ECommonInputType::MouseAndKeyboard)
 	{
 		UE_LOG(LogTemp, Log, TEXT("MouseAndKeyboard"));
@@ -333,6 +361,15 @@ void AGOPlayerCharacter::OnInputStarted()
 
 void AGOPlayerCharacter::OnSetDestinationTriggered()
 {
+	if (bIsDead == true || bIsStunned == true) return;
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		if (!GOPlayerController->CheckMatchState())
+		{
+			return;
+		}
+	}
+
 	if (InputSubsystem->GetCurrentInputType() == ECommonInputType::MouseAndKeyboard)
 	{
 		FollowTime += GetWorld()->GetDeltaSeconds();
@@ -353,6 +390,15 @@ void AGOPlayerCharacter::OnSetDestinationTriggered()
 
 void AGOPlayerCharacter::OnSetDestinationReleased()
 {
+	if (bIsDead == true || bIsStunned == true) return;
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	{
+		if (!GOPlayerController->CheckMatchState())
+		{
+			return;
+		}
+	}
+
 	if (InputSubsystem->GetCurrentInputType() == ECommonInputType::MouseAndKeyboard && FollowTime <= ShortPressThreshold)
 	{
 		if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, GetActorLocation(), CachedDestination))
@@ -409,7 +455,7 @@ void AGOPlayerCharacter::OnBaseSkill()
 	//SkillCastComponent->OnStartCast(
 	//	CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill)
 	//);	
-
+	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::BaseSkill));
 }
@@ -419,7 +465,7 @@ void AGOPlayerCharacter::OnSkillQ()
 	//SkillCastComponent->OnStartCast(
 	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill01)
 	// );
-
+	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill01));
 }
@@ -429,7 +475,7 @@ void AGOPlayerCharacter::OnSkillW()
 	//SkillCastComponent->OnStartCast(
 	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill02)
 	// );
-
+	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill02));
 
@@ -440,7 +486,7 @@ void AGOPlayerCharacter::OnSkillE()
 	//SkillCastComponent->OnStartCast(
 	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill03)
 	// );
-
+	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill03));
 }
@@ -450,7 +496,7 @@ void AGOPlayerCharacter::OnSkillR()
 	//SkillCastComponent->OnStartCast(
 	// CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill)
 	// );
-
+	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::UltimateSkill));
 }
@@ -460,7 +506,7 @@ void AGOPlayerCharacter::OnSpellD()
 {
 	//SpellCastComponent->OnStartCast(
 	//	FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell01));
-
+	if (bIsDead == true || bIsStunned == true) return;
 	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
 	if (GOMovement)
 	{
@@ -473,31 +519,37 @@ void AGOPlayerCharacter::OnSpellD()
 // Heal Spell
 void AGOPlayerCharacter::OnSpellF()
 {
-	if (HasAuthority())
+	if (bIsDead == true || bIsStunned == true) return;
+	if (SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell02)) == true)
 	{
-		Stat->HealHp(0.f);
-	}
-	else
-	{
-		Stat->ServerHealHp(0.f);
-	}
-
-	SpellCastComponent->OnStartCast(
-		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell02));
-
-	UE_LOG(LogTemp, Log, TEXT("Common Spell F is triggered. HEAL : Up to 20 percent of HP recovers. "));
+		if (HasAuthority())
+		{
+			Stat->HealHp(0.f);
+		}
+		else
+		{
+			Stat->ServerHealHp(0.f);
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("Common Spell F is triggered. HEAL : Up to 20 percent of HP recovers. "));
+	};
 }
 
 // Ghost Spell
 void AGOPlayerCharacter::OnSpellG()
 {
+	if (bIsDead == true || bIsStunned == true) return;
 	/*SpellCastComponent->OnStartCast(
 		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03));*/
-
-	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
-	if (GOMovement)
+	if (SpellCastComponent->OnStartCast(
+		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03)) == true)
 	{
-		GOMovement->SetGhostSpellCommand();
+		UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
+		if (GOMovement)
+		{
+			GOMovement->SetGhostSpellCommand();
+		}
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Common Spell G is triggered. GHOST :  "));
@@ -556,6 +608,7 @@ void AGOPlayerCharacter::UpdateSkillBar()
 
 void AGOPlayerCharacter::SelfMove()
 {
+	if (bIsDead == true || bIsStunned == true) return;
 	if (!bSelfMove) return;
 	const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(GetActorLocation(), ESplineCoordinateSpace::World);
 	const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
@@ -947,6 +1000,10 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 			}
 		}
 
+		// 초기화
+		OutHitCollisionStructure.OutHitResult = FHitResult();
+		OutHitCollisionStructure.OutHitResults.Empty();
+		OutHitCollisionStructure.OutOverlaps.Empty();
 	}
 }
 
@@ -974,6 +1031,8 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 	{
 		FDamageEvent DamageEvent;
 		AGOPlayerCharacter* TargetCharacter = Cast<AGOPlayerCharacter>(HitActor);
+		AGOPlayerState* TargetPlayerState = Cast<AGOPlayerState>(TargetCharacter->GetPlayerState());
+		AGOPlayerState* MyPlayerState = Cast<AGOPlayerState>(GetPlayerState());
 
 		switch (SkillAffectType) {
 		case ESkillAffectType::Damage:
@@ -986,6 +1045,8 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 			break;
 
 		case ESkillAffectType::Heal:
+			if (TargetPlayerState->Team != MyPlayerState->Team) return;
+
 			if (TargetCharacter->HasAuthority())
 			{
 				TargetCharacter->Stat->HealHp(SkillAffectAmount);
@@ -994,6 +1055,7 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 			{
 				TargetCharacter->Stat->ServerHealHp(SkillAffectAmount);
 			}
+			MulticastSpawnHealEffect(TargetCharacter);
 
 			UE_LOG(LogTemp, Warning, TEXT("AGOPlayerCharacter::HandleHealSkill: %f"), SkillAffectAmount);
 			break;
@@ -1095,79 +1157,6 @@ void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& Hit
 		DrawDebugAttackRange(FColor::Green, HitResult.TraceStart, HitResult.TraceEnd, HitActor->GetActorForwardVector());
 	}
 }
-
-//// 새로 만든: 스킬시스템용 
-//bool AGOPlayerCharacter::ServerRPCNotifySkillHit_Validate(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount)
-//{
-//	// return (HitChecktime - LastAttakStartTime) > AttackTime;
-//
-//	// 원래 이거
-//	// return (HitChecktime - LastAttakStartTime) >= AcceptMinCheckTime;
-//	return true;
-//}
-//
-//// 새로 만든: 스킬시스템용 
-//void AGOPlayerCharacter::ServerRPCNotifySkillHit_Implementation(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation !!! "));
-//	UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation !!!  SkillDamage: %f, CurrentSkillCollisionType: %d "), DamageAmount, CurrentSkillCollisionType);
-//
-//	AActor* HitActor = nullptr; 
-//	switch (CurrentSkillCollisionType)
-//	{
-//	case ESkillCollisionType::LineTraceSingle:
-//		HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
-//		if (IsValid(HitActor)) {
-//			SkillHitConfirm(HitActor, DamageAmount);
-//			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation LineTraceSingle!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-//		}
-//		break;
-//
-//	case ESkillCollisionType::LineTraceMulti:
-//		for (const FHitResult& HitResult : SkillHitCollisionStructure.OutHitResults) {
-//			HitActor = HitResult.GetActor();
-//			if (IsValid(HitActor)) {
-//				SkillHitConfirm(HitActor, DamageAmount);
-//				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation LineTraceMulti!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-//			}
-//		}
-//		break;
-//
-//	case ESkillCollisionType::SweepSingle:
-//		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepSingle!!! 000"));
-//
-//		HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
-//		if (HitActor != nullptr) {
-//			SkillHitConfirm(HitActor, DamageAmount);
-//			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepSingle!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-//		}
-//		break;
-//
-//	case ESkillCollisionType::SweepMulti:
-//		for (const FHitResult& HitResult : SkillHitCollisionStructure.OutHitResults) {
-//			HitActor = HitResult.GetActor();
-//			if (IsValid(HitActor)) {
-//				SkillHitConfirm(HitActor, DamageAmount);
-//				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation SweepMulti!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-//			}
-//		}
-//		break;
-//
-//	case ESkillCollisionType::OverlapMulti:
-//		for (const FOverlapResult& OverlapResult : SkillHitCollisionStructure.OutOverlaps) {
-//			HitActor = OverlapResult.GetActor();
-//			if (IsValid(HitActor)) {
-//				SkillHitConfirm(HitActor, DamageAmount, SkillAffectType);
-//				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHit_Implementation OverlapMulti!!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-//			}
-//		}
-//		break;
-//
-//	default:
-//		UE_LOG(LogTemp, Warning, TEXT("Unknown collision type!!!"));
-//		break;
-//	}
-//}
 
 // 테스트용: 스킬시스템
 bool AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Validate(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
@@ -1350,7 +1339,7 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage |  EventInstigator : %s , Controller : %s "), *EventInstigator->GetName(), *Controller->GetName());
-
+	if (bIsDead == true) return 0;
 	if (DamageCauser == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageCauser nullptr "));
@@ -1396,6 +1385,29 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 
 	return ActualDamage;
+}
+
+
+void AGOPlayerCharacter::SetTeamColor(ETeamType TeamtoSet)
+{
+	if (!HpBarWidget->HpProgressBar) return;
+
+	FSlateColor SlateColor;
+
+	if (TeamtoSet == ETeamType::ET_BlueTeam)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]AGOPlayerCharacter::SetTeamColor blue"));
+
+		SlateColor = FSlateColor(FLinearColor::Blue);
+	}
+	else if (TeamtoSet == ETeamType::ET_RedTeam)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]AGOPlayerCharacter::SetTeamColor red"));
+
+		SlateColor = FSlateColor(FLinearColor::Red);
+	}
+
+	HpBarWidget->HpProgressBar->WidgetStyle.FillImage.TintColor = SlateColor;
 }
 
 void AGOPlayerCharacter::SimulateStateUpdateOnServer(float DeltaTime)
@@ -1537,6 +1549,10 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	if (Key.SkillType != ECharacterSkills::BaseSkill)
 	{
 		// ManaCost
+		if (Stat->GetCurrentMana() < GOGameInstance->GetSkillByHeroSkillKey(Key)->GetTotalSkillStat().ManaCost)
+		{
+			return;
+		}
 		Stat->UseSkill(GOGameInstance->GetSkillByHeroSkillKey(Key)->GetTotalSkillStat().ManaCost);
 	}
 
@@ -1912,7 +1928,11 @@ void AGOPlayerCharacter::ClientSetGrindingStoneVisible_Implementation()
 	AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
 	if (PS && PS->bHasGrindingStone)
 	{
-		PS->SetGrindingStoneVisible();
+		// 이게 호출되는데?!
+		UE_LOG(LogTemp, Warning, TEXT("[Grinding] ClientSetGrindingStoneVisible Character: %d"), *this->GetName());
+
+		//PS->SetGrindingStoneVisible();
+		PS->SetGrindingStone(true);
 	}
 }
 
@@ -1923,16 +1943,10 @@ void AGOPlayerCharacter::HandlePlayerKilled(AController* KillerController, AGOPl
 		AGOPlayerState* KillerPlayerState = Cast<AGOPlayerState>(KillerController->PlayerState);
 		if (KillerPlayerState && VictimPlayerState)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Killer: %s, Victim: %s"), *KillerPlayerState->GetName(), *VictimPlayerState->GetName());
+
 			KillerPlayerState->AddKilledEnemyPlayer(VictimPlayerState->GetPlayerId());
 			KillerPlayerState->CheckForGrindingStone();
-			if (KillerController->IsLocalController())
-			{
-				ClientSetGrindingStoneVisible();
-			}
-			else
-			{
-				ServerCheckForGrindingStone();
-			}
 		}
 	}
 }
@@ -1948,14 +1962,7 @@ void AGOPlayerCharacter::CheckForGrindingStone()
 
 void AGOPlayerCharacter::AttemptStatIncrease()
 {
-	if (HasAuthority())
-	{
-		ServerAttemptStatIncrease();
-	}
-	else
-	{
-		ServerAttemptStatIncrease();
-	}
+	ServerAttemptStatIncrease();
 }
 
 void AGOPlayerCharacter::BindWidgetEvents()
@@ -1974,7 +1981,7 @@ void AGOPlayerCharacter::ServerAttemptStatIncrease_Implementation()
 {
 	// 확률 및 스탯 증가 로직
 	TArray<float> Chances = { 0.99f, 0.70f, 0.50f, 0.30f, 0.10f };
-	TArray<int32> StatIncreases = { 5, 10, 25, 40, 50 };
+	TArray<float> StatIncreases = { 5, 10, 25, 40, 50 };
 	if (AttemptCount >= Chances.Num())
 	{
 		AttemptCount = Chances.Num() - 1; // 최대 값으로 제한
@@ -1985,50 +1992,61 @@ void AGOPlayerCharacter::ServerAttemptStatIncrease_Implementation()
 
 	if (bSuccess)
 	{
+		float OldBaseDamage = Stat->GetTotalStat().BaseDamage;
+
 		if (Stat)
 		{
+			Stat->IncreaseBaseDamage(StatIncreaseAmount);
+			FVector CharacterLocation = GetActorLocation();
+			MulticastSpawnGrindingNiagaraEffect(CharacterLocation);
 			//Stat->SetBaseStat(FGOCharacterStat(Stat->GetBaseStat().MaxHp, Stat->GetBaseStat().MaxMana, Stat->GetBaseStat().BaseDamage + StatIncreaseAmount));
 		}
+		// Assume Stat is a struct with a BaseDamage property.
+		float NewBaseDamage = Stat->GetTotalStat().BaseDamage;
+
+		UE_LOG(LogTemp, Log, TEXT("Stat increase successful! BaseDamage increased by %f"), StatIncreaseAmount);
+
+		UE_LOG(LogTemp, Warning, TEXT("[SERVER] Stat increase successful. Player: %s, Old BaseDamage: %f, New BaseDamage: %f"), *GetName(), OldBaseDamage, NewBaseDamage);
 	}
-
-	ClientNotifyStatIncreaseResult(bSuccess, StatIncreaseAmount);
-
-	// 1초 후 UI 숨기기
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()
-		{
-			if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
-			{
-				// 클라에서 크래시
-				if (UGOGrindingStoneWidget* GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GOPlayerController->GOHUDWidget->GrindingStoneWidget))
-				{
-					GrindingStoneWidget->SetVisibility(ESlateVisibility::Hidden);
-				}
-			}
-		}, 1.0f, false);
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[SERVER] Stat increase failed. Player: %s"), *GetName());
+	}
 }
 
 bool AGOPlayerCharacter::ServerAttemptStatIncrease_Validate()
 {
 	return true;
 }
-
-void AGOPlayerCharacter::ClientNotifyStatIncreaseResult_Implementation(bool bSuccess, int32 StatIncreaseAmount)
+void AGOPlayerCharacter::MulticastSpawnGrindingNiagaraEffect_Implementation(FVector Location)
 {
-	if (bSuccess)
-	{
-		UE_LOG(LogTemp, Log, TEXT("Stat increase successful! BaseDamage increased by %d"), StatIncreaseAmount);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("Stat increase failed. %d"), StatIncreaseAmount);
-	}
+	SpawnGrindingNiagaraEffect(Location);
+}
 
-	//if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
-	//{
-	//	if (UGOGrindingStoneWidget* GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GOPlayerController->GOHUDWidget->GrindingStoneWidget))
-	//	{
-	//		GrindingStoneWidget->ShowResultMessage(bSuccess, StatIncreaseAmount);
-	//	}
-	//}
+void AGOPlayerCharacter::SpawnGrindingNiagaraEffect(FVector Location)
+{
+	if (FXGrindingImpact)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FXGrindingImpact, Location, FRotator::ZeroRotator, FVector(1.f), true, true, ENCPoolMethod::None, true);
+	}
+}
+
+void AGOPlayerCharacter::MulticastSpawnHealEffect_Implementation(AGOPlayerCharacter* TargetCharacter)
+{
+	if (TargetCharacter && HealEffect) // Ensure HealEffect is a valid UNiagaraSystem*
+	{
+		UNiagaraComponent* NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			HealEffect,
+			TargetCharacter->GetRootComponent(),
+			NAME_None,
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::KeepRelativeOffset,
+			true);
+
+		if (NiagaraComponent)
+		{
+			NiagaraComponent->SetAutoActivate(true);
+		}
+	}
 }

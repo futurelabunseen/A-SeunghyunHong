@@ -4,20 +4,22 @@
 #include "Character/GOCharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Interface/GOSpellFlashInterface.h"
+#include "GameFramework/PlayerStart.h"
+#include "EngineUtils.h" // TActorIterator를 사용하기 위해 포함
 
 UGOCharacterMovementComponent::UGOCharacterMovementComponent()
 {
 	bPressedFlashSpell = false;
 	bDidFlash = false;
 
-	FlashMovementOffset = 600.0f; // 6M
-	FlashCoolTime = 3.0f; // 3 Seconds
+	FlashMovementOffset = 300.0f; // 3M
+	FlashCoolTime = 1.0f; // 3 Seconds
 
 	bPressedGhostSpell = false;
 	bDidGhost = false;
 
 	GhostSpeedMultiplier = 2.0f;
-	GhostCoolTime = 4.0f;
+	GhostCoolTime = 5.0f;
 }
 
 void UGOCharacterMovementComponent::SetFlashSpellCommand()
@@ -40,44 +42,155 @@ FNetworkPredictionData_Client* UGOCharacterMovementComponent::GetPredictionData_
 	return ClientPredictionData;
 }
 
+// 장애물 체크 함수 추가
+bool UGOCharacterMovementComponent::CanTeleport(FVector& TargetLocation) const
+{
+	FHitResult HitResult;
+	FVector StartLocation = CharacterOwner->GetActorLocation();
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, TargetLocation, ECC_Visibility);
+	if (bHit)
+	{
+		FVector Direction = (TargetLocation - StartLocation).GetSafeNormal();
+		TargetLocation = FVector(HitResult.Location) - Direction * 10.0f; // 장애물 직전으로 목표 위치 수정
+		return false;
+	}
+	return true;
+}
+
+bool UGOCharacterMovementComponent::IsInvisibleWall(const FHitResult& HitResult) const
+{
+	// Assuming the "INVISIBLE WALL" objects are tagged accordingly or have a specific collision channel
+	if (HitResult.GetActor() != nullptr)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Spell Flash] INVISIBLE_WALL."));
+
+		return HitResult.GetActor()->ActorHasTag(FName("INVISIBLE_WALL"));
+	}
+	return false;
+}
+
+
 void UGOCharacterMovementComponent::GOFlash()
 {
 	if (CharacterOwner)
 	{
-		FVector TargetLocation =
-			CharacterOwner->GetActorLocation()
-			+ CharacterOwner->GetActorForwardVector() * FlashMovementOffset;
+		APlayerController* PlayerController = Cast<APlayerController>(CharacterOwner->GetController());
+		if (PlayerController)
+		{
+			FHitResult HitResult;
+			bool bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECC_Visibility, false, HitResult);
 
-		CharacterOwner->TeleportTo(TargetLocation,
-			CharacterOwner->GetActorRotation(),
-			false, // 테스트?
-			true); // 장애물 체크?
-
-		//if (AActor* Owner = GetOwner())
-		//{
-		//	if (IGOSpellFlashInterface* GOPlaySkillAnimInterface = Cast<IGOSpellFlashInterface>(Owner))
-		//	{
-		//		// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
-		//		GOPlaySkillAnimInterface->ActivateSpellFlash();
-		//		
-		//		UE_LOG(LogTemp, Warning, TEXT("[UGOCharacterMovementComponent::GOFlash] called."));
-		//	}
-		//}
-
-		bDidFlash = true;
-
-		FTimerHandle Handle;
-		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
+			if (bHitSuccessful)
 			{
-				bDidFlash = false;
-				UE_LOG(LogTemp, Log, TEXT("[Spell Flash] ended."));
+				FVector TargetLocation = HitResult.Location;
+
+				if (CanTeleport(TargetLocation))
+				{
+					CharacterOwner->TeleportTo(TargetLocation, CharacterOwner->GetActorRotation(), false, false);
+					UE_LOG(LogTemp, Log, TEXT("[Spell Flash] possible."));
+					DrawDebugLine(GetWorld(), CharacterOwner->GetActorLocation(), TargetLocation, FColor::Green, false, 2.0f, 0, 1.0f);
+				}
+				else
+				{
+					CharacterOwner->TeleportTo(TargetLocation, CharacterOwner->GetActorRotation(), false, false);
+					UE_LOG(LogTemp, Warning, TEXT("[Spell Flash] Teleport adjusted to avoid obstacle."));
+					DrawDebugLine(GetWorld(), CharacterOwner->GetActorLocation(), TargetLocation, FColor::Red, false, 2.0f, 0, 1.0f);
+				}
+
+				bDidFlash = true;
+
+				FTimerHandle Handle;
+				GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([this]
+					{
+						bDidFlash = false;
+						UE_LOG(LogTemp, Log, TEXT("[Spell Flash] ended."));
+					}
+				), FlashCoolTime, false);
 			}
-		), FlashCoolTime, false, -1.0f); // 어쩌지 ?!?!
+		}
 	}
 }
 
+//void UGOCharacterMovementComponent::GOFlash()
+//{
+//	if (CharacterOwner)
+//	{
+//		FVector StartLocation = CharacterOwner->GetActorLocation();
+//		FVector ForwardVector = CharacterOwner->GetActorForwardVector();
+//		FVector TargetLocation = StartLocation + 10.f + ForwardVector * FlashMovementOffset;
+//
+//		FHitResult HitResult;
+//		FCollisionQueryParams Params;
+//		Params.AddIgnoredActor(CharacterOwner);
+//
+//		bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartLocation, TargetLocation, ECC_Visibility, Params);
+//		DrawDebugLine(GetWorld(), StartLocation, TargetLocation, FColor::Green, false, 2.0f, 0, 1.0f);
+//
+//		if (bHit && IsInvisibleWall(HitResult))
+//		{
+//			return;
+//			// Calculate the new target location to stop before the invisible wall
+//			FVector Direction = (TargetLocation - StartLocation).GetSafeNormal();
+//			TargetLocation = HitResult.Location - Direction * 10.0f; // Adjust distance as needed
+//			DrawDebugLine(GetWorld(), HitResult.Location, TargetLocation, FColor::Red, false, 2.0f, 0, 1.0f);
+//		}
+//
+//		CharacterOwner->TeleportTo(TargetLocation,
+//			CharacterOwner->GetActorRotation(),
+//			false, // No sweep
+//			true); // Teleport even if colliding
+//
+//		bDidFlash = true;
+//
+//		FTimerHandle Handle;
+//		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
+//			{
+//				bDidFlash = false;
+//				UE_LOG(LogTemp, Log, TEXT("[Spell Flash] ended."));
+//			}
+//		), FlashCoolTime, false, -1.0f);
+//	}
+//}
+//void UGOCharacterMovementComponent::GOFlash()
+//{
+//	if (CharacterOwner)
+//	{
+//		FVector TargetLocation =
+//			CharacterOwner->GetActorLocation()
+//			+ CharacterOwner->GetActorForwardVector() * FlashMovementOffset;
+//
+//		CharacterOwner->TeleportTo(TargetLocation,
+//			CharacterOwner->GetActorRotation(),
+//			false, // 테스트?
+//			false); // 장애물 체크?
+//
+//		//if (AActor* Owner = GetOwner())
+//		//{
+//		//	if (IGOSpellFlashInterface* GOPlaySkillAnimInterface = Cast<IGOSpellFlashInterface>(Owner))
+//		//	{
+//		//		// GOPlaySkillAnimInterface->ActivateSkill(CurrentSkill);
+//		//		GOPlaySkillAnimInterface->ActivateSpellFlash();
+//		//		
+//		//		UE_LOG(LogTemp, Warning, TEXT("[UGOCharacterMovementComponent::GOFlash] called."));
+//		//	}
+//		//}
+//
+//		bDidFlash = true;
+//
+//		FTimerHandle Handle;
+//		GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
+//			{
+//				bDidFlash = false;
+//				UE_LOG(LogTemp, Log, TEXT("[Spell Flash] ended."));
+//			}
+//		), FlashCoolTime, false, -1.0f); // 어쩌지 ?!?!
+//	}
+//}
+
 void UGOCharacterMovementComponent::OnMovementUpdated(float DeltaSeconds, const FVector& OldLocation, const FVector& OldVelocity)
 {
+	Super::OnMovementUpdated(DeltaSeconds, OldLocation, OldVelocity); // 추가
+
 	// Flash 발동 조건
 	if (bPressedFlashSpell && !bDidFlash)
 	{
@@ -157,7 +270,7 @@ void UGOCharacterMovementComponent::GOGhost()
 				bDidGhost = false;
 				UE_LOG(LogTemp, Log, TEXT("[Ghost] Cooltime ended."));
 			}
-		), GhostCoolTime + 4.0f, false); // 기능 활성화 시간과 쿨타임을 더하여 설정
+		), GhostCoolTime + 1.f, false); // 기능 활성화 시간과 쿨타임을 더하여 설정
 	}
 }
 

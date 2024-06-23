@@ -17,6 +17,8 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnManaChangedDelegate, float /*CurrnetMana
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnStatChangedDelegate, const FGOCharacterStat& /*BaseStat*/, const FGOCharacterStat& /*ModifierStat*/);
 
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnStatIncreased, float OldStat, float IncreaseAmount, float NewStat);
+
 // For Skill Slot Widget
 DECLARE_MULTICAST_DELEGATE_OneParam(FUGOCharacterStatComponentOnManaChangedDelegate, float /*CurrnetMana*/);
 
@@ -43,6 +45,7 @@ public:
 
 	FOnStatChangedDelegate OnStatChanged;
 
+	FOnStatIncreased OnStatIncreased;
 	//void SetCharacterStat(int8 InNewCharacterType);
 	void SetCharacterStat(FName InCharacterName);
 	FORCEINLINE void SetCurrentCharacterType(const float InTypeNumber) { CurrentCharacterType = InTypeNumber; }
@@ -54,7 +57,7 @@ public:
 	FORCEINLINE const FGOCharacterStat& GetBaseStat() const { return BaseStat; }
 	FORCEINLINE const FGOCharacterStat& GetModifierStat() const { return ModifierStat; }
 
-	FORCEINLINE FGOCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
+	//FORCEINLINE FGOCharacterStat GetTotalStat() const { return BaseStat + ModifierStat; }
 	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
 
@@ -73,6 +76,15 @@ public:
 	void SetMana(float NewMana);
 
 	FORCEINLINE float GetMaxBasicAttackRange() const { return BaseStat.MaxBasicAttackRange; }
+
+	// Function to get total stat
+	FGOCharacterStat GetTotalStat() const;
+
+	// Function to increase base damage
+	void IncreaseBaseDamage(float Amount);
+
+	// Function to log stat changes
+	void LogStatChange(const FString& Context);
 
 protected:
 	// called when hp is changed
