@@ -24,7 +24,7 @@ public:
 	class UButton* YesButton;
 
 	UPROPERTY(meta = (BindWidget))
-	 UButton* CancelButton;
+	UButton* CancelButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UCommonTextBlock* PercentText;

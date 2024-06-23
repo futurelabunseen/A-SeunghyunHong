@@ -27,7 +27,7 @@ void UGOGrindingStoneWidget::HandleYesButtonClicked()
 
     // È®·ü ÀúÀå
     OnYesButtonClicked.Broadcast();
-
+    this->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UGOGrindingStoneWidget::HandleCancelButtonClicked()

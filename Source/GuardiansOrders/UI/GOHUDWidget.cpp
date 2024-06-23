@@ -13,6 +13,14 @@
 #include <Player/GOPlayerController.h>
 #include "UI/GOBattleCharacterOverlayWidget.h"
 #include "CommonUserWidget.h"
+#include "UI/GOGrindingStoneWidget.h"
+#include "UI/GOElimAnnouncementWidget.h"
+#include "TimerManager.h" 
+#include "Components/HorizontalBox.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanelSlot.h"
+#include "CommonTextBlock.h"
+#include "CharacterStat/GOCharacterStatComponent.h"
 
 UGOHUDWidget::UGOHUDWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -51,7 +59,7 @@ void UGOHUDWidget::NativeConstruct()
 
 	HeroInfo = Cast<UGOHeroInfoWidget>(GetWidgetFromName(TEXT("CUI_CharacterInfo")));
 
-	GrindingStoneWidget = Cast<UCommonUserWidget>(GetWidgetFromName(TEXT("GrindingStoneWidget")));
+	GrindingStoneWidget = Cast<UGOGrindingStoneWidget>(GetWidgetFromName(TEXT("GrindingStoneWidget")));
 	ensure(GrindingStoneWidget);
 	UE_LOG(LogTemp, Warning, TEXT("GrindingStoneWidget name: %s"), *GrindingStoneWidget->GetName());
 
@@ -102,6 +110,78 @@ void UGOHUDWidget::AddCharacterOverlay()
 		CharacterOverlay->AddToViewport();		
 		
 		UE_LOG(LogTemp, Warning, TEXT("AddCharacterOverlay 2"));
+		
+		//AddElimAnnouncement("Player1", "Player2");
+	}
+}
 
+void UGOHUDWidget::AddElimAnnouncement(FString Attacker, FString Victim)
+{
+	APlayerController* BasePlayerController = GetWorld()->GetFirstPlayerController();
+	//APlayerController* BasePlayerController = GetOwningPlayer();
+	AGOPlayerController* OwningPlayer = Cast<AGOPlayerController>(BasePlayerController);
+	if (OwningPlayer && GOElimAnnouncementClass)
+	{
+		UGOElimAnnouncementWidget* ElimAnnouncementWidget =
+			CreateWidget<UGOElimAnnouncementWidget>(OwningPlayer, GOElimAnnouncementClass);
+
+		if (ElimAnnouncementWidget)
+		{
+			ElimAnnouncementWidget->SetElimAnnouncementText(Attacker, Victim);
+			ElimAnnouncementWidget->AddToViewport();
+			
+			for (UGOElimAnnouncementWidget* Msg : ElimMessages)
+			{
+				if (Msg && Msg->AnnouncementBox)
+				{
+					UCanvasPanelSlot* CanvasSlot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Msg->AnnouncementBox);
+					if (CanvasSlot)
+					{
+						FVector2D Position = CanvasSlot->GetPosition();
+						FVector2D NewPosition(
+							CanvasSlot->GetPosition().X,
+							Position.Y - CanvasSlot->GetSize().Y
+						);
+						CanvasSlot->SetPosition(NewPosition);		
+						UE_LOG(LogTemp, Warning, TEXT("CanvasSlot SetPosition"));
+
+					}
+				}
+			}
+
+			ElimMessages.Add(ElimAnnouncementWidget);
+
+			FTimerHandle ElimMsgTimer;
+			FTimerDelegate ElimMsgDelegate;
+			ElimMsgDelegate.BindUFunction(this, FName("ElimAnnouncementTimerFinished"), ElimAnnouncementWidget);
+			OwningPlayer->GetWorldTimerManager().SetTimer(
+				ElimMsgTimer,
+				ElimMsgDelegate,
+				ElimAnnouncementTime,
+				false
+			);
+		}
+	}
+}
+
+void UGOHUDWidget::ElimAnnouncementTimerFinished(UGOElimAnnouncementWidget* MsgToRemove)
+{
+	if (MsgToRemove)
+	{
+		MsgToRemove->RemoveFromParent();
+	}
+}
+
+void UGOHUDWidget::AnnouncementStatIncrease(float OriginStat, float IncreaseAmount, float NewStat)
+{
+	FString AnnouncementText = FString::Printf(TEXT("STAT UP! %.0f + %.0f = %.0f"), OriginStat, IncreaseAmount, NewStat);
+	StatAnnouncementText->SetText(FText::FromString(AnnouncementText));
+}
+
+void UGOHUDWidget::BindToStatComponent(UGOCharacterStatComponent* StatComponent)
+{
+	if (StatComponent)
+	{
+		StatComponent->OnStatIncreased.AddUObject(this, &UGOHUDWidget::AnnouncementStatIncrease);
 	}
 }
