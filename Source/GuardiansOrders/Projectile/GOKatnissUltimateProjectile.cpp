@@ -18,10 +18,15 @@ void AGOKatnissUltimateProjectile::OnSphereOverlap(UPrimitiveComponent* Overlapp
         return;
     }
 
-    UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-    UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+    if (!OverlappedActors.Contains(OtherActor))
+    {
+        OverlappedActors.Add(OtherActor);  // 액터를 추가하여 중복 오버랩을 방지
 
-    ApplyDamageToActors();
+        UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+        UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+
+        ApplyDamageToActors();
+    }
 
     //if (HasAuthority())
     //{

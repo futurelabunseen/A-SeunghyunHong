@@ -27,4 +27,7 @@ protected:
         const FHitResult& SweepResult) override;
 
     void ApplyDamageToActors();
+
+private:
+    TSet<AActor*> OverlappedActors;
 };

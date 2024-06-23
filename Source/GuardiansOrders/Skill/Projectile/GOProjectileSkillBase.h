@@ -34,6 +34,8 @@ public:
 	  */
 	virtual void StartCast();
 
+	virtual void Tick(float DeltaTime) override;
+
 	/**
 	  * 스킬이 활성화되는 동안 지속적으로 호출되며, 이는 주로 스킬의 진행 상태를 갱신하거나, 시간에 따라 변화하는 효과를 관리하는 데 사용됩니다.
 	  */
