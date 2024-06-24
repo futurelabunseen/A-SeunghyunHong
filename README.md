@@ -282,8 +282,6 @@ else  // 포인터가 하반부에 있는 경우
 return returnVal; 
 ```
 
-스킬 슬롯 위젯의 `NativeTick` 함수에서 쿨타임을 업데이트하는 로직.
-쿨타임이 활성화된 경우의 처리 로직으로, `Percent` 값을 통해 매터리얼의 파라미터를 동적으로 업데이트하여 시각적인 쿨타임 진행을 표현.
 
 ```cpp
 void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSeconds)
@@ -510,8 +508,28 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 ```
 
 ---
-
+UGOSkillBase 클래스에서 ITargetable 인터페이스를 사용하여 타겟을 탐지
 ```cpp
+// GOSkillBase.h
+UCLASS(Blueprintable)
+class GUARDIANSORDERS_API UGOSkillBase : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	virtual void HandleSkillTrigger();
+
+    	...
+protected:
+	...
+	virtual void HandleAutoTargetRadius();
+	virtual void HandleAutoTargetRadiusDegree();
+
+	ITargetable* DetectClosestTarget(float Radius);
+	ITargetable* DetectClosestTargetRadiusDegreeBase(const FVector2D& Direction, float Radius, float Degree);
+};
+
+// GOSkillBase.cpp
 void UGOSkillBase::HandleSkillTrigger()
 {
     switch (GetSkillTriggerType())
@@ -532,8 +550,8 @@ void UGOSkillBase::HandleSkillTrigger()
 void UGOSkillBase::HandleAutoTargetRadius()
 {
     float Radius = GetAutoDetectionRadius();
-    AGOCharacterBase* ClosestTarget = DetectClosestTarget(Radius);
-    SetTarget(ClosestTarget);
+    ITargetable* ClosestTarget = DetectClosestTarget(Radius);
+    SetTarget(Cast<AActor>(ClosestTarget));
 }
 
 void UGOSkillBase::HandleAutoTargetRadiusDegree()
@@ -542,74 +560,226 @@ void UGOSkillBase::HandleAutoTargetRadiusDegree()
     float Degree = GetAutoDetectionDegree();
     FVector ForwardVector = GetSkillOwner()->GetActorForwardVector();
     FVector2D Direction(ForwardVector.X, ForwardVector.Y);
-    AGOCharacterBase* ClosestTarget = DetectClosestTargetRadiusDegreeBase(Direction, Radius, Degree);
-    SetTarget(ClosestTarget);
+    ITargetable* ClosestTarget = DetectClosestTargetRadiusDegreeBase(Direction, Radius, Degree);
+    SetTarget(Cast<AActor>(ClosestTarget));
 }
 
-AGOCharacterBase* UGOSkillBase::DetectClosestTarget(float Radius)
+// 주어진 반경 내에서 반경 내의 모든 타겟을 검사 후, 각 타겟과의 거리를 계산해 가장 가까운 타겟을 탐지
+ITargetable* UGOSkillBase::DetectClosestTarget(float Radius)
 {
     TArray<FOverlapResult> OutResults;
     FCollisionQueryParams CollisionParams;
-    CollisionParams.AddIgnoredActor(GetSkillOwner()); // 자기 자신은 무시
+    CollisionParams.AddIgnoredActor(GetSkillOwner());
 
     FVector Location = GetSkillOwner()->GetActorLocation();
-    GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+    GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity,
+	GOCollisionChannel::ATTACK_CHANNEL, FCollisionShape::MakeSphere(Radius), CollisionParams);
 
-    AGOCharacterBase* ClosestCharacter = nullptr;
+    ITargetable* ClosestTarget = nullptr;
     float MinDistance = FLT_MAX;
 
     for (auto& Result : OutResults)
     {
         AActor* HitActor = Result.GetActor();
-        AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);
-        if (GOCharacter && GOCharacter != GetSkillOwner())
+        ITargetable* Target = Cast<ITargetable>(HitActor);
+        if (Target && HitActor != GetSkillOwner())
         {
-            float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+            float Distance = (Target->GetTargetLocation() - Location).Size();
             if (Distance < MinDistance)
             {
                 MinDistance = Distance;
-                ClosestCharacter = GOCharacter;
+                ClosestTarget = Target;
             }
         }
     }
 
-    return ClosestCharacter;
+    return ClosestTarget;
 }
 
-AGOCharacterBase* UGOSkillBase::DetectClosestTargetRadiusDegreeBase(const FVector2D& Direction, float Radius, float Degree)
+// 각 타겟과의 방향 벡터를 계산하고, 내적(Dot Product)을 이용하여 각도 조건을 만족하는 타겟을 탐지
+ITargetable* UGOSkillBase::DetectClosestTargetRadiusDegreeBase(const FVector2D& Direction, float Radius, float Degree)
 {
     TArray<FOverlapResult> OutResults;
     FCollisionQueryParams CollisionParams;
-    CollisionParams.AddIgnoredActor(GetSkillOwner()); // 자기 자신은 무시
+    CollisionParams.AddIgnoredActor(GetSkillOwner());
 
     FVector Location = GetSkillOwner()->GetActorLocation();
-    GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(Radius), CollisionParams);
+    GetWorld()->OverlapMultiByChannel(OutResults, Location, FQuat::Identity,
+	GOCollisionChannel::ATTACK_CHANNEL, FCollisionShape::MakeSphere(Radius), CollisionParams);
 
-    AGOCharacterBase* ClosestCharacter = nullptr;
+    ITargetable* ClosestTarget = nullptr;
     float MinDistance = FLT_MAX;
 
     for (auto& Result : OutResults)
     {
         AActor* HitActor = Result.GetActor();
-        AGOCharacterBase* GOCharacter = Cast<AGOCharacterBase>(HitActor);
-        if (GOCharacter && GOCharacter != GetSkillOwner())
+        ITargetable* Target = Cast<ITargetable>(HitActor);
+        if (Target && HitActor != GetSkillOwner())
         {
-            FVector2D HitDir = FVector2D(GOCharacter->GetActorLocation() - Location);
+            FVector2D HitDir = FVector2D(Target->GetTargetLocation() - Location);
             HitDir.Normalize();
             float CosTheta = FMath::Cos(FMath::DegreesToRadians(Degree));
             if (FVector2D::DotProduct(Direction, HitDir) >= CosTheta)
             {
-                float Distance = (GOCharacter->GetActorLocation() - Location).Size();
+                float Distance = (Target->GetTargetLocation() - Location).Size();
                 if (Distance < MinDistance)
                 {
                     MinDistance = Distance;
-                    ClosestCharacter = GOCharacter;
+                    ClosestTarget = Target;
                 }
             }
         }
     }
 
-    return ClosestCharacter;
+    return ClosestTarget;
 }
+
+```
+
+---
+
+```cpp
+// GOGameState.h
+UPROPERTY(ReplicatedUsing = OnRep_ShowSelectedHeroWidget)
+bool bShowHeroSelectionWidget;
+
+UFUNCTION()
+void OnRep_ShowSelectedHeroWidget();
+
+// GOGameState.cpp
+void AGOGameState::OnRep_ShowSelectedHeroWidget()
+{
+	ShowSelectedHeroWidget();
+}
+
+void AGOGameState::OnGamePlayerReadyNotified()
+{
+	if (HasAuthority())
+	{
+		bShowHeroSelectionWidget = true;
+		ShowSelectedHeroWidget();
+	}
+}
+
+void AGOGameState::ShowSelectedHeroWidget()
+{
+	LobbyPlayerController->DisplayHeroSelectionWidget();
+}
+```
+```cpp
+// GOLobbyGameMode.cpp
+void AGOLobbyGameMode::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+    SetupInputMode(NewPlayer);
+
+    HandleNewPlayerLogin(NewPlayer); // 새로운 플레이어 로그인 처리
+}
+
+void AGOLobbyGameMode::HandleNewPlayerLogin(APlayerController* NewPlayer)
+{
+    AssignPlayerToTeam(NewPlayer); // 플레이어를 팀에 할당
+}
+
+void AGOLobbyGameMode::AssignPlayerToTeam(APlayerController* NewPlayer)
+{
+    if (GOGameState)
+    {
+        AGOPlayerState* NewPlayerState = NewPlayer->GetPlayerState<AGOPlayerState>();
+        if (NewPlayerState && NewPlayerState->GetTeamType() == ETeamType::ET_NoTeam)
+        {
+            // 팀을 결정하고 플레이어 상태를 업데이트
+            ETeamType AssignedTeam = DetermineTeam(GOGameState);
+            NewPlayerState->SetTeam(AssignedTeam);
+            AddPlayerToTeam(GOGameState, NewPlayerState, AssignedTeam); // 팀에 플레이어 추가
+        }
+    }
+}
+
+ETeamType AGOLobbyGameMode::DetermineTeam(AGOGameState* GOGameState) const
+{
+    // 팀의 현재 인원수를 기준으로 팀을 결정
+    return (GOGameState->BlueTeam.Num() >= GOGameState->RedTeam.Num()) ? ETeamType::ET_RedTeam : ETeamType::ET_BlueTeam;
+}
+
+void AGOLobbyGameMode::AddPlayerToTeam(AGOGameState* GOGameState, AGOPlayerState* NewPlayerState, ETeamType Team)
+{
+    // 플레이어를 지정된 팀에 추가
+    if (Team == ETeamType::ET_RedTeam)
+    {
+        GOGameState->RedTeam.AddUnique(NewPlayerState);
+    }
+    else
+    {
+        GOGameState->BlueTeam.AddUnique(NewPlayerState);
+    }
+}
+
+```
+
+
+---
+연마석
+
+```cpp
+void AGOPlayerState::AddKilledEnemyPlayer(int32 pID)
+{
+    KilledEnemyPlayers.Add(pID);
+    CheckForGrindingStone(); // 적 플레이어를 추가할 때마다 연마석 조건을 확인
+}
+
+bool AGOPlayerState::HasKilledAllEnemyPlayers(const TArray<int32>& EnemyPlayerIds) const
+{
+    if (KilledEnemyPlayers.Num() != GOConsts::TEAM_MAX_NUM_SYSTEM) // 적 플레이어를 2명 죽였는지 확인
+        return false;
+    for (int32 EnemyPlayerId : EnemyPlayerIds)
+    {
+        if (!KilledEnemyPlayers.Contains(EnemyPlayerId))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void AGOPlayerState::CheckForGrindingStone()
+{
+	const TArray<int32>& EnemyPlayerIds =
+		(GetTeamType() == ETeamType::ET_RedTeam) ? GOGameState->BlueTeamPlayerIds : GOGameState->RedTeamPlayerIds;
+        if (HasKilledAllEnemyPlayers(EnemyPlayerIds))
+        {
+            SetGrindingStone(true); // 연마석 활성화
+            ResetKilledEnemyPlayers(); // 적 플레이어 리스트 초기화
+        }
+    }
+}
+
+void AGOPlayerState::SetGrindingStone(bool bNewGrindingStone)
+{
+    if (bHasGrindingStone != bNewGrindingStone)
+    {
+        if (HasAuthority())
+        {
+		bHasGrindingStone = bNewGrindingStone;
+		GOPlayerController->SetGrindingStoneVisible();
+        }
+    }
+}
+
+void AGOPlayerState::OnRep_HasGrindingStone()
+{
+	GOPlayerController->SetGrindingStoneVisible();
+}
+
+void AGOPlayerState::ResetKilledEnemyPlayers()
+{
+    KilledEnemyPlayers.Empty();
+    
+    FTimerHandle TimerHandle;
+    GetWorld()->GetTimerManager().SetTimer(
+	TimerHandle, this, &AGOPlayerState::ResetGrindingStone,
+	GOConsts::GRINDINGSTONE_EVENT_DELAY_TIME, false); // 2초 후 연마석 리셋
+}
+
 
 ```
