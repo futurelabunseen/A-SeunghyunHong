@@ -6,6 +6,7 @@
 #include "Skill/GOSpellBase.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Share/EditorNames.h"
 
 void UGOSpellSlotWidget::NativeConstruct()
 {
@@ -83,7 +84,8 @@ void UGOSpellSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSecond
             if (MatInstance)
             {
                 float Percent = 1.0f - (RemainingTime / CooldownDuration);
-                MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+                //MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+                MatInstance->SetScalarParameterValue(GOMaterial::PERCENT, Percent);
             }
         }
     }
@@ -119,7 +121,8 @@ void UGOSpellSlotWidget::UpdateCooldownUI(float DeltaTime)
     if (MatInstance)
     {
         float Percent = (CurrentSpell->GetCoolDownTime() - DeltaTime) / CurrentSpell->GetCoolDownTime();
-        MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+        //MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+        MatInstance->SetScalarParameterValue(GOMaterial::PERCENT, Percent);
     }
 }
 

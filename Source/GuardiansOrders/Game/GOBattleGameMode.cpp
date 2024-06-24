@@ -17,6 +17,7 @@
 #include "UI/GOStatsBarWidget.h"
 #include "CommonTextBlock.h"
 #include <Kismet/GameplayStatics.h>
+#include "Share/EditorNames.h"
 
 AGOBattleGameMode::AGOBattleGameMode()
 {
@@ -147,19 +148,18 @@ void AGOBattleGameMode::StartPlay()
 		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart: %s"), *PlayerStart->GetName());
 
 		// 여기서 팀별로 분류합니다.
-		if (PlayerStart->Tags.Contains(FName("BlueTeam")))
+		if (PlayerStart->Tags.Contains(GOTagNames::BLUE_TEAM_PLAYER_START))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart BlueTeam"));
-
 			BlueTeamPlayerStarts.Add(PlayerStart);
 		}
-		else if (PlayerStart->Tags.Contains(FName("RedTeam")))
+		else if (PlayerStart->Tags.Contains(GOTagNames::RED_TEAM_PLAYER_START))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] PlayerStart RedTeam"));
-
 			RedTeamPlayerStarts.Add(PlayerStart);
 		}
 	}
+
 }
 
 void AGOBattleGameMode::PostInitializeComponents()

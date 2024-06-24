@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Physics/GOCollision.h"
 #include "Interface/GOApplySkillInterface.h"
+#include "Share/EditorNames.h"
 
 AGOProjectile::AGOProjectile()
 {
@@ -24,11 +25,11 @@ AGOProjectile::AGOProjectile()
 	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovement");
-	ProjectileMovement->InitialSpeed = 500.f;
-	ProjectileMovement->MaxSpeed = 2000.f;
-	ProjectileMovement->ProjectileGravityScale = 0.f;
+	ProjectileMovement->InitialSpeed = GOProjectile::PROJECTILE_INITIAL_SPEED;
+	ProjectileMovement->MaxSpeed = GOProjectile::PROJECTILE_MAX_SPEED;
+	ProjectileMovement->ProjectileGravityScale = GOProjectile::PROJECTILE_GRAVITY_SCALE;
 
-	Damage = 10.f; // Default damage value
+	Damage = GOProjectile::PROJECTILE_BASE_DAMAGE; // Default damage value
 }
 
 void AGOProjectile::SetProjectileMaxSpeed(float Speed)
@@ -97,7 +98,7 @@ void AGOProjectile::StartDestroyTimer()
 		DestroyTimer,
 		this,
 		&AGOProjectile::DestroyTimerFinished,
-		DestroyTime
+		GOProjectile::PROJECTILE_DESTROY_DELAY_TIME
 	);
 }
 

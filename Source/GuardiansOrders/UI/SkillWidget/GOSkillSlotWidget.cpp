@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/GOSkillSlotToolTipWidget.h"
 #include "UI/GOSkillSlotLobbyWidget.h"
+#include "Share/EditorNames.h"
 
 void UGOSkillSlotWidget::NativeConstruct()
 {
@@ -100,7 +101,8 @@ void UGOSkillSlotWidget::NativeTick(const FGeometry& Geometry, float DeltaSecond
             if (MatInstance)
             {
                 float Percent = 1.0f - (RemainingTime / CooldownDuration);
-                MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+                //MatInstance->SetScalarParameterValue(FName("Percent"), Percent);
+                MatInstance->SetScalarParameterValue(GOMaterial::PERCENT, Percent);
             }
         }
     }
@@ -144,7 +146,8 @@ void UGOSkillSlotWidget::UpdateCooldownUI(float DeltaTime /*CooldownRemaining*/)
     if (MatInstance)
     {
         float Percent = (CurrentSkill->GetCoolDownTime() - DeltaTime) / CurrentSkill->GetCoolDownTime();
-        MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+        //MatInstance->SetScalarParameterValue(FName("percent"), Percent);
+        MatInstance->SetScalarParameterValue(GOMaterial::PERCENT, Percent);
     }
 }
 

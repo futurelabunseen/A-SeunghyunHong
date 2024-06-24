@@ -8,6 +8,7 @@
 #include "Physics/GOCollision.h"
 #include <NiagaraFunctionLibrary.h>
 #include "NiagaraComponent.h"
+#include "Share/EditorNames.h"
 
 AGORogersCharacter::AGORogersCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -38,7 +39,7 @@ AGORogersCharacter::AGORogersCharacter(const FObjectInitializer& ObjectInitializ
 void AGORogersCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SetData(FName(TEXT("Rogers")));
+    SetData(GOHeroCharacter::ROGERS);
 
 }
 

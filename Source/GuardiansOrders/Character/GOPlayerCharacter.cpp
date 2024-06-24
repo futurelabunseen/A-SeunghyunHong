@@ -55,6 +55,7 @@
 #include "Slate/SlateBrushAsset.h"
 #include "Styling/SlateBrush.h"
 #include "NiagaraComponent.h"
+#include "Share/EditorNames.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -384,7 +385,7 @@ void AGOPlayerCharacter::OnSetDestinationTriggered()
 		}
 
 		FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
-		AddMovementInput(WorldDirection, 1.0f, false);
+		AddMovementInput(WorldDirection, GOConsts::SELF_MOVE_AMOUNT, false);
 	}
 }
 
@@ -1309,7 +1310,7 @@ void AGOPlayerCharacter::ResetAttack()
 void AGOPlayerCharacter::SetDead()
 {
 	Super::SetDead();
-	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, 5.0f, false);
+	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, GOConsts::DEAD_EVENT_DELAY_TIME, false);
 }
 
 void AGOPlayerCharacter::SetStunned()
@@ -1358,7 +1359,7 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (Stat->GetCurrentHp() <= 0.0f)
+	if (Stat->GetCurrentHp() <= GOConsts::NO_HP)
 	{
 
 		IGOBattleInterface* GOBattleMode = GetWorld()->GetAuthGameMode<IGOBattleInterface>();
@@ -1379,7 +1380,7 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 			KnockbackDirection = -DamageCauser->GetActorForwardVector();
 			SetStunned();
 			UE_LOG(LogTemp, Warning, TEXT("[SetStunned] TakeDamage SetStunned"));
-			GetWorldTimerManager().SetTimer(StunnedTimerHandle, this, &AGOPlayerCharacter::EndStunned, 1.0f, false);
+			GetWorldTimerManager().SetTimer(StunnedTimerHandle, this, &AGOPlayerCharacter::EndStunned, GOConsts::STUN_EVENT_DELAY_TIME, false);
 		}
 	}
 	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));

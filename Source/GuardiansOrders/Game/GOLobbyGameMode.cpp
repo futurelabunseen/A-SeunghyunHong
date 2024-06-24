@@ -13,6 +13,7 @@
 #include "Player/GOLobbyPlayerController.h"
 #include "Player/GOPlayerController.h"
 #include "Cheats/GOCheatManager.h"
+#include "Share/EditorNames.h"
 
 AGOLobbyGameMode::AGOLobbyGameMode()
 {
@@ -210,7 +211,8 @@ void AGOLobbyGameMode::DelayedServerTravel()
 	if (World)
 	{
 		bUseSeamlessTravel = true;
-		World->ServerTravel(FString("/Game/Map/MyBattle") + TEXT("?listen"));
+		//World->ServerTravel(FString("/Game/Map/MyBattle") + TEXT("?listen"));
+		World->ServerTravel(FString(GOSeamlessTravel::BATTLE_MAP_PATH) + TEXT("?listen"));
 	}
 }
 

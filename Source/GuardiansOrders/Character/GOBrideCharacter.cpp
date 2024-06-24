@@ -4,6 +4,7 @@
 #include "GOBrideCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "GOCharacterMovementComponent.h"
+#include "Share/EditorNames.h"
 
 AGOBrideCharacter::AGOBrideCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -14,7 +15,7 @@ AGOBrideCharacter::AGOBrideCharacter(const FObjectInitializer& ObjectInitializer
 void AGOBrideCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SetData(FName(TEXT("Bride")));
+	SetData(GOHeroCharacter::BRIDE);
 }
 
 void AGOBrideCharacter::Tick(float DeltaTime)

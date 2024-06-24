@@ -4,6 +4,7 @@
 #include "GOBeastCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "GOCharacterMovementComponent.h"
+#include "Share/EditorNames.h"
 
 AGOBeastCharacter::AGOBeastCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -14,7 +15,7 @@ AGOBeastCharacter::AGOBeastCharacter(const FObjectInitializer& ObjectInitializer
 void AGOBeastCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SetData(FName(TEXT("Beast")));
+    SetData(GOHeroCharacter::BEAST);
 }
 
 void AGOBeastCharacter::Tick(float DeltaTime)

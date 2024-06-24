@@ -4,6 +4,7 @@
 #include "GOKatnissCharacter.h"
 #include "CharacterStat/GOCharacterStatComponent.h"
 #include "GOCharacterMovementComponent.h"
+#include "Share/EditorNames.h"
 
 AGOKatnissCharacter::AGOKatnissCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -14,7 +15,7 @@ AGOKatnissCharacter::AGOKatnissCharacter(const FObjectInitializer& ObjectInitial
 void AGOKatnissCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	SetData(FName(TEXT("Katniss")));
+	SetData(GOHeroCharacter::KATNISS);
 }
 
 void AGOKatnissCharacter::Tick(float DeltaTime)
