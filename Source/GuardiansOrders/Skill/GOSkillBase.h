@@ -27,19 +27,26 @@ struct FGOOutHitCollisionStructure {
 	FHitResult OutHitResult;
 	TArray<FHitResult> OutHitResults;
 	TArray<FOverlapResult> OutOverlaps;
+
+	void Clear()
+	{
+		OutHitResult = FHitResult();
+		OutHitResults.Empty();
+		OutOverlaps.Empty();
+	}
+
 };
 
-// DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooldownUpdated, float);
 DECLARE_MULTICAST_DELEGATE_OneParam(UGOSkillBaseFIsOnCooldown, bool);
- /*
-   * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다. 
-   */
+/*
+  * 스킬의 기본적인 동작과 라이프사이클을 정의하며, 스킬 자체의 활성화, 실행, 완료, 중단 등을 관리합니다.
+  */
 UCLASS(Blueprintable)
 class GUARDIANSORDERS_API UGOSkillBase : public UObject, public FTickableGameObject
 {
 	GENERATED_BODY()
 
-public:
+	public:
 	UGOSkillBase();
 
 
@@ -48,7 +55,7 @@ public:
 
 	virtual void PostInitProperties() override;
 	virtual void GetLifetimeReplicatedProps(TArray< class FLifetimeProperty >& OutLifetimeProps) const override;
-	
+
 	virtual void Tick(float DeltaTime) override;
 	/** Tick을 활성화할지 여부를 반환하는 함수입니다. */
 	virtual bool IsTickable() const override;
@@ -76,9 +83,7 @@ public:
 
 	bool IsCastable() const { return bIsCastable; };
 	bool IsCasting() const { return bIsCasting; };
-	//virtual bool IsCastable() const { return CoolDownTimer <= 0; }
-	//bool IsCasting() const { return bIsOnCasting; }
-	
+
 	FGOOutHitCollisionStructure OutHitCollisionStruct;
 	FGOOutHitCollisionStructure& GetOutHitCollisionStructure() { return OutHitCollisionStruct; }
 
@@ -114,20 +119,19 @@ public:
 	  */
 	virtual void ActivateEffect();
 
-// Trigger & Affect
+	// Trigger & Affect
 public:
 	virtual void HandleSkillTrigger();
 	virtual void HandleSkillAffect();
 	// Particle Effect Handling
 	void SpawnParticleEffect(ESkillCastType CastType, EParticleSpawnLocation SpawnLocation);
-	void HandleSpawnParticle(EParticleSpawnLocation SpawnLocation);  
+	void HandleSpawnParticle(EParticleSpawnLocation SpawnLocation);
 
-// Stat & Data Section
+	// Stat & Data Section
 public:
 	FORCEINLINE void SetSkillStat(const FGOSkillStat& InSkillStat) { SkillStat = InSkillStat; }
 	FORCEINLINE FGOSkillStat GetTotalSkillStat() const { return SkillStat; }
 	FORCEINLINE FGOSkillData GetTotalSkillData() const { return SkillData; }
-	//void ResetSkillStat();
 
 	FORCEINLINE float GetCoolDownTime() const { return GetTotalSkillStat().CoolDownTime; }
 	FORCEINLINE void SetCoolDownTimer() { CoolDownTimer = GetTotalSkillStat().CoolDownTime; }
@@ -142,7 +146,7 @@ public:
 	FORCEINLINE void SetIsOnCoolTime(bool Inbool) { bIsOnCoolTime = Inbool; }
 
 	FORCEINLINE float GetManaCost() { return SkillStat.ManaCost; }
-	
+
 	EAutoDetectionType GetAutoDetectionType() const { return GetTotalSkillStat().AutoDetectionType; }
 	float GetAutoDetectionRadius() const { return GetTotalSkillStat().DetectionRadius; }
 	float GetAutoDetectionDegree() const { return GetTotalSkillStat().DetectionDegree; }

@@ -27,7 +27,8 @@ protected:
         const FHitResult& SweepResult) override;
 
     void ApplyDamageToActors();
-
+    //virtual void OnSpawnFromPool_Implementation() override;
+    //virtual void OnReturnToPool_Implementation() override;
 private:
     TSet<AActor*> OverlappedActors;
 };

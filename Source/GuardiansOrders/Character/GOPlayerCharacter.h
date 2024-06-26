@@ -9,7 +9,6 @@
 #include "Interface/GOSpellFlashInterface.h"
 #include "Interface/GOPlaySkillEffectInterface.h"
 #include "Interface/GOApplySkillInterface.h"
-#include "Interface/GOPlayerInterface.h"
 #include "Share/ShareEnums.h" 
 #include "GameData/GOCharacterDataAsset.h"
 #include "GameData/GOCharacterStat.h"
@@ -31,42 +30,31 @@ class UGOSkillCastComponent;
 
 // UCLASS(config = GuardiansOrders)
 UCLASS()
-class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOApplySkillInterface, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface, public IGOPlayerInterface
+class GUARDIANSORDERS_API AGOPlayerCharacter : public AGOCharacterBase, public IGOApplySkillInterface, public IGOCharacterHUDInterface, public IGOPlaySkillAnimInterface, public IGOSpellFlashInterface, public IGOPlaySkillEffectInterface
 {
 	GENERATED_BODY()
-	
-public:
+
+	public:
 	AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer);
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
 	virtual void BeginPlay() override;
-	// virtual void SetDead() override;
 	virtual void PossessedBy(AController* NewController) override;
 
-	/**
-	Owner의 값이 변경되면 호출되는 함수입니다.
-	*/
 	virtual void OnRep_Owner() override;
 
 	virtual void PostNetInit() override;
 
-// Data Section
+	// Data Section
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hero Data")
 	EHeroType MyHeroType;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Hero Data")
-	//UGOCharacterDataAsset* HeroDataAsset;
-
-	//EHeroType HeroType;
-	//ERoleType RoleType;
-	//EAttackRange AttackRange;
-	//EArchetype Archetype;
 	void SetTeamColor(ETeamType TeamtoSet);
 
-// Camera Section
+	// Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
@@ -77,7 +65,7 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-// Input Section
+	// Input Section
 protected:
 	UPROPERTY()
 	TObjectPtr<UCommonInputSubsystem> InputSubsystem;
@@ -115,11 +103,11 @@ protected:
 	TObjectPtr<UInputAction> ActionSpellD;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ActionSpellF;	
+	TObjectPtr<UInputAction> ActionSpellF;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ActionSpellG;	
-	
+	TObjectPtr<UInputAction> ActionSpellG;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> ActionShowMaxBasicAttackRange;
 
@@ -142,12 +130,10 @@ protected:
 	 */
 	void OnSpellD();
 	void OnSpellF();
-	void OnSpellG();	
+	void OnSpellG();
 
 	// 최대 공격 사거리를 보여주는 콜백 함수입니다. 
 	void OnShowMaxBasicAttackRange();
-public:
-	void UpdateSkillBar();
 
 public:
 	// Time Threshold to know if it was a short press.
@@ -192,14 +178,14 @@ private:
 
 	bool bIsDecalVisible;
 
-// UI Section
+	// UI Section
 protected:
 	virtual void SetupHUDWidget(UGOHUDWidget* InHUDWidget) override;
 
-// Skill Section
+	// Skill Section
 protected:
 	// My Skill System
-	
+
 	// Skill Cast Component
 	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UGOSkillCastComponent* SkillCastComponent;*/
@@ -214,15 +200,12 @@ protected:
 	/**
 	* 공격과 애니메이션을 재생해주는 함수를 별도로 분리해서 구현합니다.
 	*/
-	void Attack();
 	void PlayAttackAnimation();
 
 	/**
 	* IGOAnimationAttackInterface
-	* 공격을 판정하는 함수입니다. 
+	* 공격을 판정하는 함수입니다.
 	*/
-	virtual void AttackHitCheck() override;
-
 	// 새로 만든: 스킬시스템용 
 	virtual void SkillAttackHitCheck() override;
 
@@ -234,14 +217,6 @@ protected:
 	// 새로 만든: 스킬시스템용 
 	void SkillHitConfirm(AActor* HitActor, float SkillAffectAmount, ESkillAffectType SkillAffectType);
 
-	//void AttackHitConfirm(AActor* HitActor, float Damage);
-
-	//// LineTraceMulti 또는 SweepMulti에서 오는 여러 히트 결과 처리
-	//void AttackHitConfirm(const TArray<FHitResult>& HitResults, float Damage);
-
-	//// OverlapMulti에서 오는 여러 오버랩 결과 처리
-	//void AttackHitConfirm(const TArray<FOverlapResult>& OverlapResults, float Damage);
-
 	void DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 
 	/**
@@ -251,20 +226,11 @@ protected:
 	* 현재 내가 공격한 시간을 서버에 전송합니다.
 	* 클라이언트의 월드와 서버의 월드는 다르므로 클라이언트는 서버의 시간을 가져와서 넘겨줘야 합니다.
 	*/
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCAttack(float AttackStartTime);
-
 
 	// 새로 만든: 스킬시스템용 구조체
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCActivateSkill(float AttackStartTime, FHeroSkillKey Key);
 
-	/**
-	* 
-	*/
-	UFUNCTION(NetMulticast, Unreliable)
-	void MulticastRPCAttack();	
-	
 	// 새로 만든: 스킬시스템용 구조체 !!!
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastRPCActivateSkill(FHeroSkillKey Key);
@@ -276,9 +242,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCActivateSkillWithParticles(FHeroSkillKey Key);
 
-	UFUNCTION(Client, Unreliable)
-	void ClientRPCPlayAnimation(AGOPlayerCharacter* CharacterToPlay);	
-	
 	// 새로 만든: 스킬시스템용 
 	UFUNCTION(Client, Reliable)
 	void ClientRPCPlaySkillAnimation(AGOPlayerCharacter* CharacterToPlay, UGOSkillBase* CurrentSkill);
@@ -286,28 +249,16 @@ public:
 	// 새로 만든: 스킬시스템용 구조체
 	UFUNCTION(Client, Reliable)
 	void ClientRPCActivateSkill(AGOPlayerCharacter* CharacterToPlay, FHeroSkillKey Key);
-	
-	/**
-	* 클라이언트가 무언가 액터에 맞았을 때 서버와 모든 클라이언트에게 판정 명령을 보냅니다.
-	*/
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifyHit(const FHitResult& HitResult, float HitChecktime);
 
 	/**
-	* 공격 판정 시 Miss 일 때의 결과를 보냅니다.
-	*/
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerRPCNotifyMiss(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime);
-
-	/**
-	 * 새로 만든: 스킬시스템용 
+	 * 새로 만든: 스킬시스템용
 	 */
-	//UFUNCTION(Server, Reliable, WithValidation)
-	//void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
+	 //UFUNCTION(Server, Reliable, WithValidation)
+	 //void ServerRPCNotifySkillHit(const FGOOutHitCollisionStructure SkillHitCollisionStructure, float HitChecktime, ESkillCollisionType CurrentSkillCollisionType, float DamageAmount);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifySkillMiss(float HitCheckTime);
-	
+
 	// 테스트용: 스킬시스템 FHitResult
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerRPCNotifySkillHitTest(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
@@ -320,8 +271,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPCNotifySkillHitOverlapResult(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key);
 
-	/** 
-	* 현재 공격 중인가 ? 
+	/**
+	* 현재 공격 중인가 ?
 	* 공격 중이라면 공격을 못하도록 플래그를 걸어주는 용도입니다.
 	* 프로퍼티로 승격시켜서, 서버에서 이 값을 바꿀 때 (업데이트될 때) 자동으로 모든 클라이언트에게 바뀐 값이 전송되도록 합니다.
 	*/
@@ -338,12 +289,12 @@ public:
 
 	// 공격 모션 시간입니다.
 	float AttackTime = 1.1f;
-	
+
 	// 마지막에 공격한 시간입니다.
 	float LastAttakStartTime = 0.0f;
 
 	/**
-	* 클라이언트로부터 패킷을 받은 시간과 서버의 시간은 차이가 존재합니다.	
+	* 클라이언트로부터 패킷을 받은 시간과 서버의 시간은 차이가 존재합니다.
 	*/
 	float AttackTimeDifference = 0.0f;
 
@@ -365,7 +316,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnHealEffect(AGOPlayerCharacter* TargetCharacter);
 
-// PvP section
+	// PvP section
 public:
 	void ResetPlayer();
 	void ResetAttack();
@@ -375,118 +326,17 @@ public:
 
 	virtual void SetDead() override;
 	virtual void SetStunned() override;
-	
-    void EndStunned();
-    void Knockback(const FVector& Direction);
 
-    FTimerHandle StunnedTimerHandle;
-    FVector KnockbackDirection;
+	void EndStunned();
+	void Knockback(const FVector& Direction);
+
+	FTimerHandle StunnedTimerHandle;
+	FVector KnockbackDirection;
 
 protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-
-
-// Order section
 public:
-	// void OrderTo(FGOOrder InOrder);
-
-
-protected:
-	/** Use only local*/
-	UPROPERTY(VisibleInstanceOnly)
-	FGOOrder BufferedOrder;
-
-	/** Use Only Server*/
-	UPROPERTY(VisibleInstanceOnly)
-	FGOOrder ServerBufferedOrder;
-
-
-// State section
-private:
-	UPROPERTY(EditAnywhere, Replicated, Category = "Player", Meta = (Bitmask, BitmaskEnum = "/Script/GuardiansOrders.EGOPlayerActionState"))
-	uint32 ActionStateBitMask;
-
-	UPROPERTY(EditDefaultsOnly)
-	float DefaultImpactTime = 0.67f;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float ImpactTimer = 0;
-
-	UPROPERTY(EditDefaultsOnly)
-	float DefaultBlownRecoveryTime = 1 + 0.43;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float BlownRecoveryTimer = 0;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float InvincibleTimer = 0;
-
-	UPROPERTY(VisibleInstanceOnly, Replicated)
-	float InvincibleTime = 0;
-
-public:
-	void SimulateStateUpdateOnServer(float DeltaTime);
-
-	void SetActionState(EGOPlayerActionState::State State, bool bEnabled);
-	void StartState(EGOPlayerActionState::State State, float Duration);
-	void EndState(EGOPlayerActionState::State State);
-	FTimerHandle StateTimerHandle;
-
-	/**
-	 * 현재 Impacted, Cast, Died  상태라면 
-	 * (현재 공격을 받고 있거나, 스킬을 사용 중이거나, 죽은 상태라면)
-	 */
-	uint8 IsOrderExecutableState() const
-	{
-		return ((ActionStateBitMask & EGOPlayerActionStateValue::OrderUnAcceptableBitMask) == 0);
-	}
-
-	bool IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const;
-
-
-
-
-	bool IsMoving() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Move);
-	}
-
-	bool IsFlashing() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Flash);
-	}
-
-	bool IsCasting() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Cast);
-	}
-
-	bool IsImpacted() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Impacted);
-	}
-
-	bool IsBlown() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Blown);
-	}
-
-	bool IsInvincible() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Invincible);
-	}
-
-	bool IsDied() const
-	{
-		return (ActionStateBitMask & EGOPlayerActionState::Died);
-	}
-
-
-	// TObjectPtr<class UAnimMontage> SkillAnimMontage;
-
-	void CheckActorNetworkStatus(AActor* ActorToCheck);
-
 	FName GetHeroTypeFName(EHeroType HeroType)
 	{
 		switch (HeroType)
@@ -499,11 +349,11 @@ public:
 		}
 	}
 
-// Camera Shake
-	UPROPERTY(EditAnywhere, Category="Combat")
+	// Camera Shake
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	TSubclassOf<class UCameraShakeBase> HitCameraShakeClass;
 
-// Rotation
+	// Rotation
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_Rotation)
 	FRotator NetRotation;
@@ -518,7 +368,7 @@ private:
 	UPROPERTY()
 	class AGOBattleGameMode* GOBattleGameMode;
 
-// ======== IGOPlaySkillAnimInterface ========
+	// ======== IGOPlaySkillAnimInterface ========
 public:
 	virtual UGOSkillCastComponent* GetSkillCastComponent()
 	{
@@ -527,38 +377,19 @@ public:
 
 	virtual void PlaySkillAnim(UGOSkillBase* CurrentSkill);
 	virtual void PlaySkillAnimByKey(FHeroSkillKey Key);
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("[AGOPlayerCharacter::PlaySkillAnim] 1 called. This function is inherited from GOPlaySkillAnimInterface. "));
-	//	GetMesh()->GetAnimInstance()->Montage_Play(CurrentSkill->GetTotalSkillData().SkillAnim);
-	//	
-	//}
+
 
 	// 새로 만든: 스킬시스템용 구조체
 	virtual void ActivateSkillByKey(FHeroSkillKey Key);
 
-// ======== IGOSpellFlashInterface ========
+	// ======== IGOSpellFlashInterface ========
 	virtual void ActivateSpellFlash();
 
-// ======== IGOPlaySkillEffectInterface ========
+	// ======== IGOPlaySkillEffectInterface ========
 	virtual void PlayEffectParticleAnimByKey(FHeroSkillKey Key);
 
-// ======== IGOApplySkillInterface ========
+	// ======== IGOApplySkillInterface ========
 	virtual void ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser);
-
-// ======== IGOPlayerInterface ========
-
-	virtual void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial = nullptr) override;
-	virtual void HideMagicCircle_Implementation() override;
-
-// ======== Move Skill =======
-public:
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastActivateSkillWithMovement(FHeroSkillKey Key, float Distance, float Duration, float Acceleration);
-
-	void StartMovingForward(float Distance, float Duration, float Acceleration);
 
 public:
 	UFUNCTION(NetMulticast, Reliable)
@@ -588,12 +419,12 @@ protected:
 	virtual void UnHighlightActor() override;
 
 
-// IGOStateInterface
+	// IGOStateInterface
 public:
 	virtual bool GetIsDead() override;
 	virtual bool GetIsStunned() override;
 
-// 연마석
+	// 연마석
 private:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerCheckForGrindingStone();
@@ -615,18 +446,19 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnGrindingNiagaraEffect(FVector Location);
 
+
 private:
 	void SpawnGrindingNiagaraEffect(FVector Location);
 
 private:
 	int32 AttemptCount;
 
-    UFUNCTION(Server, Reliable, WithValidation)
-    void ServerAttemptStatIncrease();
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerAttemptStatIncrease();
 
-    //UFUNCTION(Client, Reliable)
-    //void ClientNotifyStatIncreaseResult(bool bSuccess, float StatIncreaseAmount);
+	//UFUNCTION(Client, Reliable)
+	//void ClientNotifyStatIncreaseResult(bool bSuccess, float StatIncreaseAmount);
 
-    void BindWidgetEvents();
+	void BindWidgetEvents();
 
 };

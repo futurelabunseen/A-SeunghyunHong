@@ -56,12 +56,10 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 	GetCharacterMovement()->bEnablePhysicsInteraction = false;
-	// GetCharacterMovement()->SlideAlongSurface(false);
 
 	// Mesh
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -88.0f));
-	//GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 	GetMesh()->SetCollisionResponseToChannel(CCHANNEL_GOProjectile, ECR_Overlap);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -108,17 +106,7 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 	StatsBar = CreateDefaultSubobject<UGOWidgetComponent>(TEXT("StatsBarWidget"));
 	StatsBar->SetupAttachment(GetMesh());
 	StatsBar->SetRelativeLocation(FVector(0.0f, 0.0f, 220.0f));
-	static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C")); //UUserWidget
-	
-	//// hp bar images (Red, Green, Blue)
-	//static ConstructorHelpers::FObjectFinder<UTexture2D> BlueTextureObj(TEXT("Engine.Texture2D'/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Blue.LOL-StatsBar-Short-HP-Blue'"));
-	////static ConstructorHelpers::FObjectFinder<UTexture2D> GreenTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Green.LOL-StatsBar-Short-HP-Green"));
-	//static ConstructorHelpers::FObjectFinder<UTexture2D> RedTextureObj(TEXT("/Game/AssetResource/UI/LOL-StatsBar-Short-HP-Red.LOL-StatsBar-Short-HP-Red"));
-
-	////// Assign textures to class members
-	//BlueTexture = BlueTextureObj.Object;
-	////GreenTexture = GreenTextureObj.Object;
-	//RedTexture = RedTextureObj.Object;
+	static ConstructorHelpers::FClassFinder<UGOStatsBarWidget> StatsBarWidgetRef(TEXT("/Game/UI/ProgressBar/WBP_HeadUpStatsBar.WBP_HeadUpStatsBar_C"));
 
 	if (StatsBarWidgetRef.Succeeded())
 	{
@@ -127,18 +115,13 @@ AGOCharacterBase::AGOCharacterBase(const FObjectInitializer& ObjectInitializer)
 		StatsBar->SetDrawSize(FVector2D(150.0f, 30.0f));
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 0 : %s"));
-	UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 0 "));
 
 	if (IsValid(StatsBarWidgetClass))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 1 : %s"), *StatsBarWidgetClass->GetName());
-
 		StatsBar->SetWidgetClass(StatsBarWidgetClass);
 		StatsBar->SetWidgetSpace(EWidgetSpace::Screen);
 		StatsBar->SetDrawSize(FVector2D(200.0f, 50.0f));
 		StatsBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidgetClass 2 : %s"), *StatsBarWidgetClass->GetName());
 	}
 }
 
@@ -146,7 +129,6 @@ void AGOCharacterBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	// GetCharacterMovement()->MaxWalkSpeed = Stat->GetTotalStat().MovementSpeed;
 	Stat->OnHpZero.AddUObject(this, &AGOCharacterBase::SetDead);
 	Stat->OnStatChanged.AddUObject(this, &AGOCharacterBase::ApplyStat);
 	Stat->OnManaZero.AddUObject(this, &AGOCharacterBase::NoMana);
@@ -197,14 +179,9 @@ void AGOCharacterBase::ApplyStat(const FGOCharacterStat& BaseStat, const FGOChar
 }
 
 void AGOCharacterBase::UpdateNicknameWidget(const FString& Nickname) {
-	UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 000 %s"), *Nickname);
-
 	if (StatsBarWidget) {
-		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 111 %s"), *Nickname);
-
 		FText NicknameText = FText::FromString(Nickname);
 		StatsBarWidget->Nickname->SetText(NicknameText);
-		UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: 222 %s"), *Nickname);
 	}
 }
 
@@ -260,25 +237,16 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 		//HpBarWidget->UpdateHpBar(Stat->GetCurrentHp(), Stat->GetMaxHp());
 		//ManaBarWidget->UpdateManaBar(Stat->GetCurrentMana(), Stat->GetMaxMana());
 	}
-
-	//AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
-
-	//FText Nickname = FText::FromString(PS->SelectedHero.PlayerName);
-	//StatsBarWidget->Nickname->SetText(Nickname);
-
 	StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
-	UE_LOG(LogTemp, Warning, TEXT("[TeamBattle] UpdateNicknameWidget: -1 %s"), *StatsBarWidget->GetName());
 
 	if (!InUserWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("InUserWidget is null"));
 		return;
 	}
 
 	StatsBarWidget = Cast<UGOStatsBarWidget>(InUserWidget);
 	if (!StatsBarWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("StatsBarWidget is null"));
 		return;
 	}
 
@@ -287,7 +255,6 @@ void AGOCharacterBase::SetupCharacterWidget(UGOUserWidget* InUserWidget)
 
 	if (!HpBarWidget || !ManaBarWidget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("HpBarWidget or ManaBarWidget is null"));
 		return;
 	}
 
@@ -365,12 +332,6 @@ void AGOCharacterBase::SetDead()
 
 	if (StatsBar)
 		StatsBar->SetHiddenInGame(true);
-
-	//APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	//if (PlayerController)
-	//{
-	//	DisableInput(PlayerController);
-	//}
 }
 
 void AGOCharacterBase::PlayDeadAnimation()
@@ -392,7 +353,6 @@ void AGOCharacterBase::PlayStunnedAnimation()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	AnimInstance->Montage_Play(StunnedMontage, 1.0f);
-	UE_LOG(LogTemp, Warning, TEXT("[SetStunned] AGOCharacterBase::PlayStunnedAnimation()"));
 }
 
 void AGOCharacterBase::GetMana()
@@ -401,7 +361,6 @@ void AGOCharacterBase::GetMana()
 
 void AGOCharacterBase::NoMana()
 {
-	// TODO: No Mana
 }
 
 FVector AGOCharacterBase::GetBattleSocketLocation()
@@ -411,16 +370,13 @@ FVector AGOCharacterBase::GetBattleSocketLocation()
 
 void AGOCharacterBase::HighlightActor()
 {
-	UE_LOG(LogTemp, Warning, TEXT("HighlightActor start 000000000"));
 	GetMesh()->SetRenderCustomDepth(true);
 	GetMesh()->SetCustomDepthStencilValue(250.f);
-	UE_LOG(LogTemp, Warning, TEXT("HighlightActor end 000000000"));
 }
 
 void AGOCharacterBase::UnHighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
-	UE_LOG(LogTemp, Warning, TEXT("UnHighlightActor 000000000"));
 }
 
 bool AGOCharacterBase::GetIsDead()

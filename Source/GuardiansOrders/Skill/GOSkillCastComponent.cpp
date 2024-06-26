@@ -70,10 +70,10 @@ void UGOSkillCastComponent::OnStartCast(FHeroSkillKey Key)
 	{
 		return;
 	}
-	
-	if (CurrentSkill->bIsCasting==false && CurrentSkill->bIsCastable==false)//여기
+
+	if (CurrentSkill->bIsCasting == false && CurrentSkill->bIsCastable == false)//여기
 	{
-		
+
 		UE_LOG(LogTemp, Log, TEXT("[NewSkill] UGOSkillCastComponent OnStartCast() is Called."));
 
 		CurrentSkill->SetSkillOwner(GetOwner());
@@ -312,4 +312,3 @@ bool UGOSkillCastComponent::ServerStartArrowRain_Validate(TSubclassOf<AGOProject
 {
 	return true;
 }
-

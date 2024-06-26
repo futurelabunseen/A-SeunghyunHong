@@ -27,15 +27,6 @@ void AGOKatnissUltimateProjectile::OnSphereOverlap(UPrimitiveComponent* Overlapp
 
         ApplyDamageToActors();
     }
-
-    //if (HasAuthority())
-    //{
-    //    StartDestroyTimer();
-    //}
-    //else
-    //{
-    //    bHit = true;
-    //}
 }
 
 void AGOKatnissUltimateProjectile::ApplyDamageToActors()
@@ -47,10 +38,7 @@ void AGOKatnissUltimateProjectile::ApplyDamageToActors()
     {
         if (Actor != GetOwner())
         {
-            if (IGOApplySkillInterface* GOApplySkillInterface = Cast<IGOApplySkillInterface>(Actor))
-            {
-                GOApplySkillInterface->ApplySkillEffect(Actor, Damage, GetOwner());
-            }
+            UGameplayStatics::ApplyDamage(Actor, Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
         }
     }
 }

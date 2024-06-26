@@ -31,21 +31,14 @@ void UGOSkillBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 
 void UGOSkillBase::Tick(float DeltaTime)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick "));
-
-	//if (!IsCasting()) return;
-	if (bIsCasting==true)
+	if (bIsCasting == true)
 	{
 		CoolDownTimer -= DeltaTime;
-		UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick --"));
 		if (CoolDownTimer <= 0.0f)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("newskill UGOSkillBase::Tick <<"));
-
 			FinishCast();
 		}
 	}
-	//UpdateCast(DeltaTime);
 }
 
 bool UGOSkillBase::IsTickable() const
@@ -80,28 +73,19 @@ void UGOSkillBase::SetSkillOwner(AActor* NewOwner)
 
 void UGOSkillBase::InitializeSkill(FName InSkillName)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("UGOSkillBase::InitializeSkill InSkillName: %s"), InSkillName);
-
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;
-
-	// Retrieve the subsystem from the game instance.
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 	if (GOGameInstance)
 	{
 		FGOSkillData* SkillDataRow = GOGameInstance->GetSkillData(InSkillName);
-		SkillData = *SkillDataRow; 
-		// 이게 테이블을 직접 참조하는 것이다..! 내가 쓸 구조체로 만들어서 복사해서 써야 한다.
-		// 이 클래스 인스턴스에서 전용으로 쓸 구조체를 만들어서 써야 한다!!
-		// 안그러면 테이블 값이 바뀔 수 있다. 
+		SkillData = *SkillDataRow;
 		FGOSkillStat* SkillStatRow = GOGameInstance->GetSkillStatData(SkillDataRow->SkillStatName);
-
 		if (SkillStatRow)
 		{
-			SkillStat = *SkillStatRow; // 이게 테이블을 직접 참조하는 것이다..!
-			UE_LOG(LogTemp, Warning, TEXT("SkillStat = *SkillStatRow; is called."));
+			SkillStat = *SkillStatRow;
 		}
-	}	
+	}
 }
 
 void UGOSkillBase::SpawnParticleAtLocation(FVector Location)
@@ -132,81 +116,45 @@ void UGOSkillBase::SpawnParticleAroundActor(AActor* Actor, float Radius)
 
 void UGOSkillBase::StartCast()
 {
-	/*if (IsCastable() == false)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Skill is not castable due to cooldown or other conditions."));
-		return;
-	}*/
-	UE_LOG(LogTemp, Log, TEXT("[NewSkill] UGOSkillBase::StartCast() is Called."));
-
 	bIsCasting = true;
 	SetIsOnCoolTime(true);
 
 	SetCoolDownTimer();
 	CoolDownTime = CoolDownTimer;
-	// 델리게이트로 알려주장
 
-	if(bIsCasting == true)
+	if (bIsCasting == true)
 		UGOSkillBaseFIsOnCooldown.Broadcast(GetIsOnCoolTime());  // 쿨다운 시작 시 즉시 UI 업데이트
-
-	//SpawnParticleEffect(SkillData.SkillCastType, SkillData.ParticleSpawnLocation);
-	UE_LOG(LogTemp, Warning, TEXT("[ NewSkill::StartCast] Broadcast"));
-
-	//if (GetWorld()->GetTimerManager().IsTimerActive(CoolDownTickTimerHandle))
-	//{
-	//	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
-	//}
-	//GetWorld()->GetTimerManager().SetTimer(CoolDownTickTimerHandle, this, &UGOSkillBase::CheckCooldownTick, 0.1f, true);
 }
 
 void UGOSkillBase::UpdateCast(float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] called "));
-
 	if (CoolDownTime >= CoolDownTimer)
 	{
 		CoolDownTimer -= DeltaTime;
-
-
-		//OnCooldownUpdated.Broadcast(CoolDownTimer);
-		UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] is called. CoolDownTimer : %d > 0.f"), CoolDownTimer);
 	}
 	if (CoolDownTimer < 0)
 	{
 		FinishCast();
 	}
-	//if (CoolDownTimer <= 0.0f)
-	//{
-	//	FinishCast();
-	//	//CoolDownTimer = 0.0f;
-	//	//bIsCastable = true;
-	//	UE_LOG(LogTemp, Warning, TEXT("[NewSkill UGOSkillBase::UpdateCast] is called. CoolDownTimer : %d < 0.0f"), CoolDownTimer);
-	//}
 }
 
 void UGOSkillBase::ActivateSkill() // UGOSkillCastComponent::OnUpdateCast 에서 불림
 {
 	// 스킬 효과 발동 로직, 예: 대미지 처리, 상태 효과 적용 등
 	ExecuteSkill(GetSkillCollisionType());
-
-	UE_LOG(LogTemp, Log, TEXT("[NewSkill::Activate()] Skill %s activated."), *SkillData.SkillName);
 }
 
 void UGOSkillBase::FinishCast()
 {
 	bIsCasting = false;
 	bIsCastable = false;
-	// bIsCastable = false; // 쿨다운이 진행되므로 다시 캐스트할 수 없음
-	SetCoolDownTimer();  // 쿨다운 타이머 재설정 ㅠㅠ....
+	SetCoolDownTimer();
 	SetIsOnCoolTime(false);
-	UE_LOG(LogTemp, Log, TEXT("[NewSkill UGOSkillBase::FinishCast()] is called "));
 }
 
 void UGOSkillBase::InterruptedCast()
 {
-	// bIsCasting = false;
-	// 필요한 경우 캐스팅 중단 처리, 예: 애니메이션 중단, 효과 제거 등
-	UE_LOG(LogTemp, Log, TEXT("Skill casting interrupted."));
+
 }
 
 void UGOSkillBase::ActivateEffect()
@@ -219,17 +167,13 @@ void UGOSkillBase::HandleSkillTrigger()
 	switch (GetSkillTriggerType())
 	{
 	case ESkillTriggerType::Target:
-		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: Target"));
 		break;
 	case ESkillTriggerType::NonTargetDirection:
-		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetDirection"));
 		break;
 	case ESkillTriggerType::NonTargetRange:
-		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: NonTargetRange"));
 		break;
 	case ESkillTriggerType::AutoTargetRadius:
 	{
-		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadius"));
 		float Radius = GetAutoDetectionRadius();
 		AGOCharacterBase* ClosestTarget = DetectClosestTarget(Radius);
 		SetTarget(ClosestTarget);
@@ -237,7 +181,6 @@ void UGOSkillBase::HandleSkillTrigger()
 	}
 	case ESkillTriggerType::AutoTargetRadiusDegree:
 	{
-		UE_LOG(LogTemp, Log, TEXT("Skill Trigger Type: AutoTargetRadiusDegree"));
 		float Radius = GetAutoDetectionRadius();
 		float Degree = GetAutoDetectionDegree();
 		FVector ForwardVector = GetSkillOwner()->GetActorForwardVector();
@@ -370,12 +313,6 @@ void UGOSkillBase::CheckCooldownTick()
 	if (CoolDownTimer > 0.0f)
 	{
 		CoolDownTimer -= 0.1f;
-		UE_LOG(LogTemp, Warning, TEXT("[SkillBarUI UGOSkillBase::CheckCooldownTick()] CoolDownTimer : %f "), CoolDownTimer);
-		//OnCooldownUpdated.Broadcast(CoolDownTimer);  // UI 업데이트를 위해 델리게이트 호출
-		//if (CoolDownTimer <= 0.0f)
-		//{
-		//	EndCooldown();
-		//}
 	}
 }
 
@@ -383,15 +320,11 @@ void UGOSkillBase::EndCooldown()
 {
 	GetWorld()->GetTimerManager().ClearTimer(CoolDownTickTimerHandle);
 	CoolDownTimer = 0.0f;
-	// bIsCastable = true;
-	//OnCooldownUpdated.Broadcast(CoolDownTimer);  // 최종적으로 쿨다운 완료 알림
 }
 
 void UGOSkillBase::SetTarget(AGOCharacterBase* NewTarget)
 {
-	TargetGOCharacter = NewTarget;  // 대상 캐릭터 설정
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::SetTarget] TargetCharacter : %s "), *TargetGOCharacter.GetName());
-
+	TargetGOCharacter = NewTarget;
 }
 
 TObjectPtr<AGOCharacterBase> UGOSkillBase::GetTarget()
@@ -420,7 +353,6 @@ void UGOSkillBase::ExecuteSkill(ESkillCollisionType SkillCollisionType)
 		PerformOverlapMulti(GetTotalSkillStat(), OutHitCollisionStruct.OutOverlaps);
 		break;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] ESkillCollisionType !!! %d : "), SkillCollisionType);
 }
 
 void UGOSkillBase::PerformLineTraceSingle(const FGOSkillStat& Stats, FHitResult& OutHitResult)
@@ -436,17 +368,6 @@ void UGOSkillBase::PerformLineTraceSingle(const FGOSkillStat& Stats, FHitResult&
 	CollisionParams.AddIgnoredActor(OwnerActor); // 스킬 사용자는 무시
 
 	HitDetected = OwnerActor->GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, CCHANNEL_GOACTION, CollisionParams);
-	if (HitDetected)
-	{
-		AActor* HitActor = OutHitResult.GetActor();
-		if (HitActor)
-		{
-			// 피해 적용 로직 (ex: HitActor->TakeDamage())
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceSingle Called !"));
-	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), Start, End, TraceColor, false, 5.0f, 0, 1.f);
 }
 
 void UGOSkillBase::PerformLineTraceMulti(const FGOSkillStat& Stats, TArray<FHitResult>& OutHitResults)
@@ -462,21 +383,6 @@ void UGOSkillBase::PerformLineTraceMulti(const FGOSkillStat& Stats, TArray<FHitR
 	CollisionParams.AddIgnoredActor(OwnerActor);
 
 	HitDetected = OwnerActor->GetWorld()->LineTraceMultiByChannel(OutHitResults, Start, End, CCHANNEL_GOACTION, CollisionParams);
-	if (HitDetected)
-	{
-		for (const FHitResult& Hit : OutHitResults)
-		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor)
-			{
-				// 피해 적용 로직
-			}
-		}
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformLineTraceMulti Called !"));
-	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	DrawDebugLine(GetWorld(), Start, End, TraceColor, false, 5.0f, 0, 1.f);
 }
 
 void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& OutHitResult)
@@ -495,19 +401,6 @@ void UGOSkillBase::PerformSweepSingle(const FGOSkillStat& Stats, FHitResult& Out
 	Params.AddIgnoredActor(OwnerActor);
 
 	HitDetected = OwnerActor->GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape, Params);
-	
-	if (HitDetected)
-	{
-		AActor* HitActor = OutHitResult.GetActor();
-		if (HitActor)
-		{
-			// 로그에 피격 액터의 이름을 출력
-			UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] HITCHECK SweepSingle Hit Actor: %s"), *HitActor->GetName());
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepSingle Called !"));
-	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	// DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResult>& OutHitResults)
@@ -524,20 +417,6 @@ void UGOSkillBase::PerformSweepMulti(const FGOSkillStat& Stats, TArray<FHitResul
 	Params.AddIgnoredActor(OwnerActor);
 
 	HitDetected = OwnerActor->GetWorld()->SweepMultiByChannel(OutHitResults, Start, End, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape, Params);
-	if (HitDetected)
-	{
-		for (const FHitResult& Hit : OutHitResults)
-		{
-			AActor* HitActor = Hit.GetActor();
-			if (HitActor)
-			{
-				// 피해 적용 로직
-			}
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformSweepMulti Called !"));
-	FColor TraceColor = HitDetected ? FColor::Green : FColor::Red;
-	// DrawDebugCapsule(GetWorld(), Start + ((End - Start) * 0.5f), (End - Start).Size() / 2, Stats.DamageRadius, FQuat::Identity, TraceColor, false, 5.0f);
 }
 
 void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverlapResult>& OutOverlaps)
@@ -551,23 +430,7 @@ void UGOSkillBase::PerformOverlapMulti(const FGOSkillStat& Stats, TArray<FOverla
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(OwnerActor);
 
-	// TArray<FOverlapResult> Overlaps;
 	HitDetected = OwnerActor->GetWorld()->OverlapMultiByChannel(OutOverlaps, Location, FQuat::Identity, CCHANNEL_GOACTION, CollisionShape, Params);
-	if (HitDetected)
-	{
-		for (const FOverlapResult& Overlap : OutOverlaps)
-		{
-			AActor* OverlappedActor = Overlap.GetActor();
-			if (OverlappedActor && OverlappedActor != OwnerActor)
-			{
-				// 피해 적용 로직
-				UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called ! OverlappedActor : %s"), *OverlappedActor->GetName());
-			}
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("[UGOSkillBase::ExecuteSkill] PerformOverlapMulti Called !"));
-	FColor TraceColor = OutOverlaps.Num() > 0 ? FColor::Green : FColor::Red;
-	// DrawDebugSphere(GetWorld(), Location, Stats.DamageRadius, 32, TraceColor, false, 5.0f);
 }
 
 TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
@@ -596,8 +459,6 @@ TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTarget(float Radius)
 			}
 		}
 	}
-	// DrawDebugSphere(GetWorld(), Location, Radius, 3, FColor::Yellow, false, 10.0f);
-
 	return ClosestCharacter;
 }
 
@@ -633,7 +494,5 @@ TObjectPtr<AGOCharacterBase> UGOSkillBase::DetectClosestTargetRadiusDegreeBase(c
 			}
 		}
 	}
-	// DrawDebugCone(GetWorld(), Location, FVector(Dir, 0.0f), Radius, FMath::DegreesToRadians(Degree), FMath::DegreesToRadians(Degree), 5, FColor::Yellow, false, 10.0f);
-
 	return ClosestCharacter;
 }

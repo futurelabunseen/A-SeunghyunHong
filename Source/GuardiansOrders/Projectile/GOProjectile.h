@@ -21,11 +21,14 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
-	void SetProjectileMaxSpeed(float Speed);
-
 	// Add a property to specify the damage value
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 	float Damage;
+
+	// Implementing IPoolable interface methods
+	//virtual void OnSpawnFromPool_Implementation() override;
+	//virtual void OnReturnToPool_Implementation() override;
+	// float GetLifeSpan() { return LifeSpan; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,7 +48,7 @@ protected:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	float LifeSpan = 15.f;
+	float LifeSpan = 10.f;
 
 	bool bHit = false;
 

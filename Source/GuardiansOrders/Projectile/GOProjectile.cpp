@@ -7,7 +7,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
 #include "Physics/GOCollision.h"
-#include "Interface/GOApplySkillInterface.h"
 #include "Share/EditorNames.h"
 
 AGOProjectile::AGOProjectile()
@@ -32,10 +31,20 @@ AGOProjectile::AGOProjectile()
 	Damage = GOProjectile::PROJECTILE_BASE_DAMAGE; // Default damage value
 }
 
-void AGOProjectile::SetProjectileMaxSpeed(float Speed)
-{
-	ProjectileMovement->MaxSpeed = Speed;
-}
+//void AGOProjectile::OnSpawnFromPool_Implementation()
+//{   
+//	// Initialize or reset any required properties
+//	SetActorHiddenInGame(false);
+//	SetActorEnableCollision(true);
+//	UE_LOG(LogTemp, Warning, TEXT("[Pool] OnSpawnFromPool_Implementation"));
+//}
+//
+//void AGOProjectile::OnReturnToPool_Implementation()
+//{
+//	SetActorHiddenInGame(true);
+//	SetActorEnableCollision(false);
+//	UE_LOG(LogTemp, Warning, TEXT("[Pool] OnReturnToPool_Implementation"));
+//}
 
 void AGOProjectile::BeginPlay()
 {
@@ -53,20 +62,14 @@ void AGOProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		return;
 	}
 
-	// UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	//LoopingSoundComponent->Stop();
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
 
 	if (SweepResult.GetActor() != GetOwner())
 	{
-		if (IGOApplySkillInterface* GOApplySkillInterface = Cast<IGOApplySkillInterface>(SweepResult.GetActor()))
-		{
-
-			GOApplySkillInterface->ApplySkillEffect(SweepResult.GetActor(), Damage, GetOwner());
-		}
+		UGameplayStatics::ApplyDamage(SweepResult.GetActor(), Damage, GetOwner()->GetInstigatorController(), this, UDamageType::StaticClass());
 	}
 
 	if (HasAuthority())
@@ -83,13 +86,15 @@ void AGOProjectile::Destroyed()
 {
 	if (!bHit && !HasAuthority())
 	{
-		// UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-		//LoopingSoundComponent->Stop();
 	}
 	UE_LOG(LogTemp, Warning, TEXT("[Projectile]  AGOProjectile::Destroyed"));
 
 	Super::Destroyed();
+	//if (UObjectPoolSubsystem* PoolSubsystem = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
+	//{
+	//	PoolSubsystem->ReturnProjectile(this);
+	//}
 }
 
 void AGOProjectile::StartDestroyTimer()
@@ -105,4 +110,12 @@ void AGOProjectile::StartDestroyTimer()
 void AGOProjectile::DestroyTimerFinished()
 {
 	Destroy();
+	//if (UObjectPoolSubsystem* PoolSubsystem = GetWorld()->GetSubsystem<UObjectPoolSubsystem>())
+	//{
+	//	PoolSubsystem->ReturnProjectile(this);
+	//}
+	//else
+	//{
+	//	Destroy();
+	//}
 }

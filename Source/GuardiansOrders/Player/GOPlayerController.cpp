@@ -41,9 +41,11 @@ void AGOPlayerController::PlayerTick(float DeltaTime)
 {
     Super::PlayerTick(DeltaTime);
 
-    CursorTrace();
+    if (MatchState == MatchState::Cooldown)
+    {
+        CursorTrace();
+    }
 
-    UpdateMagicCircleLocation();
 }
 
 void AGOPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -424,26 +426,6 @@ void AGOPlayerController::ClientElimAnnouncement_Implementation(AGOPlayerState* 
     }
 }
 
-void AGOPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
-{
-    if (!IsValid(MagicCircle))
-    {
-        MagicCircle = GetWorld()->SpawnActor<AGOMagicCircle>(MagicCircleClass);
-        if (DecalMaterial)
-        {
-            MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
-        }
-    }
-}
-
-void AGOPlayerController::HideMagicCircle()
-{
-    if (IsValid(MagicCircle))
-    {
-        MagicCircle->Destroy();
-    }
-}
-
 void AGOPlayerController::StartMatchCountdown()
 {
     MatchTime = 180.F; // 매치 시간 설정
@@ -460,11 +442,7 @@ bool AGOPlayerController::CheckMatchState()
 
 void AGOPlayerController::OnPossess(APawn* InPawn)
 {
-    GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-
     Super::OnPossess(InPawn);
-
-    GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void AGOPlayerController::Tick(float DeltaTime)
@@ -730,8 +708,8 @@ EHeroType AGOPlayerController::GetSelectedHero()
 
 void AGOPlayerController::CursorTrace()
 {
-    GetHitResultUnderCursor(CCHANNEL_GOACTION, false, CursorHit);
     if (!CursorHit.bBlockingHit) return;
+    GetHitResultUnderCursor(CCHANNEL_GOACTION, false, CursorHit);
 
     LastActor = ThisActor;
     ThisActor = CursorHit.GetActor();
@@ -837,14 +815,6 @@ void AGOPlayerController::CursorTrace()
     //    }
     //}
 
-}
-
-void AGOPlayerController::UpdateMagicCircleLocation()
-{
-    if (IsValid(MagicCircle))
-    {
-        MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
-    }
 }
 
 void AGOPlayerController::OnRep_MatchState()

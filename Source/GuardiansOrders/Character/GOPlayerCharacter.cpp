@@ -47,15 +47,11 @@
 #include "GameData/GOSkillData.h"
 #include "Game/GOPlayerState.h"
 #include "UI/GOStatsBarWidget.h"
-#include "CommonTextBlock.h"
 #include "UI/GOGrindingStoneWidget.h"
 #include "UI/GOHpBarWidget.h"
 #include "Components/ProgressBar.h"
 #include "Engine/Texture2D.h"
-#include "Slate/SlateBrushAsset.h"
-#include "Styling/SlateBrush.h"
 #include "NiagaraComponent.h"
-#include "Share/EditorNames.h"
 
 AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGOCharacterMovementComponent>(ACharacter::CharacterMovementComponentName)),
@@ -175,12 +171,6 @@ AGOPlayerCharacter::AGOPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	}
 
 	bCanAttack = true;
-
-	// Skill Cast Component
-	// SkillCastComponent = CreateDefaultSubobject<UGOSkillCastComponent>(TEXT("SkillCastComponent"));
-
-	// Character State Init
-	ActionStateBitMask = EGOPlayerActionState::None;
 }
 
 void AGOPlayerCharacter::PostInitializeComponents()
@@ -192,7 +182,7 @@ void AGOPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(bIsDead == false)
+	if (bIsDead == false)
 		SelfMove();
 }
 
@@ -222,79 +212,28 @@ void AGOPlayerCharacter::BeginPlay()
 	Subsystem->AddMappingContext(HeroSkillMappingContext, 0);
 
 	InputSubsystem = ULocalPlayer::GetSubsystem<UCommonInputSubsystem>(PlayerController->GetLocalPlayer());
-	UE_LOG(LogTemp, Log, TEXT("AGOPlayerCharacter BeginPlay"));
 
 	BindWidgetEvents();
 	// StatComponent와 HUDWidget 연결
-	if(AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
+	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
 	{
 		GOPlayerController->GOHUDWidget->BindToStatComponent(Stat);
 	}
-
-
-	//AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
-	//FText Nickname = FText::FromString(PS->SelectedHero.PlayerName);
-	//UE_LOG(LogTemp, Log, TEXT("AGOPlayerCharacter Nickname %s"), *PS->SelectedHero.PlayerName);
-
-	//StatsBarWidget->Nickname->SetText(Nickname);
 }
 
 void AGOPlayerCharacter::PossessedBy(AController* NewController)
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-
-	AActor* OwnerActor = GetOwner();
-	if (OwnerActor)
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner YES1: %s"), *OwnerActor->GetName());
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner NO1: %s"), TEXT("No Owner"));
-	}
-
 	Super::PossessedBy(NewController);
-
-	OwnerActor = GetOwner();
-	if (OwnerActor)
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner YES2: %s"), *OwnerActor->GetName());
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner NO2: %s"), TEXT("No Owner"));
-	}
-
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void AGOPlayerCharacter::OnRep_Owner()
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s %s"), *GetName(), TEXT("Begin"));
-
 	Super::OnRep_Owner();
-
-	AActor* OwnerActor = GetOwner();
-	if (OwnerActor)
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner: %s"), *OwnerActor->GetName());
-	}
-	else
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("Owner: %s"), TEXT("No Owner"));
-	}
-
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
-
 }
 
 void AGOPlayerCharacter::PostNetInit()
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s %s"), TEXT("Begin"), *GetName());
-
 	Super::PostNetInit();
-
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
 void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -314,7 +253,6 @@ void AGOPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		EnhancedInputComponent->BindAction(ActionBaseSkill, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnBaseSkill);
 		EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillQ);
-		//EnhancedInputComponent->BindAction(ActionSkillQ, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(ActionSkillW, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillW);
 		EnhancedInputComponent->BindAction(ActionSkillE, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillE);
 		EnhancedInputComponent->BindAction(ActionSkillR, ETriggerEvent::Triggered, this, &AGOPlayerCharacter::OnSkillR);
@@ -341,6 +279,7 @@ void AGOPlayerCharacter::MoveGamePad(const FInputActionValue& Value)
 		AddMovementInput(Direction, 1.0f, false);
 	}
 }
+
 
 void AGOPlayerCharacter::OnInputStarted()
 {
@@ -385,7 +324,7 @@ void AGOPlayerCharacter::OnSetDestinationTriggered()
 		}
 
 		FVector WorldDirection = (CachedDestination - GetActorLocation()).GetSafeNormal();
-		AddMovementInput(WorldDirection, GOConsts::SELF_MOVE_AMOUNT, false);
+		AddMovementInput(WorldDirection, 1.0f, false);
 	}
 }
 
@@ -408,54 +347,56 @@ void AGOPlayerCharacter::OnSetDestinationReleased()
 			for (const FVector& PointLocation : NavPath->PathPoints)
 			{
 				Spline->AddSplinePoint(PointLocation, ESplineCoordinateSpace::World);
-				DrawDebugSphere(GetWorld(), PointLocation, 10.f, 5, FColor::Green, false, 2.f);
+				//DrawDebugSphere(GetWorld(), PointLocation, 10.f, 5, FColor::Green, false, 2.f);
 			}
-
-			CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
-			bSelfMove = true;
-
-			for (USplineMeshComponent* SplineMeshComp : SplineMeshComponents)
+			if (NavPath->PathPoints.Num() > 0)
 			{
-				if (SplineMeshComp)
-				{
-					SplineMeshComp->DestroyComponent();
-				}
+				CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+				bSelfMove = true;
 			}
-			SplineMeshComponents.Empty();
 
-			const int32 NumSplinePoints = Spline->GetNumberOfSplinePoints();
-			for (int32 i = 0; i < NumSplinePoints - 1; ++i)
-			{
-				FVector StartPos, StartTangent, EndPos, EndTangent;
-				Spline->GetLocalLocationAndTangentAtSplinePoint(i, StartPos, StartTangent);
-				Spline->GetLocalLocationAndTangentAtSplinePoint(i + 1, EndPos, EndTangent);
+			//for (USplineMeshComponent* SplineMeshComp : SplineMeshComponents)
+			//{
+			//	if (SplineMeshComp)
+			//	{
+			//		SplineMeshComp->DestroyComponent();
+			//	}
+			//}
+			//SplineMeshComponents.Empty();
 
-				USplineMeshComponent* SplineMeshComp = NewObject<USplineMeshComponent>(this);
-				SplineMeshComp->RegisterComponentWithWorld(GetWorld());
-				SplineMeshComp->SetMobility(EComponentMobility::Movable);
-				SplineMeshComp->SetStaticMesh(SplineMesh);
-				SplineMeshComp->SetMaterial(0, PathMaterial);
-				SplineMeshComp->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent);
-				SplineMeshComp->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
-				SplineMeshComp->SetStartScale(FVector2D(SplineMeshTickness, SplineMeshTickness));
-				SplineMeshComp->SetEndScale(FVector2D(SplineMeshTickness, SplineMeshTickness));
-				SplineMeshComp->SetForwardAxis(ESplineMeshAxis::Z);
-				SplineMeshComponents.Add(SplineMeshComp);
-			}
+			//const int32 NumSplinePoints = Spline->GetNumberOfSplinePoints();
+			//for (int32 i = 0; i < NumSplinePoints - 1; ++i)
+			//{
+			//	FVector StartPos, StartTangent, EndPos, EndTangent;
+			//	Spline->GetLocalLocationAndTangentAtSplinePoint(i, StartPos, StartTangent);
+			//	Spline->GetLocalLocationAndTangentAtSplinePoint(i + 1, EndPos, EndTangent);
+
+			//	USplineMeshComponent* SplineMeshComp = NewObject<USplineMeshComponent>(this);
+			//	SplineMeshComp->RegisterComponentWithWorld(GetWorld());
+			//	SplineMeshComp->SetMobility(EComponentMobility::Movable);
+			//	SplineMeshComp->SetStaticMesh(SplineMesh);
+			//	SplineMeshComp->SetMaterial(0, PathMaterial);
+			//	SplineMeshComp->SetStartAndEnd(StartPos, StartTangent, EndPos, EndTangent);
+			//	SplineMeshComp->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
+			//	SplineMeshComp->SetStartScale(FVector2D(SplineMeshTickness, SplineMeshTickness));
+			//	SplineMeshComp->SetEndScale(FVector2D(SplineMeshTickness, SplineMeshTickness));
+			//	SplineMeshComp->SetForwardAxis(ESplineMeshAxis::Z);
+			//	SplineMeshComponents.Add(SplineMeshComp);
+			//}
 		}
 
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXImpact, CachedDestination, FRotator::ZeroRotator, FVector(1.f, 1.f, 1.f), true, true, ENCPoolMethod::None, true);
 	}
-
+	else
+	{
+		return;
+	}
 	FollowTime = 0.f;
 
 }
 
 void AGOPlayerCharacter::OnBaseSkill()
 {
-	//SkillCastComponent->OnStartCast(
-	//	CharacterSkillSet->GetSkill(ECharacterSkills::BaseSkill)
-	//);	
 	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::BaseSkill));
@@ -463,9 +404,6 @@ void AGOPlayerCharacter::OnBaseSkill()
 
 void AGOPlayerCharacter::OnSkillQ()
 {
-	//SkillCastComponent->OnStartCast(
-	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill01)
-	// );
 	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill01));
@@ -473,9 +411,6 @@ void AGOPlayerCharacter::OnSkillQ()
 
 void AGOPlayerCharacter::OnSkillW()
 {
-	//SkillCastComponent->OnStartCast(
-	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill02)
-	// );
 	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill02));
@@ -484,9 +419,6 @@ void AGOPlayerCharacter::OnSkillW()
 
 void AGOPlayerCharacter::OnSkillE()
 {
-	//SkillCastComponent->OnStartCast(
-	// CharacterSkillSet->GetSkill(ECharacterSkills::Skill03)
-	// );
 	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::Skill03));
@@ -494,30 +426,21 @@ void AGOPlayerCharacter::OnSkillE()
 
 void AGOPlayerCharacter::OnSkillR()
 {
-	//SkillCastComponent->OnStartCast(
-	// CharacterSkillSet->GetSkill(ECharacterSkills::UltimateSkill)
-	// );
 	if (bIsDead == true || bIsStunned == true) return;
 	SkillCastComponent->OnStartCast(
 		FHeroSkillKey(CharacterData.HeroType, ECharacterSkills::UltimateSkill));
 }
 
-// Flash Spell : 마우스 커서가 있는 쪽으로 짧은 순간이동이 가능합니다.
 void AGOPlayerCharacter::OnSpellD()
 {
-	//SpellCastComponent->OnStartCast(
-	//	FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell01));
 	if (bIsDead == true || bIsStunned == true) return;
 	UGOCharacterMovementComponent* GOMovement = Cast<UGOCharacterMovementComponent>(GetCharacterMovement());
 	if (GOMovement)
 	{
 		GOMovement->SetFlashSpellCommand();
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("Common Spell D is triggered. FLASH "));
 }
 
-// Heal Spell
 void AGOPlayerCharacter::OnSpellF()
 {
 	if (bIsDead == true || bIsStunned == true) return;
@@ -532,8 +455,6 @@ void AGOPlayerCharacter::OnSpellF()
 		{
 			Stat->ServerHealHp(0.f);
 		}
-		
-		UE_LOG(LogTemp, Log, TEXT("Common Spell F is triggered. HEAL : Up to 20 percent of HP recovers. "));
 	};
 }
 
@@ -541,8 +462,6 @@ void AGOPlayerCharacter::OnSpellF()
 void AGOPlayerCharacter::OnSpellG()
 {
 	if (bIsDead == true || bIsStunned == true) return;
-	/*SpellCastComponent->OnStartCast(
-		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03));*/
 	if (SpellCastComponent->OnStartCast(
 		FHeroSpellKey(CharacterData.HeroType, ECharacterSpells::Spell03)) == true)
 	{
@@ -552,8 +471,6 @@ void AGOPlayerCharacter::OnSpellG()
 			GOMovement->SetGhostSpellCommand();
 		}
 	}
-
-	UE_LOG(LogTemp, Log, TEXT("Common Spell G is triggered. GHOST :  "));
 }
 
 void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
@@ -584,29 +501,6 @@ void AGOPlayerCharacter::OnShowMaxBasicAttackRange()
 	BasicAttackRangeDecal->SetVisibility(bIsDecalVisible);
 }
 
-void AGOPlayerCharacter::UpdateSkillBar()
-{
-	//auto Skills = CharacterSkillSet->GetSkills();
-	//UGOSkillSetBarWidget* SkillSetBar = Cast<UGOSkillSetBarWidget>(GetSkillBarWidget());
-	//if (!SkillSetBar || !CharacterSkillSet || Skills.Num() == 0)
-	//{
-	//	return;
-	//}
-
-	//// SkillSlots 배열의 크기를 스킬 개수에 맞게 조정
-	//for (int32 i = 0; i < SkillSetBar->SkillSlots.Num() && i < Skills.Num(); ++i)
-	//{
-	//	if (Skills[i].GOSkillData && SkillSetBar->SkillSlots[i])
-	//	{
-	//		UTexture2D* SkillIcon = CharacterSkillSet->GetSkills()[i].GOSkillData->SkillIcon;
-	//		if (SkillIcon)
-	//		{
-	//			SkillSetBar->SkillSlots[i]->SetBrushFromTexture(SkillIcon, true);
-	//		}
-	//	}
-	//}
-}
-
 void AGOPlayerCharacter::SelfMove()
 {
 	if (bIsDead == true || bIsStunned == true) return;
@@ -620,15 +514,15 @@ void AGOPlayerCharacter::SelfMove()
 	{
 		bSelfMove = false;
 
-		for (USplineMeshComponent* SplineMeshComp : SplineMeshComponents)
-		{
-			if (SplineMeshComp)
-			{
-				SplineMeshComp->DestroyComponent();
-			}
-		}
+		//for (USplineMeshComponent* SplineMeshComp : SplineMeshComponents)
+		//{
+		//	if (SplineMeshComp)
+		//	{
+		//		SplineMeshComp->DestroyComponent();
+		//	}
+		//}
 
-		SplineMeshComponents.Empty();
+		//SplineMeshComponents.Empty();
 	}
 }
 
@@ -658,123 +552,8 @@ void AGOPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(AGOPlayerCharacter, bCanAttack);
 	DOREPLIFETIME(AGOPlayerCharacter, NetRotation);
-
-	DOREPLIFETIME(AGOPlayerCharacter, ActionStateBitMask);
-
-	DOREPLIFETIME(AGOPlayerCharacter, BlownRecoveryTimer);
-	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTime);
-	DOREPLIFETIME(AGOPlayerCharacter, InvincibleTimer);
-	DOREPLIFETIME(AGOPlayerCharacter, ImpactTimer);
 }
 
-void AGOPlayerCharacter::Attack()
-{
-	// ProcessComboCommand();
-
-	if (bCanAttack)// 상태 체크
-	{
-		// 클라이언트에게 애니메이션 재생, 타이머 재생을 맡깁니다.
-		if (!HasAuthority())
-		{
-			bCanAttack = false;
-			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-
-			GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime, false);
-			//FTimerHandle Handle;
-			//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
-			//	{
-			//		bCanAttack = true;
-			//		// GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-			//	}
-			//), AttackTime, false, -1.0f);
-			UE_LOG(LogTemp, Log, TEXT("요기1: Attack() ")); // 클라는 요기1, 요기2 // 서버는 요기2, 요기3
-
-			PlayAttackAnimation(); //요기
-
-		}
-
-		// 서버에게 서버시간과 함께 명령을 보냅니다.
-		ServerRPCAttack(GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
-	}
-}
-
-// 원래 강의에서 몽타주 실행하는 코드
-void AGOPlayerCharacter::PlayAttackAnimation()
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(ComboActionMontage);
-}
-
-// 애니메이션이 재생되면 애니메이션의 노티파이가 !
-void AGOPlayerCharacter::AttackHitCheck()
-{
-	// 소유권을 가진 클라이언트가 공격 판정을 진행합니다.  
-	if (IsLocallyControlled())
-	{
-		GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-		FHitResult OutHitResult;
-		FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
-
-		// TODO 스킬 스탯을 가져와야 하는데? 어떻게? 가져오지?
-
-		const float DamageRange = Stat->GetTotalStat().DamageRange;
-		const float DamageRadius = Stat->GetTotalStat().DamageRadius;
-		const float DamageDamage = Stat->GetTotalStat().BaseDamage;
-		const float DamageSpeed = Stat->GetTotalStat().DamageSpeed;
-
-		const FVector Forward = GetActorForwardVector();
-		const FVector Start = GetActorLocation() + Forward * GetCapsuleComponent()->GetScaledCapsuleRadius();
-		const FVector End = Start + GetActorForwardVector() * DamageRange;
-
-		bool HitDetected = GetWorld()->SweepSingleByChannel(OutHitResult, Start, End, FQuat::Identity, CCHANNEL_GOACTION, FCollisionShape::MakeSphere(DamageRadius), Params);
-
-		// 공격한 시간
-		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-
-		// 클라이언트에서 진행 (판정에 대한 검증을 받아야 하므로 패킷 전송 필요)
-		if (!HasAuthority())
-		{
-			if (HitDetected)
-			{
-				ServerRPCNotifyHit(OutHitResult, HitCheckTime);
-
-				UE_LOG(LogTemp, Warning, TEXT("before HitCameraShakeClass"));
-
-				if (HitCameraShakeClass)
-				{
-					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-					UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
-				}
-			}
-			else
-			{
-				ServerRPCNotifyMiss(Start, End, Forward, HitCheckTime);
-			}
-		}
-		// 서버에서 진행 (패킷 전송 필요없이 바로 처리)
-		else
-		{
-			FColor DebugColor = HitDetected ? FColor::Green : FColor::Red;
-			DrawDebugAttackRange(DebugColor, Start, End, Forward);
-
-			if (HitDetected)
-			{
-				AttackHitConfirm(OutHitResult.GetActor());
-				// AttackHitConfirm(OutHitResult.GetActor());
-
-				if (HitCameraShakeClass)
-				{
-					GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-					UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
-				}
-			}
-
-		}
-	}
-}
-
-// 새로 만든: 스킬시스템용 
 void AGOPlayerCharacter::SkillAttackHitCheck()
 {
 	TObjectPtr<UGOSkillBase> CurrentSkill = GetSkillCastComponent()->GetCurrentSkill();
@@ -785,27 +564,15 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 	// 소유권을 가진 클라이언트가 공격 판정을 진행합니다.  
 	if (IsLocallyControlled())
 	{
-		//PlayEffectParticleAnimByKey(Key);
-
-		GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
 		if (GameSubsystem)
 		{
-			// Get the key for the skill object
 			Key = GameSubsystem->GetKeyBySkillObject(CurrentSkill);
-
-			//// 스킬 이펙트 효과
-			//PlayEffectParticleAnimByKey(Key);///*
-			//MulticastRPCActivateSkill(Key); ///*
 
 			ServerRPCActivateSkillWithParticles(Key);
 		}
 
-		// TODO : nullptr 오류 체크: casting time 과 관련 있음
-
-		//TObjectPtr<UGOSkillBase> CurrentSkill = GetSkillCastComponent()->GetCurrentSkill();
 		bool HitDetected = CurrentSkill->GetHitDetected();
 		ESkillAffectType SkillAffectType = CurrentSkill->GetSkillAffectType();
-		UE_LOG(LogTemp, Warning, TEXT("CurrentSkill Hit: %s"), *CurrentSkill->GetName());
 
 		FGOOutHitCollisionStructure& OutHitCollisionStructure = CurrentSkill->GetOutHitCollisionStructure();
 		FGOOutHitCollisionStructure SkillHitCollisionStructure = OutHitCollisionStructure; // 추가
@@ -829,16 +596,12 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 		case ESkillAffectType::Heal:
 			SkillAffectAmount = CurrentSkill->GetTotalSkillStat().DamageMultiplier * Stat->GetTotalStat().BaseHeal;
 			break;
-			// Buff, Debuff 등의 경우 추가
 		default:
 			break;
 		}
 
-
-
 		// 공격한 시간
 		float HitCheckTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE case ESkillCollisionType::OverlapMulti:"));
 
 		// 공격
 
@@ -849,78 +612,42 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 
 			if (HitDetected)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[HIT!!] BEFORE 222 case ESkillCollisionType::OverlapMulti:"));
-
 				AActor* HitActor = nullptr;
 				switch (CurrentSkillCollisionType)
 				{
 				case ESkillCollisionType::LineTraceSingle:
 					HitActor = OutHitCollisionStructure.OutHitResult.GetActor();
 					if (IsValid(HitActor)) {
-						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
 						ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
 					}
 					break;
 
 				case ESkillCollisionType::LineTraceMulti:
-
-					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType, Key);
-
 					for (const FHitResult& HitResult : OutHitCollisionStructure.OutHitResults) {
 						HitActor = HitResult.GetActor();
 						if (IsValid(HitActor)) {
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
+							ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType, Key);
 						}
 					}
 					break;
 
 				case ESkillCollisionType::SweepSingle:
-					UE_LOG(LogTemp, Warning, TEXT("Hit: 3333 sweep single"));
-
 					HitActor = OutHitCollisionStructure.OutHitResult.GetActor();
-
-					UE_LOG(LogTemp, Warning, TEXT("Hit: 4444 sweep single"));
-
 					if (HitActor != nullptr) {
-						UE_LOG(LogTemp, Warning, TEXT("Hit: 5555 sweep single"));
 						ServerRPCNotifySkillHitTest(OutHitResult, SkillAffectAmount, SkillAffectType, Key);
-						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepSingle AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
 					}
 					break;
 
 				case ESkillCollisionType::SweepMulti:
-
 					ServerRPCNotifySkillHitResults(OutHitResults, SkillAffectAmount, SkillAffectType, Key);
-
-					for (const FHitResult& HitResult : OutHitCollisionStructure.OutHitResults) {
-						HitActor = HitResult.GetActor();
-						if (IsValid(HitActor)) {
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
-						}
-					}
 					break;
-
 				case ESkillCollisionType::OverlapMulti:
-					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] case ESkillCollisionType::OverlapMulti:"));
-
 					ServerRPCNotifySkillHitOverlapResult(OutOverlaps, SkillAffectAmount, SkillAffectType, Key);
-
-					for (const FOverlapResult& OverlapResult : OutHitCollisionStructure.OutOverlaps) {
-						HitActor = OverlapResult.GetActor();
-						if (IsValid(HitActor)) {
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), SkillAffectAmount);
-						}
-					}
 					break;
 
 				default:
-					UE_LOG(LogTemp, Warning, TEXT("[HIT!!] Unknown collision type!!!"));
 					break;
 				}
-				//if (HitCameraShakeClass)
-				//{
-				//	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass);
-				//}
 			}
 			else
 			{
@@ -931,12 +658,9 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass, CurrentSkill->GetTotalSkillData().CameraShakeIntensity);
 			}
 		}
-		// 서버에서 진행 (패킷 전송 필요없이 바로 처리)
 		else
 		{
 			FColor DebugColor = HitDetected ? FColor::Green : FColor::Red;
-			/// DrawDebugAttackRange(DebugColor, Start, End, Forward);
-
 			if (HitDetected)
 			{
 				AActor* HitActor = nullptr;
@@ -946,7 +670,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
 					if (IsValid(HitActor)) {
 						SkillHitConfirm(HitActor, SkillAffectAmount, SkillAffectType);
-						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceSingle AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillAffectAmount);
 					}
 					break;
 
@@ -955,7 +678,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = HitResult.GetActor();
 						if (IsValid(HitActor)) {
 							SkillHitConfirm(HitActor, SkillAffectAmount, SkillAffectType);
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] LineTraceMulti AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillAffectAmount);
 						}
 					}
 					break;
@@ -964,8 +686,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 					HitActor = SkillHitCollisionStructure.OutHitResult.GetActor();
 					if (HitActor != nullptr) {
 						SkillHitConfirm(OutHitResult.GetActor(), SkillAffectAmount, SkillAffectType);
-						UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepSingle AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillAffectAmount);
-
 					}
 					break;
 
@@ -974,7 +694,6 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = HitResult.GetActor();
 						if (IsValid(HitActor)) {
 							SkillHitConfirm(HitActor, SkillAffectAmount, SkillAffectType);
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] SweepMulti AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillAffectAmount);
 						}
 					}
 					break;
@@ -984,50 +703,30 @@ void AGOPlayerCharacter::SkillAttackHitCheck()
 						HitActor = OverlapResult.GetActor();
 						if (IsValid(HitActor)) {
 							SkillHitConfirm(HitActor, SkillAffectAmount, SkillAffectType);
-							UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %d"), *HitActor->GetName(), SkillAffectAmount);
 						}
 					}
 					break;
 
 				default:
-					UE_LOG(LogTemp, Warning, TEXT("Unknown collision type!!!"));
 					break;
 				}
 			}
 			if (HitCameraShakeClass)
 			{
 				GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(HitCameraShakeClass, CurrentSkill->GetTotalSkillData().CameraShakeIntensity);
-				UE_LOG(LogTemp, Warning, TEXT("HitCameraShakeClass"));
 			}
 		}
 
 		// 초기화
-		OutHitCollisionStructure.OutHitResult = FHitResult();
-		OutHitCollisionStructure.OutHitResults.Empty();
-		OutHitCollisionStructure.OutOverlaps.Empty();
+		//OutHitCollisionStructure.OutHitResult = FHitResult();
+		//OutHitCollisionStructure.OutHitResults.Empty();
+		//OutHitCollisionStructure.OutOverlaps.Empty();
+		OutHitCollisionStructure.Clear();
 	}
 }
 
-void AGOPlayerCharacter::AttackHitConfirm(AActor* HitActor)
-{
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-
-	if (HasAuthority())
-	{
-		const float BaseDamage = Stat->GetTotalStat().BaseDamage;
-		FDamageEvent DamageEvent;
-		HitActor->TakeDamage(100, DamageEvent, GetController(), this); //?
-	}
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
-
-}
-
-// 새로 만든: 스킬시스템용 !!!
 void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmount, ESkillAffectType SkillAffectType)
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-	UE_LOG(LogTemp, Warning, TEXT("ServerRPCNotifySkillHit_Implementation !!! AttackSkillHitConfirm SkillAffectAmount: %f"), SkillAffectAmount);
-
 	if (HasAuthority())
 	{
 		FDamageEvent DamageEvent;
@@ -1057,53 +756,19 @@ void AGOPlayerCharacter::SkillHitConfirm(AActor* HitActor, float SkillAffectAmou
 				TargetCharacter->Stat->ServerHealHp(SkillAffectAmount);
 			}
 			MulticastSpawnHealEffect(TargetCharacter);
-
-			UE_LOG(LogTemp, Warning, TEXT("AGOPlayerCharacter::HandleHealSkill: %f"), SkillAffectAmount);
 			break;
-
-		case ESkillAffectType::Buff:
-			// Buff 처리 로직
-			break;
-
-		case ESkillAffectType::Debuff:
-			// Debuff 처리 로직
-			break;
-
 		default:
 			break;
 		}
 	}
-
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
 }
 
-void AGOPlayerCharacter::DrawDebugAttackRange(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward)
-{
-#if ENABLE_DRAW_DEBUG
-	const float DamageRange = Stat->GetTotalStat().DamageRange;
-	const float DamageRadius = Stat->GetTotalStat().DamageRadius;
-	FVector CapsuleOrigin = TraceStart + (TraceEnd - TraceStart) * 0.5f;
-	float CapsuleHalfHeight = DamageRange * 0.5f;
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, DamageRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.0f);
-#endif
-}
-
-void AGOPlayerCharacter::ClientRPCPlayAnimation_Implementation(AGOPlayerCharacter* CharacterToPlay)
-{
-	if (CharacterToPlay)
-	{
-		CharacterToPlay->PlayAttackAnimation();
-	}
-}
-
-// 새로 만든: 스킬시스템용 
 void AGOPlayerCharacter::ClientRPCPlaySkillAnimation_Implementation(AGOPlayerCharacter* CharacterToPlay, UGOSkillBase* CurrentSkill)
 {
 	if (CharacterToPlay)
 	{
 		if (CurrentSkill == nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[ClientRPCPlaySkillAnimation_Implementation] CurrentSkill is null."));
 			return;
 		}
 
@@ -1120,63 +785,19 @@ void AGOPlayerCharacter::ClientRPCActivateSkill_Implementation(AGOPlayerCharacte
 	}
 }
 
-bool AGOPlayerCharacter::ServerRPCNotifyHit_Validate(const FHitResult& HitResult, float HitChecktime)
-{
-	// return (HitChecktime - LastAttakStartTime) > AttackTime;
-
-	// 원래 이거
-	// return (HitChecktime - LastAttakStartTime) >= AcceptMinCheckTime;
-	return true;
-}
-
-void AGOPlayerCharacter::ServerRPCNotifyHit_Implementation(const FHitResult& HitResult, float HitChecktime)
-{
-	AActor* HitActor = HitResult.GetActor();
-	if (::IsValid(HitActor))
-	{
-		const FVector HitLocation = HitResult.Location;
-		const FBox HitBox = HitActor->GetComponentsBoundingBox();
-		const FVector ActorBoxCenter = (HitBox.Min + HitBox.Max) * 0.5f;
-		if (FVector::DistSquared(HitLocation, ActorBoxCenter) <= AcceptCheckDistance * AcceptCheckDistance)
-		{
-			UGOSkillBase* ActiveSkill = SkillCastComponent->GetCurrentSkill();
-			// 대미지 전달
-			AttackHitConfirm(HitActor);
-		}
-		else
-		{
-			// 기각!
-			GO_LOG(LogGONetwork, Warning, TEXT("%s"), TEXT("HitTest Rejected!"));
-		}
-
-#if ENABLE_DRAW_DEBUG
-		// 0.5 미터 크기로 그립니다.
-		DrawDebugPoint(GetWorld(), ActorBoxCenter, 50.0f, FColor::Cyan, false, 5.0f);
-		// 맞은 위치를 표시합니다.
-		DrawDebugPoint(GetWorld(), HitLocation, 50.0f, FColor::Magenta, false, 5.0f);
-#endif
-		DrawDebugAttackRange(FColor::Green, HitResult.TraceStart, HitResult.TraceEnd, HitActor->GetActorForwardVector());
-	}
-}
-
-// 테스트용: 스킬시스템
 bool AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Validate(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	return true;
 }
 
-// 테스트용: 스킬시스템
 void AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Implementation(const FHitResult& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	AActor* HitActor = HitResult.GetActor();
 	if (::IsValid(HitActor))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitTest_Implementation !!! Hit: %s, SkillDamage: %f"), *HitActor->GetName(), DamageAmount);
-
 		const FVector HitLocation = HitResult.Location;
 		const FBox HitBox = HitActor->GetComponentsBoundingBox();
 		const FVector ActorBoxCenter = (HitBox.Min + HitBox.Max) * 0.5f;
-		UE_LOG(LogTemp, Warning, TEXT("[HIT!!] Unknown collision type!!!"));
 		SkillHitConfirm(HitActor, DamageAmount, SkillAffectType);
 		if (FVector::DistSquared(HitLocation, ActorBoxCenter) <= AcceptCheckDistance * AcceptCheckDistance)
 		{
@@ -1194,30 +815,13 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitTest_Implementation(const FHitRe
 
 }
 
-bool AGOPlayerCharacter::ServerRPCNotifyMiss_Validate(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime)
-{
-	// Beast Skill E 오류가 나서 우선 true로 설정함
-	// return (HitCheckTime - LastAttakStartTime) > AcceptMinCheckTime;
-	return true;
-}
-
-void AGOPlayerCharacter::ServerRPCNotifyMiss_Implementation(FVector_NetQuantize TraceStart, FVector_NetQuantize TraceEnd, FVector_NetQuantizeNormal TraceDir, float HitCheckTime)
-{
-	DrawDebugAttackRange(FColor::Red, TraceStart, TraceEnd, TraceDir);
-}
-
-// 새로 만든: 스킬시스템용 
 bool AGOPlayerCharacter::ServerRPCNotifySkillMiss_Validate(float HitCheckTime)
 {
-	// Beast Skill E 오류가 나서 우선 true로 설정함
-	// return (HitCheckTime - LastAttakStartTime) > AcceptMinCheckTime;
 	return true;
 }
 
-// 새로 만든: 스킬시스템용 
 void AGOPlayerCharacter::ServerRPCNotifySkillMiss_Implementation(float HitCheckTime)
 {
-	// DrawDebugAttackRange(FColor::Red, TraceStart, TraceEnd, TraceDir);
 }
 
 void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TArray<FHitResult>& HitResult, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
@@ -1228,7 +832,6 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TAr
 		HitActor = HitResult.GetActor();
 		if (IsValid(HitActor)) {
 			SkillHitConfirm(HitActor, DamageAmount, SkillAffectType);
-			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitResults_Implementation Hit: %s, %f"), *HitActor->GetName(), DamageAmount);
 		}
 	}
 }
@@ -1236,15 +839,12 @@ void AGOPlayerCharacter::ServerRPCNotifySkillHitResults_Implementation(const TAr
 void AGOPlayerCharacter::ServerRPCNotifySkillHitOverlapResult_Implementation(const TArray<FOverlapResult>& FOverlapResults, float DamageAmount, ESkillAffectType SkillAffectType, FHeroSkillKey Key)
 {
 	AActor* HitActor = nullptr;
-	UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitOverlapResult_Implementation 000 Hit: %f"), DamageAmount);
 
 	for (const FOverlapResult& OverlapResult : FOverlapResults) {
 		HitActor = OverlapResult.GetActor();
 		if (IsValid(HitActor)) {
-			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] ServerRPCNotifySkillHitOverlapResult_Implementation 111 Hit: %s"), *HitActor->GetName());
 
 			SkillHitConfirm(HitActor, DamageAmount, SkillAffectType);
-			UE_LOG(LogTemp, Warning, TEXT("[HIT!!] OverlapMulti AttackSkillHitConfirm Hit: %s, %f"), *HitActor->GetName(), DamageAmount);
 		}
 	}
 }
@@ -1263,7 +863,6 @@ void AGOPlayerCharacter::OnRep_CanAttack()
 	}
 }
 
-// reset player
 void AGOPlayerCharacter::ResetPlayer()
 {
 	bIsDead = false; // Add this line
@@ -1273,7 +872,7 @@ void AGOPlayerCharacter::ResetPlayer()
 	{
 		AnimInstance->StopAllMontages(0.0f);
 	}
-	// Stat->SetCharacterStat(1);
+
 	if (Stat)
 	{
 		Stat->ResetStat();
@@ -1310,7 +909,7 @@ void AGOPlayerCharacter::ResetAttack()
 void AGOPlayerCharacter::SetDead()
 {
 	Super::SetDead();
-	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, GOConsts::DEAD_EVENT_DELAY_TIME, false);
+	GetWorldTimerManager().SetTimer(DeadTimerHandle, this, &AGOPlayerCharacter::ResetPlayer, 5.0f, false);
 }
 
 void AGOPlayerCharacter::SetStunned()
@@ -1333,33 +932,19 @@ void AGOPlayerCharacter::Knockback(const FVector& Direction)
 	LaunchCharacter(Direction * 500.0f, true, true);
 }
 
-// TODO: Death
 // EventInstigator: Attacker
-// 
 float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage |  EventInstigator : %s , Controller : %s "), *EventInstigator->GetName(), *Controller->GetName());
 	if (bIsDead == true) return 0;
-	if (DamageCauser == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageCauser nullptr "));
-	}
-	else if (EventInstigator == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[Projectile] EventInstigator nullptr"));
-	}
-	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] TakeDamage DamageCauser : %s , EventInstigator: %s"), *DamageCauser->GetName(), *EventInstigator->GetName());
 
 	GOBattleGameMode = GOBattleGameMode == nullptr ? GetWorld()->GetAuthGameMode<AGOBattleGameMode>() : GOBattleGameMode;
 	if (GOBattleGameMode == nullptr) return 0.0f;
 
 	DamageAmount = GOBattleGameMode->CalculateDamage(EventInstigator, Controller, DamageAmount); // EventInstigator: Attacker. Controller: Victim
-	UE_LOG(LogTemp, Warning, TEXT("[Projectile] DamageAmount : %d "), DamageAmount);
 
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (Stat->GetCurrentHp() <= GOConsts::NO_HP)
+	if (Stat->GetCurrentHp() <= 0.0f)
 	{
 
 		IGOBattleInterface* GOBattleMode = GetWorld()->GetAuthGameMode<IGOBattleInterface>();
@@ -1376,161 +961,21 @@ float AGOPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	{
 		if (!bIsStunned)
 		{
-			// Set the direction for knockback
 			KnockbackDirection = -DamageCauser->GetActorForwardVector();
 			SetStunned();
-			UE_LOG(LogTemp, Warning, TEXT("[SetStunned] TakeDamage SetStunned"));
-			GetWorldTimerManager().SetTimer(StunnedTimerHandle, this, &AGOPlayerCharacter::EndStunned, GOConsts::STUN_EVENT_DELAY_TIME, false);
+			GetWorldTimerManager().SetTimer(StunnedTimerHandle, this, &AGOPlayerCharacter::EndStunned, 1.0f, false);
 		}
 	}
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("End"));
-
 	return ActualDamage;
 }
 
-
 void AGOPlayerCharacter::SetTeamColor(ETeamType TeamtoSet)
 {
-	if (!HpBarWidget->HpProgressBar) return;
-
-	FSlateColor SlateColor;
-
 	if (TeamtoSet == ETeamType::ET_BlueTeam)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]AGOPlayerCharacter::SetTeamColor blue"));
-
-		SlateColor = FSlateColor(FLinearColor::Blue);
 	}
 	else if (TeamtoSet == ETeamType::ET_RedTeam)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[SetTeamColor]AGOPlayerCharacter::SetTeamColor red"));
-
-		SlateColor = FSlateColor(FLinearColor::Red);
-	}
-
-	HpBarWidget->HpProgressBar->WidgetStyle.FillImage.TintColor = SlateColor;
-}
-
-void AGOPlayerCharacter::SimulateStateUpdateOnServer(float DeltaTime)
-{
-	if (!GetCharacterMovement()->IsFalling() && IsFlashing() || !IsFlashing())
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Flash);
-
-	if (GetCharacterMovement()->IsMovingOnGround())
-		ActionStateBitMask = ActionStateBitMask | EGOPlayerActionState::Move;
-	else
-		ActionStateBitMask = ActionStateBitMask & (~EGOPlayerActionState::Move);
-
-	if (ImpactTimer > 0)
-		ImpactTimer -= DeltaTime;
-
-	if (InvincibleTimer > 0)
-		InvincibleTimer -= DeltaTime;
-
-	if (BlownRecoveryTimer > 0 && !GetCharacterMovement()->IsFalling())
-		BlownRecoveryTimer -= DeltaTime;
-
-	//if (IsImpacted() && ImpactTimer <= 0)
-	//{
-	//	RecoveryFromImpacted();
-	//}
-
-	//if (IsBlown() && BlownRecoveryTimer <= 0)
-	//{
-	//	RecoveryFromBlown();
-	//}
-}
-
-void AGOPlayerCharacter::SetActionState(EGOPlayerActionState::State State, bool bEnabled)
-{
-	if (bEnabled)
-	{
-		ActionStateBitMask |= State;
-	}
-	else
-	{
-		ActionStateBitMask &= ~State;
-	}
-}
-
-void AGOPlayerCharacter::StartState(EGOPlayerActionState::State State, float Duration)
-{
-}
-
-void AGOPlayerCharacter::EndState(EGOPlayerActionState::State State)
-{
-}
-
-
-bool AGOPlayerCharacter::IsExecutableOrderInOrderNotExecutableState(const FGOOrder& InOrder) const
-{
-	return true;
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsImpacted() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->
-	//		GetCastableOnImpacted()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill1 && CurEquippedWeapon->GetSkill(0)->GetCastableOnBlown()) ||
-	//	(IsBlown() && InOrder.Type == FGOOrderType::Skill2 && CurEquippedWeapon->GetSkill(1)->GetCastableOnBlown());
-}
-
-bool AGOPlayerCharacter::ServerRPCAttack_Validate(float AttackStartTime)
-{
-	if (LastAttakStartTime == 0.0f)
-	{
-		return true;
-	}
-
-	// return (AttackStartTime - LastAttakStartTime) > (AttackTime - 0.4f);
-	return true;
-}
-
-// (2) 서버가 실행하는 함수입니다.
-void AGOPlayerCharacter::ServerRPCAttack_Implementation(float AttackStartTime)
-{
-	GO_LOG(LogGONetwork, Log, TEXT("%s"), TEXT("Begin"));
-
-	bCanAttack = false;
-	Stat->UseSkill(Stat->GetTotalStat().BaseDamage); // TODO: ManaCost
-
-	// 프로퍼티 OnRep 함수를 명시적 호출합니다.
-	OnRep_CanAttack();
-
-	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
-	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
-	AttackTimeDifference = FMath::Clamp(AttackTimeDifference, 0.0f, AttackTime - 0.01f);
-
-	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
-
-	//FTimerHandle Handle;
-	//GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda([&]
-	//	{
-	//		bCanAttack = true;
-	//		OnRep_CanAttack();
-	//	}
-	//), AttackTime - AttackTimeDifference, false, -1.0f);
-
-	LastAttakStartTime = AttackStartTime;
-	PlayAttackAnimation(); //요기
-
-	UE_LOG(LogTemp, Log, TEXT("요기2: ServerRPCAttack_Implementation "));
-
-	// MulticastRPCAttack();
-	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
-	{
-		if (PlayerController && GetController() != PlayerController)
-		{
-			if (!PlayerController->IsLocalController())
-			{
-				// 이 조건문을 통과한 컨트롤러는 simulated proxy로 캐릭터를 재생하는 다른 플레이어 컨트롤러입니다.
-				AGOPlayerCharacter* OtherPlayer = Cast<AGOPlayerCharacter>(PlayerController->GetPawn());
-				if (OtherPlayer)
-				{
-					OtherPlayer->ClientRPCPlayAnimation(this); //요기
-					UE_LOG(LogTemp, Log, TEXT("요기3: Attack() "));
-
-				}
-			}
-		}
 	}
 }
 
@@ -1558,7 +1003,6 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	}
 
 	AttackTimeDifference = GetWorld()->GetTimeSeconds() - AttackStartTime;
-	GO_LOG(LogGONetwork, Log, TEXT("LagTime: %f"), AttackTimeDifference);
 	AttackTimeDifference = FMath::Clamp(AttackTimeDifference, 0.0f, AttackTime - 0.01f);
 
 	GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AGOPlayerCharacter::ResetAttack, AttackTime - AttackTimeDifference, false);
@@ -1568,9 +1012,6 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	PlaySkillAnimByKey(Key);
 
 	// 스킬 이펙트 효과
-	//PlayEffectParticleAnimByKey(Key);///*
-	//MulticastRPCActivateSkill(Key); ///*
-
 	for (APlayerController* PlayerController : TActorRange<APlayerController>(GetWorld()))
 	{
 		if (PlayerController && GetController() != PlayerController)
@@ -1588,55 +1029,13 @@ void AGOPlayerCharacter::ServerRPCActivateSkill_Implementation(float AttackStart
 	}
 }
 
-
-//// (3) Multicast 는 게임과 무관한 효과를 재생하는 것이 좋습니다. 지금 코드에서는 사용하고 있지 않습니다.
-void AGOPlayerCharacter::MulticastRPCAttack_Implementation()
-{
-	if (!IsLocallyControlled())
-	{
-		// 현재 클라이언트는 이미 모션을 재생했으므로
-		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-		PlayAttackAnimation(); //요기
-	}
-}
-
 // 스킬 이펙트 효과 MulticastRPCActivateSkil
 void AGOPlayerCharacter::MulticastRPCActivateSkill_Implementation(FHeroSkillKey Key)
 {
 	if (!IsLocallyControlled())
 	{
-
-		//if (Key != nullptr)
-		//{
-		//	//  왜 NULL 이지?
-		//	UE_LOG(LogTemp, Log, TEXT("CurrentSkill 0 null"));
-		//}
-
-		//UE_LOG(LogTemp, Log, TEXT("InSkillSlot 0: %s "), *InSkillSlot->GetSkillInstance()->GetName());
-
-		// 현재 클라이언트는 이미 모션을 재생했으므로
-		// 다른 클라이언트의 프록시로써 동작하는 캐릭터에 대해서만 모션을 재생시킵니다.
-
-		// PlaySkillAnimByKey(Key); //요기
 		PlayEffectParticleAnimByKey(Key);
 	}
-}
-
-void AGOPlayerCharacter::CheckActorNetworkStatus(AActor* ActorToCheck)
-{
-	if (!ActorToCheck)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("CheckActorNetworkStatus: The actor to check is null."));
-		return;
-	}
-
-	// Checking if the actor has a network owner
-	bool bHasOwner = ActorToCheck->HasNetOwner();
-	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s has a net owner: %s"), *ActorToCheck->GetName(), bHasOwner ? TEXT("Yes") : TEXT("No"));
-
-	// Checking if the actor is a network startup actor
-	bool bIsStartupActor = ActorToCheck->IsNetStartupActor();
-	UE_LOG(LogTemp, Log, TEXT("[CheckActorNetworkStatus] Actor %s is a startup actor: %s"), *ActorToCheck->GetName(), bIsStartupActor ? TEXT("Yes") : TEXT("No"));
 }
 
 // ======== IGOPlaySkillAnimInterface ========
@@ -1644,14 +1043,12 @@ void AGOPlayerCharacter::PlaySkillAnim(UGOSkillBase* CurrentSkill)
 {
 	if (!CurrentSkill)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] CurrentSkill is null."));
 		return;
 	}
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
 		return;
 	}
 
@@ -1670,7 +1067,6 @@ void AGOPlayerCharacter::PlaySkillAnimByKey(FHeroSkillKey Key)
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[PlaySkillAnim] AnimInstance is null."));
 		return;
 	}
 
@@ -1707,22 +1103,8 @@ void AGOPlayerCharacter::ServerSetRotation_Implementation(FRotator NewRotation)
 }
 
 // ======== IGOSpellFlashInterface ========
-// no use
 void AGOPlayerCharacter::ActivateSpellFlash()
 {
-	//FVector TargetLocation =
-	//	GetActorLocation()
-	//	+ GetActorForwardVector() * FlashMovementOffset;
-
-	//FVector TargetLocation =
-	//	GetActorLocation()
-	//	+ GetActorForwardVector() * CharacterSpellSet->GetSpell(ECharacterSpells::Spell01)->GetTotalSpellStat().MoveSpeedMultiplier;
-
-	//TeleportTo(TargetLocation,
-	//	GetActorRotation(),
-	//	false, // 테스트?
-	//	true); // 장애물 체크?
-
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC) return;
 
@@ -1758,17 +1140,11 @@ void AGOPlayerCharacter::ActivateSpellFlash()
 // ======== IGOPlaySkillEffectInterface ========
 void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Particle] PlayEffectParticleAnimByKey  start "));
-
 	UGameInstance* GameInstance = UGameplayStatics::GetGameInstance(GetWorld());
 	if (!ensure(GameInstance)) return;
 	auto GOGameInstance = GameInstance->GetSubsystem<UGOGameSubsystem>();
 
 	UGOSkillBase* CurrentSkill = GOGameInstance->GetSkillByHeroSkillKey(Key);
-
-	//CurrentSkill->SpawnParticleEffect
-	//	(CurrentSkill->GetTotalSkillData().SkillCastType, 
-	//	 CurrentSkill->GetTotalSkillData().ParticleSpawnLocation);
 
 	UParticleSystem* DefenseSkillEffect = CurrentSkill->GetTotalSkillData().SkillEffect;
 	if (DefenseSkillEffect)
@@ -1777,92 +1153,20 @@ void AGOPlayerCharacter::PlayEffectParticleAnimByKey(FHeroSkillKey Key)
 		FRotator SpawnRotation = GetActorRotation();
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DefenseSkillEffect, SpawnLocation, SpawnRotation);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("[Particle] PlayEffectParticleAnimByKey  end"));
-
 }
 
 // ======== IGOApplySkillInterface ========
 void AGOPlayerCharacter::ApplySkillEffect(AActor* DamagedActor, float Damage, AActor* DamageCauser)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[Projectile] ApplySkillEffect DamagedActor : %s"), *DamagedActor->GetName());
 	if (!DamagedActor || !DamageCauser) return;  // Check for null pointers
 
 	TakeDamage(Damage, FDamageEvent(), DamageCauser->GetInstigatorController(), DamageCauser);
 }
 
-// ======== IGOPlayerInterface ========
-
-void AGOPlayerCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
-{
-	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
-	{
-		GOPlayerController->ShowMagicCircle();
-		if (DecalMaterial != nullptr)
-		{
-			GOPlayerController->ShowMagicCircle(DecalMaterial);
-		}
-	}
-}
-
-void AGOPlayerCharacter::HideMagicCircle_Implementation()
-{
-	if (AGOPlayerController* GOPlayerController = Cast<AGOPlayerController>(GetController()))
-	{
-		GOPlayerController->HideMagicCircle();
-	}
-}
-
-bool AGOPlayerCharacter::ServerActivateSkillWithMovement_Validate(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
-{
-	return true;
-}
-
-void AGOPlayerCharacter::ServerActivateSkillWithMovement_Implementation(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
-{
-	MulticastActivateSkillWithMovement(Key, Distance, Duration, Acceleration);
-}
-
-void AGOPlayerCharacter::MulticastActivateSkillWithMovement_Implementation(FHeroSkillKey Key, float Distance, float Duration, float Acceleration)
-{
-	StartMovingForward(Distance, Duration, Acceleration);
-}
-
-void AGOPlayerCharacter::StartMovingForward(float Distance, float Duration, float Acceleration)
-{
-	FVector ForwardDirection = GetActorForwardVector();
-	MovementStartLocation = GetActorLocation();
-	MovementEndLocation = MovementStartLocation + (ForwardDirection * Distance);
-	MovementDuration = Duration;
-	ElapsedTime = 0.0f;
-	InitialSpeed = 0.0f; // 초기 속도는 0
-	CurrentAcceleration = Acceleration;
-	MovementDistance = Distance; // 추가된 변수 초기화
-
-	GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, this, &AGOPlayerCharacter::MoveForwardStep, 0.01f, true);
-}
-
-void AGOPlayerCharacter::MoveForwardStep()
-{
-	ElapsedTime += 0.01f;
-	if (ElapsedTime >= MovementDuration)
-	{
-		ElapsedTime = MovementDuration;
-		GetWorld()->GetTimerManager().ClearTimer(MovementTimerHandle);
-	}
-
-	float CurrentSpeed = InitialSpeed + (CurrentAcceleration * ElapsedTime);
-	float DistanceCovered = (InitialSpeed * ElapsedTime) + (0.5f * CurrentAcceleration * FMath::Square(ElapsedTime));
-
-	FVector NewLocation = FMath::Lerp(MovementStartLocation, MovementEndLocation, DistanceCovered / MovementDistance);
-	SetActorLocation(NewLocation);
-}
 
 void AGOPlayerCharacter::HighlightActor()
 {
-	// 상대팀 플레이어라면
-
 	Super::HighlightActor();
-
 }
 
 void AGOPlayerCharacter::UnHighlightActor()
@@ -1888,15 +1192,10 @@ void AGOPlayerCharacter::ServerRPCActivateSkillWithParticles_Implementation(FHer
 
 void AGOPlayerCharacter::MulticastRPCActivateSkillWithParticles_Implementation(FHeroSkillKey Key)
 {
-	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  start "));
-
 	if (!IsLocallyControlled())
 	{
 		PlayEffectParticleAnimByKey(Key);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[Particle] MulticastRPCActivateSkillWithParticles_Implementation  end"));
-
 }
 
 void AGOPlayerCharacter::MulticastStunnedAnimation_Implementation()
@@ -1929,10 +1228,6 @@ void AGOPlayerCharacter::ClientSetGrindingStoneVisible_Implementation()
 	AGOPlayerState* PS = GetPlayerState<AGOPlayerState>();
 	if (PS && PS->bHasGrindingStone)
 	{
-		// 이게 호출되는데?!
-		UE_LOG(LogTemp, Warning, TEXT("[Grinding] ClientSetGrindingStoneVisible Character: %d"), *this->GetName());
-
-		//PS->SetGrindingStoneVisible();
 		PS->SetGrindingStone(true);
 	}
 }
@@ -1944,8 +1239,6 @@ void AGOPlayerCharacter::HandlePlayerKilled(AController* KillerController, AGOPl
 		AGOPlayerState* KillerPlayerState = Cast<AGOPlayerState>(KillerController->PlayerState);
 		if (KillerPlayerState && VictimPlayerState)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Killer: %s, Victim: %s"), *KillerPlayerState->GetName(), *VictimPlayerState->GetName());
-
 			KillerPlayerState->AddKilledEnemyPlayer(VictimPlayerState->GetPlayerId());
 			KillerPlayerState->CheckForGrindingStone();
 		}
@@ -2000,18 +1293,9 @@ void AGOPlayerCharacter::ServerAttemptStatIncrease_Implementation()
 			Stat->IncreaseBaseDamage(StatIncreaseAmount);
 			FVector CharacterLocation = GetActorLocation();
 			MulticastSpawnGrindingNiagaraEffect(CharacterLocation);
-			//Stat->SetBaseStat(FGOCharacterStat(Stat->GetBaseStat().MaxHp, Stat->GetBaseStat().MaxMana, Stat->GetBaseStat().BaseDamage + StatIncreaseAmount));
 		}
 		// Assume Stat is a struct with a BaseDamage property.
 		float NewBaseDamage = Stat->GetTotalStat().BaseDamage;
-
-		UE_LOG(LogTemp, Log, TEXT("Stat increase successful! BaseDamage increased by %f"), StatIncreaseAmount);
-
-		UE_LOG(LogTemp, Warning, TEXT("[SERVER] Stat increase successful. Player: %s, Old BaseDamage: %f, New BaseDamage: %f"), *GetName(), OldBaseDamage, NewBaseDamage);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[SERVER] Stat increase failed. Player: %s"), *GetName());
 	}
 }
 

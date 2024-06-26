@@ -109,11 +109,6 @@ public:
 	void SetGrindingStoneVisible();
 	void SetHUDWinnerText(const FString& WinnerText);
 	
-
-	// Magic Circle
-	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
-	void HideMagicCircle();
-
 	void BroadcastElim(AGOPlayerState* Attacker, AGOPlayerState* Victim);
 
 	bool CheckMatchState(); // MatchState를 확인하는 함수 선언
@@ -157,15 +152,6 @@ private:
 	TScriptInterface<IGOHighlightInterface> LastActor;
 	TScriptInterface<IGOHighlightInterface> ThisActor;
 	FHitResult CursorHit;
-
-// ======= MagicCircle =======
-	void UpdateMagicCircleLocation();
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AGOMagicCircle> MagicCircleClass;
-
-	UPROPERTY()
-	TObjectPtr<AGOMagicCircle> MagicCircle;
 
 // ======= MatchState  =======
 	UPROPERTY(ReplicatedUsing = OnRep_MatchState)
